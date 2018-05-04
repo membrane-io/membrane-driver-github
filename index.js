@@ -116,8 +116,9 @@ export const IssuePage = {
 
 export const UserCollection = {
   async one({ source, args }) {
-    const { login } = args;
-    const result = await client.users.get({ username: login });
+    const { username } = args;
+    const result = await client.users.getForUser({ username });
+    console.log('USER RESULT', result);
     return result.data;
   },
   async page({ source, args }) {

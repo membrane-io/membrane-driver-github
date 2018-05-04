@@ -1,1 +1,1 @@
-{"name":"github","version":"0.0.2","description":"Membrane driver for GitHub","main":"index.js","repository":"https://github.com/juancampa/membrane-driver-github","author":"Juan Campa <juancampa@gmail.com>","license":"MIT","private":false,"dependencies":{"@octokit/rest":"^15.2.7"}}
+{"name":"github","version":"0.0.3","description":"Membrane driver for GitHub","main":"index.js","repository":"https://github.com/juancampa/membrane-driver-github","author":"Juan Campa <juancampa@gmail.com>","license":"MIT","private":false,"dependencies":{"@octokit/rest":"^15.2.7"}}
