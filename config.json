@@ -1,0 +1,240 @@
+{
+ "imports": [],
+ "dependencies": [],
+ "environment": [
+  {
+   "name": "ACCESS_TOKEN",
+   "description": "An access token"
+  }
+ ],
+ "endpoints": [
+  {
+   "name": "webhook",
+   "type": "https",
+   "description": "A webhook endpoint to receive notifications from Github",
+   "options": {}
+  }
+ ],
+ "schema": {
+  "types": [
+   {
+    "name": "Root",
+    "fields": [
+     {
+      "name": "repos",
+      "type": "RepositoryCollection"
+     }
+    ],
+    "computedFields": [],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "RepositoryCollection",
+    "fields": [],
+    "computedFields": [
+     {
+      "name": "one",
+      "type": "Repository",
+      "params": [
+       {
+        "name": "owner",
+        "type": "String"
+       },
+       {
+        "name": "name",
+        "type": "String"
+       }
+      ]
+     },
+     {
+      "name": "page",
+      "type": "RepositoryPage",
+      "params": [
+       {
+        "name": "q",
+        "type": "String"
+       },
+       {
+        "name": "sort",
+        "type": "String"
+       },
+       {
+        "name": "order",
+        "type": "String"
+       },
+       {
+        "name": "page",
+        "type": "Int"
+       },
+       {
+        "name": "pageSize",
+        "type": "Int"
+       }
+      ]
+     }
+    ],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "RepositoryPage",
+    "fields": [],
+    "computedFields": [
+     {
+      "name": "items",
+      "type": "List",
+      "ofType": {
+       "type": "Repository"
+      }
+     },
+     {
+      "name": "next",
+      "type": "Ref",
+      "ofType": {
+       "type": "RepositoryPage"
+      }
+     }
+    ],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "Repository",
+    "fields": [
+     {
+      "name": "name",
+      "type": "String"
+     }
+    ],
+    "computedFields": [
+     {
+      "name": "self",
+      "type": "Ref",
+      "ofType": {
+       "type": "Repository"
+      }
+     },
+     {
+      "name": "issues",
+      "type": "IssueCollection"
+     }
+    ],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "IssueCollection",
+    "fields": [],
+    "computedFields": [
+     {
+      "name": "one",
+      "type": "Issue",
+      "params": [
+       {
+        "name": "number",
+        "type": "Int"
+       }
+      ]
+     },
+     {
+      "name": "page",
+      "type": "IssuePage",
+      "params": [
+       {
+        "name": "filter",
+        "type": "String"
+       },
+       {
+        "name": "state",
+        "type": "String"
+       },
+       {
+        "name": "labels",
+        "type": "String"
+       },
+       {
+        "name": "sort",
+        "type": "String"
+       },
+       {
+        "name": "direction",
+        "type": "String"
+       },
+       {
+        "name": "since",
+        "type": "String"
+       },
+       {
+        "name": "page",
+        "type": "Int"
+       },
+       {
+        "name": "pageSize",
+        "type": "Int"
+       }
+      ]
+     }
+    ],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "IssuePage",
+    "fields": [],
+    "computedFields": [
+     {
+      "name": "items",
+      "type": "List",
+      "ofType": {
+       "type": "Issue"
+      }
+     },
+     {
+      "name": "next",
+      "type": "Ref",
+      "ofType": {
+       "type": "IssuePage"
+      }
+     }
+    ],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "Issue",
+    "fields": [
+     {
+      "name": "number",
+      "type": "Int"
+     },
+     {
+      "name": "title",
+      "type": "String"
+     }
+    ],
+    "computedFields": [
+     {
+      "name": "self",
+      "type": "Ref",
+      "ofType": {
+       "type": "Issue"
+      }
+     }
+    ],
+    "actions": [],
+    "events": []
+   }
+  ]
+ },
+ "expressions": [
+  {
+   "name": "url",
+   "pattern": "^https?://github.com/.+$",
+   "description": ""
+  }
+ ],
+ "database": [],
+ "isDriver": false,
+ "name": "github"
+}
