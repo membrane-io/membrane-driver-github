@@ -114,6 +114,16 @@ export const IssuePage = {
   }
 }
 
+export const UserCollection = {
+  async one({ source, args }) {
+    const { login } = args;
+    const result = await client.users.get({ username: login });
+    return result.data;
+  },
+  async page({ source, args }) {
+  }
+}
+
 export const User = {
   self({ self, parent, source }) {
     return self || parent.ref.pop().pop().push('one', { number: source.number });
