@@ -3,7 +3,8 @@ import { parse as parseUrl } from 'url';
 const { root } = program.refs;
 
 export async function init() {
-  return root.repos.set({});
+  await root.repos.set({});
+  await root.users.set({});
 }
 
 export async function endpoint({ name, req}) {
@@ -113,3 +114,25 @@ export const IssuePage = {
   }
 }
 
+export const User = {
+  self({ self, parent, source }) {
+    return self || parent.ref.pop().pop().push('one', { number: source.number });
+  },
+  avatarUrl({ source }) { return source['avatar_url']; },
+  gravatarId({ source }) { return source['gravatar_id']; },
+  htmlUrl({ source }) { return source['html_url']; },
+  followersUrl({ source }) { return source['followers_url']; },
+  followingUrl({ source }) { return source['following_url']; },
+  gistsUrl({ source }) { return source['gists_url']; },
+  starredUrl({ source }) { return source['starred_url']; },
+  subscriptionsUrl({ source }) { return source['subscriptions_url']; },
+  organizationsUrl({ source }) { return source['organizations_url']; },
+  reposUrl({ source }) { return source['repos_url']; },
+  eventsUrl({ source }) { return source['events_url']; },
+  receivedEventsUrl({ source }) { return source['received_events_url']; },
+  siteAdmin({ source }) { return source['site_admin']; },
+  publicRepos({ source }) { return source['public_repos']; },
+  publicGists({ source }) { return source['public_gists']; },
+  createdAt({ source }) { return source['created_at']; },
+  updatedAt({ source }) { return source['updated_at']; },
+}

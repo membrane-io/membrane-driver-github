@@ -23,9 +23,196 @@
      {
       "name": "repos",
       "type": "RepositoryCollection"
+     },
+     {
+      "name": "users",
+      "type": "UserCollection"
      }
     ],
     "computedFields": [],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "UserCollection",
+    "fields": [],
+    "computedFields": [
+     {
+      "name": "one",
+      "type": "User",
+      "params": [
+       {
+        "name": "name",
+        "type": "String"
+       }
+      ]
+     },
+     {
+      "name": "page",
+      "type": "UserPage",
+      "params": [
+       {
+        "name": "since",
+        "type": "Int"
+       }
+      ]
+     }
+    ],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "UserPage",
+    "fields": [],
+    "computedFields": [
+     {
+      "name": "items",
+      "type": "List",
+      "ofType": {
+       "type": "User"
+      }
+     },
+     {
+      "name": "next",
+      "type": "Ref",
+      "ofType": {
+       "type": "UserPage"
+      }
+     }
+    ],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "User",
+    "fields": [
+     {
+      "name": "name",
+      "type": "String"
+     },
+     {
+      "name": "login",
+      "type": "String"
+     },
+     {
+      "name": "id",
+      "type": "Int"
+     },
+     {
+      "name": "url",
+      "type": "String"
+     },
+     {
+      "name": "type",
+      "type": "String"
+     },
+     {
+      "name": "name",
+      "type": "String"
+     },
+     {
+      "name": "company",
+      "type": "String"
+     },
+     {
+      "name": "blog",
+      "type": "String"
+     },
+     {
+      "name": "location",
+      "type": "String"
+     },
+     {
+      "name": "email",
+      "type": "String"
+     },
+     {
+      "name": "hireable",
+      "type": "Boolean"
+     },
+     {
+      "name": "bio",
+      "type": "String"
+     },
+     {
+      "name": "followers",
+      "type": "Int"
+     },
+     {
+      "name": "following",
+      "type": "Int"
+     }
+    ],
+    "computedFields": [
+     {
+      "name": "avatarUrl",
+      "type": "String"
+     },
+     {
+      "name": "gravatarId",
+      "type": "String"
+     },
+     {
+      "name": "htmlUrl",
+      "type": "String"
+     },
+     {
+      "name": "followersUrl",
+      "type": "String"
+     },
+     {
+      "name": "followingUrl",
+      "type": "String"
+     },
+     {
+      "name": "gistsUrl",
+      "type": "String"
+     },
+     {
+      "name": "starredUrl",
+      "type": "String"
+     },
+     {
+      "name": "subscriptionsUrl",
+      "type": "String"
+     },
+     {
+      "name": "organizationsUrl",
+      "type": "String"
+     },
+     {
+      "name": "reposUrl",
+      "type": "String"
+     },
+     {
+      "name": "eventsUrl",
+      "type": "String"
+     },
+     {
+      "name": "receivedEventsUrl",
+      "type": "String"
+     },
+     {
+      "name": "siteAdmin",
+      "type": "Boolean"
+     },
+     {
+      "name": "publicRepos",
+      "type": "Int"
+     },
+     {
+      "name": "publicGists",
+      "type": "Int"
+     },
+     {
+      "name": "createdAt",
+      "type": "String"
+     },
+     {
+      "name": "updatedAt",
+      "type": "String"
+     }
+    ],
     "actions": [],
     "events": []
    },
