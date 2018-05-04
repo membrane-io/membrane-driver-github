@@ -82,10 +82,7 @@ export const IssueCollection = {
           acc[key] = args[key];
         }
         return acc;
-      }, {});
-
-    options.owner = owner;
-    options.repo = name;
+      }, { owner, repo });
 
     const result = await client.issues.getForRepo(options);
     return result;
