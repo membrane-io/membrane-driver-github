@@ -7,6 +7,10 @@ export async function init() {
   await root.users.set({});
 }
 
+export async function update() {
+  await root.users.set({});
+}
+
 export async function endpoint({ name, req}) {
 }
 
