@@ -1,5 +1,4 @@
 {
- "imports": [],
  "dependencies": [],
  "environment": [
   {
@@ -16,6 +15,7 @@
   }
  ],
  "schema": {
+  "imports": [],
   "types": [
    {
     "name": "Root",
