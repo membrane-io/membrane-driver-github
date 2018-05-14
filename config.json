@@ -1,1 +1,523 @@
-{"imports":[],"dependencies":[],"environment":[{"name":"ACCESS_TOKEN","description":"An access token"}],"endpoints":[{"name":"webhook","type":"https","description":"A webhook endpoint to receive notifications from Github","options":{}}],"schema":{"types":[{"name":"Root","fields":[{"name":"repos","type":"RepositoryCollection"},{"name":"users","type":"UserCollection"}],"computedFields":[],"actions":[],"events":[]},{"name":"UserCollection","fields":[],"computedFields":[{"name":"one","type":"User","params":[{"name":"username","type":"String"}]},{"name":"page","type":"UserPage","params":[{"name":"since","type":"Int"}]}],"actions":[],"events":[]},{"name":"UserPage","fields":[],"computedFields":[{"name":"items","type":"List","ofType":{"type":"User"}},{"name":"next","type":"Ref","ofType":{"type":"UserPage"}}],"actions":[],"events":[]},{"name":"User","fields":[{"name":"name","type":"String"},{"name":"login","type":"String"},{"name":"id","type":"Int"},{"name":"url","type":"String"},{"name":"type","type":"String"},{"name":"name","type":"String"},{"name":"company","type":"String"},{"name":"blog","type":"String"},{"name":"location","type":"String"},{"name":"email","type":"String"},{"name":"hireable","type":"Boolean"},{"name":"bio","type":"String"},{"name":"followers","type":"Int"},{"name":"following","type":"Int"}],"computedFields":[{"name":"avatarUrl","type":"String"},{"name":"gravatarId","type":"String"},{"name":"siteAdmin","type":"Boolean"},{"name":"publicRepos","type":"Int"},{"name":"publicGists","type":"Int"},{"name":"createdAt","type":"String"},{"name":"updatedAt","type":"String"},{"name":"repos","params":[],"type":"RepositoryCollection"}],"actions":[],"events":[]},{"name":"RepositoryCollection","fields":[],"computedFields":[{"name":"one","type":"Repository","params":[{"name":"owner","type":"String"},{"name":"name","type":"String"}]},{"name":"page","type":"RepositoryPage","params":[{"name":"q","type":"String"},{"name":"sort","type":"String"},{"name":"order","type":"String"},{"name":"page","type":"Int"},{"name":"pageSize","type":"Int"}]}],"actions":[],"events":[]},{"name":"RepositoryPage","fields":[],"computedFields":[{"name":"items","type":"List","ofType":{"type":"Repository"}},{"name":"next","type":"Ref","ofType":{"type":"RepositoryPage"}}],"actions":[],"events":[]},{"name":"Repository","fields":[{"name":"name","type":"String"}],"computedFields":[{"name":"self","type":"Ref","ofType":{"type":"Repository"}},{"name":"issues","type":"IssueCollection"}],"actions":[],"events":[]},{"name":"IssueCollection","fields":[],"computedFields":[{"name":"one","type":"Issue","params":[{"name":"number","type":"Int"}]},{"name":"page","type":"IssuePage","params":[{"name":"filter","type":"String"},{"name":"state","type":"String"},{"name":"labels","type":"String"},{"name":"sort","type":"String"},{"name":"direction","type":"String"},{"name":"since","type":"String"},{"name":"page","type":"Int"},{"name":"pageSize","type":"Int"}]}],"actions":[],"events":[]},{"name":"IssuePage","fields":[],"computedFields":[{"name":"items","type":"List","ofType":{"type":"Issue"}},{"name":"next","type":"Ref","ofType":{"type":"IssuePage"}}],"actions":[],"events":[]},{"name":"Issue","fields":[{"name":"number","type":"Int"},{"name":"title","type":"String"}],"computedFields":[{"name":"self","type":"Ref","ofType":{"type":"Issue"}}],"actions":[],"events":[]}]},"expressions":[{"name":"url","pattern":"^https?://github.com/.+$","description":""}],"database":[],"isDriver":false,"name":"github","id":"675a4ef9-fb81-4ef8-b6b7-415dce1bf6fb","files":[]}
+{
+ "imports": [],
+ "dependencies": [],
+ "environment": [
+  {
+   "name": "ACCESS_TOKEN",
+   "description": "An access token"
+  }
+ ],
+ "endpoints": [
+  {
+   "name": "webhook",
+   "type": "https",
+   "description": "A webhook endpoint to receive notifications from Github",
+   "options": {}
+  }
+ ],
+ "schema": {
+  "types": [
+   {
+    "name": "Root",
+    "fields": [
+     {
+      "name": "users",
+      "type": "UserCollection"
+     }
+    ],
+    "computedFields": [],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "UserCollection",
+    "fields": [],
+    "computedFields": [
+     {
+      "name": "one",
+      "type": "User",
+      "params": [
+       {
+        "name": "name",
+        "type": "String"
+       }
+      ]
+     },
+     {
+      "name": "page",
+      "type": "UserPage",
+      "params": [
+       {
+        "name": "since",
+        "type": "Int"
+       }
+      ]
+     }
+    ],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "UserPage",
+    "fields": [
+     {
+      "name": "items",
+      "type": "List",
+      "ofType": {
+       "type": "User"
+      }
+     },
+     {
+      "name": "next",
+      "type": "Ref",
+      "ofType": {
+       "type": "UserPage"
+      }
+     }
+    ],
+    "computedFields": [],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "User",
+    "fields": [
+     {
+      "name": "bio",
+      "type": "String"
+     },
+     {
+      "name": "blog",
+      "type": "String"
+     },
+     {
+      "name": "company",
+      "type": "String"
+     },
+     {
+      "name": "email",
+      "type": "String"
+     },
+     {
+      "name": "followers",
+      "type": "Int"
+     },
+     {
+      "name": "following",
+      "type": "Int"
+     },
+     {
+      "name": "hireable",
+      "type": "Boolean"
+     },
+     {
+      "name": "id",
+      "type": "Int"
+     },
+     {
+      "name": "location",
+      "type": "String"
+     },
+     {
+      "name": "login",
+      "type": "String"
+     },
+     {
+      "name": "name",
+      "type": "String"
+     },
+     {
+      "name": "type",
+      "type": "String"
+     }
+    ],
+    "computedFields": [
+     {
+      "name": "self",
+      "type": "Ref",
+      "ofType": {
+       "type": "User"
+      }
+     },
+     {
+      "name": "avatarUrl",
+      "type": "String"
+     },
+     {
+      "name": "createdAt",
+      "type": "String"
+     },
+     {
+      "name": "gravatarId",
+      "type": "String"
+     },
+     {
+      "name": "publicGists",
+      "type": "Int"
+     },
+     {
+      "name": "publicRepos",
+      "type": "Int"
+     },
+     {
+      "name": "repos",
+      "type": "RepositoryCollection"
+     },
+     {
+      "name": "siteAdmin",
+      "type": "Boolean"
+     },
+     {
+      "name": "updatedAt",
+      "type": "String"
+     }
+    ],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "RepositoryCollection",
+    "fields": [],
+    "computedFields": [
+     {
+      "name": "one",
+      "type": "Repository",
+      "params": [
+       {
+        "name": "name",
+        "type": "String"
+       }
+      ]
+     },
+     {
+      "name": "page",
+      "type": "RepositoryPage",
+      "params": [
+       {
+        "name": "type",
+        "type": "String"
+       },
+       {
+        "name": "sort",
+        "type": "String"
+       },
+       {
+        "name": "direction",
+        "type": "String"
+       },
+       {
+        "name": "page",
+        "type": "Int"
+       },
+       {
+        "name": "pageSize",
+        "type": "Int"
+       }
+      ]
+     }
+    ],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "RepositoryPage",
+    "fields": [
+     {
+      "name": "items",
+      "type": "List",
+      "ofType": {
+       "type": "Repository"
+      }
+     },
+     {
+      "name": "next",
+      "type": "Ref",
+      "ofType": {
+       "type": "RepositoryPage"
+      }
+     }
+    ],
+    "computedFields": [],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "Repository",
+    "fields": [
+     {
+      "name": "archived",
+      "type": "String"
+     },
+     {
+      "name": "description",
+      "type": "String"
+     },
+     {
+      "name": "fork",
+      "type": "Boolean"
+     },
+     {
+      "name": "homepage",
+      "type": "String"
+     },
+     {
+      "name": "id",
+      "type": "Int"
+     },
+     {
+      "name": "language",
+      "type": "String"
+     },
+     {
+      "name": "name",
+      "type": "String"
+     },
+     {
+      "name": "private",
+      "type": "Boolean"
+     },
+     {
+      "name": "size",
+      "type": "String"
+     },
+     {
+      "name": "url",
+      "type": "String"
+     }
+    ],
+    "computedFields": [
+     {
+      "name": "self",
+      "type": "Ref",
+      "ofType": {
+       "type": "Repository"
+      }
+     },
+     {
+      "name": "allowMergeCommit",
+      "type": "String"
+     },
+     {
+      "name": "allowRebaseMerge",
+      "type": "String"
+     },
+     {
+      "name": "allowSquashMerge",
+      "type": "String"
+     },
+     {
+      "name": "createdAt",
+      "type": "String"
+     },
+     {
+      "name": "defaultBranch",
+      "type": "String"
+     },
+     {
+      "name": "forksCount",
+      "type": "Int"
+     },
+     {
+      "name": "fullName",
+      "type": "String"
+     },
+     {
+      "name": "hasDownloads",
+      "type": "Boolean"
+     },
+     {
+      "name": "hasIssues",
+      "type": "Boolean"
+     },
+     {
+      "name": "hasPages",
+      "type": "Boolean"
+     },
+     {
+      "name": "hasWiki",
+      "type": "Boolean"
+     },
+     {
+      "name": "htmlUrl",
+      "type": "String"
+     },
+     {
+      "name": "issues",
+      "type": "IssueCollection"
+     },
+     {
+      "name": "networkCount",
+      "type": "Int"
+     },
+     {
+      "name": "openIssuesCount",
+      "type": "Int"
+     },
+     {
+      "name": "pushedAt",
+      "type": "String"
+     },
+     {
+      "name": "stargazersCount",
+      "type": "Int"
+     },
+     {
+      "name": "subscribersCount",
+      "type": "Int"
+     },
+     {
+      "name": "updatedAt",
+      "type": "String"
+     },
+     {
+      "name": "watchersCount",
+      "type": "Int"
+     }
+    ],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "IssueCollection",
+    "fields": [],
+    "computedFields": [
+     {
+      "name": "one",
+      "type": "Issue",
+      "params": [
+       {
+        "name": "number",
+        "type": "Int"
+       }
+      ]
+     },
+     {
+      "name": "page",
+      "type": "IssuePage",
+      "params": [
+       {
+        "name": "filter",
+        "type": "String"
+       },
+       {
+        "name": "state",
+        "type": "String"
+       },
+       {
+        "name": "labels",
+        "type": "String"
+       },
+       {
+        "name": "sort",
+        "type": "String"
+       },
+       {
+        "name": "direction",
+        "type": "String"
+       },
+       {
+        "name": "since",
+        "type": "String"
+       },
+       {
+        "name": "page",
+        "type": "Int"
+       },
+       {
+        "name": "pageSize",
+        "type": "Int"
+       }
+      ]
+     }
+    ],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "IssuePage",
+    "fields": [
+     {
+      "name": "items",
+      "type": "List",
+      "ofType": {
+       "type": "Issue"
+      }
+     },
+     {
+      "name": "next",
+      "type": "Ref",
+      "ofType": {
+       "type": "IssuePage"
+      }
+     }
+    ],
+    "computedFields": [],
+    "actions": [],
+    "events": []
+   },
+   {
+    "name": "Issue",
+    "fields": [
+     {
+      "name": "number",
+      "type": "Int"
+     },
+     {
+      "name": "title",
+      "type": "String"
+     },
+     {
+      "name": "id",
+      "type": "Int"
+     },
+     {
+      "name": "state",
+      "type": "String"
+     },
+     {
+      "name": "body",
+      "type": "String"
+     },
+     {
+      "name": "locked",
+      "type": "Boolean"
+     },
+     {
+      "name": "comments",
+      "type": "Int"
+     }
+    ],
+    "computedFields": [
+     {
+      "name": "self",
+      "type": "Ref",
+      "ofType": {
+       "type": "Issue"
+      }
+     },
+     {
+      "name": "activeLockReason",
+      "type": "String"
+     }
+    ],
+    "actions": [],
+    "events": []
+   }
+  ]
+ },
+ "expressions": [
+  {
+   "name": "url",
+   "pattern": "^https?://github.com/.+$",
+   "description": ""
+  },
+  {
+   "name": "repo",
+   "pattern": "^[a-zA-Z0-9-]+/[a-zA-Z0-9-_]+$",
+   "description": ""
+  }
+ ],
+ "database": [],
+ "isDriver": false,
+ "name": "github"
+}

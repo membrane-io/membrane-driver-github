@@ -1,96 +1,161 @@
 import { client } from './client';
 import { parse as parseUrl } from 'url';
+import { parse as parseQuery } from 'querystring';
+import getPageLinks from '@octokit/rest/lib/plugins/pagination/get-page-links';
 const { root } = program.refs;
 
 export async function init() {
-  await root.repos.set({});
   await root.users.set({});
 }
 
-export async function update() {
-  await root.users.set({});
-}
-
-export async function endpoint({ name, req}) {
-}
-
-export async function parse({ name, value}) {
+export async function parse({ name, value }) {
   switch (name) {
     case 'url': {
       const { pathname: path } = parseUrl(value, true);
       const parts = path.split('/');
 
       if (parts.length >= 3) {
-        return root.repos.one({ owner: parts[1], name: parts[2] })
+        return root.users.one({ owner: parts[1], name: parts[2] })
       }
+    }
+    case 'repo': {
+      const parts = path.split('/');
+      return root.users.one({ name: parts[0] }).repos.one({ name: parts[1] });
     }
   }
 }
 
-export const RepositoryCollection = {
-  async one({ source, args }) {
-    const { owner, name } = args;
-    const result = await client.repos.get({ owner, repo: name });
-    return result.data;
-  },
-  async page({ source, args }) {
+// Generic way to get the next ref for this driver
+function getNextPageRef(pageRef, response) {
+  const nextLink = getPageLinks(response).next;
+  if (!nextLink) {
+    return null;
   }
+  const { page, since } = parseQuery(parseUrl(nextLink).query);
+  if (page !== undefined) {
+    return pageRef.ref.withArgs({ ...pageRef.args, page: Number.parseInt(page) });
+  } else if (since !== undefined) {
+    return pageRef.ref.withArgs({ ...pageRef.args, since: Number.parseInt(since) });
+  }
+  console.log('Failed to find next page from link:', nextLink);
+  return null;
 }
 
-export const RepositoryPage = {
-  items({ source }) {
-    return source;
-  },
+// All param names are the same as Github's but changed to camel-case, this
+// function changes back the argument names back to underscores so they can sent
+// to the API
+function toApiArgs(args, initialValue = {}) {
+  return Object.keys(args)
+    .filter((key) => args[key] !== undefined)
+    .reduce((acc, key) => {
+      // Membrane convention
+      if (key === 'pageSize') {
+        acc['per_page'] = args[key];
+      } else {
+        const apiKey = key.replace(/([A-Z])/g, ($1) => '_' + $1.toLowerCase());
+        acc[apiKey] = args[key]
+      }
+      return acc;
+    }, initialValue);
+}
 
-  next({ self }) {
-    const args = self.match(root.repos.page());
-    return root.repos.page({ args });
+export const UserCollection = {
+  async one({ args }) {
+    const { name: username } = args;
+    const result = await client.users.getForUser({ username });
+    return result.data;
+  },
+  async page({ self, args }) {
+    const apiArgs = toApiArgs(args);
+    const res = await client.users.getAll(apiArgs);
+
+    return {
+      items: res.data,
+      next: getNextPageRef(self.page(args), res),
+    };
+  },
+}
+
+export const User = {
+  self({ self, parent, source }) {
+    return self || parent.ref.pop().pop().push('one', { name: source.login });
+  },
+  avatarUrl({ source }) { return source['avatar_url']; },
+  gravatarId({ source }) { return source['gravatar_id']; },
+  siteAdmin({ source }) { return source['site_admin']; },
+  publicRepos({ source }) { return source['public_repos']; },
+  publicGists({ source }) { return source['public_gists']; },
+  createdAt({ source }) { return source['created_at']; },
+  updatedAt({ source }) { return source['updated_at']; },
+  repos() { return {}; },
+}
+
+export const RepositoryCollection = {
+  async one({ self, args }) {
+    const { name: repo } = args;
+    const { name: owner } = self.match(root.users.one());
+    const result = await client.repos.get({ owner, repo });
+    return result.data;
+  },
+  async page({ self, args }) {
+    const { name: username } = self.match(root.users.one());
+
+    const apiArgs = toApiArgs(args, { username });
+    const res = await client.repos.getForUser(apiArgs);
+
+    return {
+      items: res.data,
+      next: getNextPageRef(self.page(args), res),
+    };
   }
 }
 
 export const Repository = {
   self({ self, parent, source }) {
-    return self || parent.ref.pop().pop().push('one', { id: source.id });
+    return self || parent.ref.pop().pop().push('one', { name: source.name });
   },
-  issues({ self, source }) {
-    return {};
-  },
+  fullName({ source }) { return source['full_name']; },
+  htmlUrl({ source }) { return source['html_url']; },
+  forksCount({ source }) { return source['forks_count']; },
+  stargazersCount({ source }) { return source['stargazers_count']; },
+  watchersCount({ source }) { return source['watchers_count']; },
+  defaultBranch({ source }) { return source['default_branch']; },
+  openIssuesCount({ source }) { return source['open_issuesCount']; },
+  hasIssues({ source }) { return source['has_issues']; },
+  hasWiki({ source }) { return source['has_wiki']; },
+  hasPages({ source }) { return source['has_pages']; },
+  hasDownloads({ source }) { return source['has_downloads']; },
+  pushedAt({ source }) { return source['pushed_at']; },
+  createdAt({ source }) { return source['created_at']; },
+  updatedAt({ source }) { return source['updated_at']; },
+  allowRebaseMerge({ source }) { return source['allow_rebase_merge']; },
+  allowSquashMerge({ source }) { return source['allow_squash_merge']; },
+  allowMergeCommit({ source }) { return source['allow_merge_commit']; },
+  subscribersCount({ source }) { return source['subscribers_count']; },
+  networkCount({ source }) { return source['network_count']; },
+  issues({ self, source }) { return {}; },
 }
 
 export const IssueCollection = {
   async one({ self, source, args }) {
-    const { owner, name } = self.match(root.repos.one());
-    const result = await client.issues.get({ owner, repo: name, number: args.number });
+    const { name: owner } = self.match(root.users.one());
+    const { name: repo } = self.match(root.users.one().repos().one());
+    const { number } = args;
+    const result = await client.issues.get({ owner, repo, number });
     return result.data;
   },
 
   async page({ self, source, args }) {
-    const { owner, name } = self.match(root.repos.one());
+    const { name: owner } = self.match(root.users.one());
+    const { name: repo } = self.match(root.users.one().repos().one());
 
-    const {
-      pageSize,
-      page,
-      since,
-      direction,
-      sort,
-      labels,
-      state,
-      filter,
-    } = args;
+    const apiArgs = toApiArgs(args, { owner, repo });
+    const res = await client.issues.getForRepo(apiArgs);
 
-    const options = Object.keys(args)
-      .filter((key) => args[key] !== undefined)
-      .reduce((acc, key) => {
-        if (key === 'pageSize') {
-          acc['per_page'] = args[key];
-        } else {
-          acc[key] = args[key];
-        }
-        return acc;
-      }, { owner, repo });
-
-    const result = await client.issues.getForRepo(options);
-    return result;
+    return {
+      items: res.data,
+      next: getNextPageRef(self.page(args), res),
+    };
   }
 }
 
@@ -98,56 +163,5 @@ export const Issue = {
   self({ self, parent, source }) {
     return self || parent.ref.pop().pop().push('one', { number: source.number });
   },
-}
-
-export const IssuePage = {
-  items({ source }) {
-    return source.data;
-  },
-
-  next({ self, source }) {
-    // Get the args from the current page
-    const reposArgs = self.match(root.repos.one());
-    const issuesArgs = self.match(root.repos.one().issues().page());;
-
-    // Increment the page number
-    const { page } = issuesArgs;
-    issuesArgs.page = (page || 0) + 1;
-
-    return root.repos.one(reposArgs).issues().page(issuesArgs);
-  }
-}
-
-export const UserCollection = {
-  async one({ source, args }) {
-    const { username } = args;
-    const result = await client.users.getForUser({ username });
-    console.log('USER RESULT', result);
-    return result.data;
-  },
-  async page({ source, args }) {
-  }
-}
-
-export const User = {
-  self({ self, parent, source }) {
-    return self || parent.ref.pop().pop().push('one', { number: source.number });
-  },
-  avatarUrl({ source }) { return source['avatar_url']; },
-  gravatarId({ source }) { return source['gravatar_id']; },
-  htmlUrl({ source }) { return source['html_url']; },
-  followersUrl({ source }) { return source['followers_url']; },
-  followingUrl({ source }) { return source['following_url']; },
-  gistsUrl({ source }) { return source['gists_url']; },
-  starredUrl({ source }) { return source['starred_url']; },
-  subscriptionsUrl({ source }) { return source['subscriptions_url']; },
-  organizationsUrl({ source }) { return source['organizations_url']; },
-  reposUrl({ source }) { return source['repos_url']; },
-  eventsUrl({ source }) { return source['events_url']; },
-  receivedEventsUrl({ source }) { return source['received_events_url']; },
-  siteAdmin({ source }) { return source['site_admin']; },
-  publicRepos({ source }) { return source['public_repos']; },
-  publicGists({ source }) { return source['public_gists']; },
-  createdAt({ source }) { return source['created_at']; },
-  updatedAt({ source }) { return source['updated_at']; },
+  activeLockReason({ source }) { return source['active_lock_reason']; },
 }
