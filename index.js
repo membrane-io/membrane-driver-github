@@ -15,12 +15,12 @@ export async function parse({ name, value }) {
       const parts = path.split('/');
 
       if (parts.length >= 3) {
-        return root.users.one({ name: parts[1] }).repos.one({ name: parts[2] })
+        return root.users.one({ name: parts[1] }).repos().one({ name: parts[2] })
       }
     }
     case 'repo': {
       const parts = path.split('/');
-      return root.users.one({ name: parts[0] }).repos.one({ name: parts[1] });
+      return root.users.one({ name: parts[0] }).repos().one({ name: parts[1] });
     }
   }
 }
