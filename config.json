@@ -505,6 +505,11 @@
           {
             "name": "activeLockReason",
             "type": "String"
+          },
+          {
+            "name": "pullRequest",
+            "params": [],
+            "type": "PullRequest"
           }
         ],
         "actions": [
@@ -514,6 +519,13 @@
             "type": "Void"
           }
         ],
+        "events": []
+      },
+      {
+        "name": "PullRequest",
+        "fields": [],
+        "computedFields": [],
+        "actions": [],
         "events": []
       }
     ]
