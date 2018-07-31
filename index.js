@@ -201,7 +201,7 @@ export const Hook = {
 
 export const Config = {
   self({ self, parent, source }) {
-    return self || parent.ref.pop().pop().push('one', { id: source.hook_id });
+    return self || parent.ref.pop().pop().pop().push('one', { id: source.hook_id });
   },
   contentType({ source }) { return source['content_type']; },
 }
