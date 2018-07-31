@@ -205,4 +205,3 @@ export const Config = {
   },
   contentType({ source }) { return source['content_type']; },
 }
-
