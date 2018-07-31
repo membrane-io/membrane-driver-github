@@ -189,7 +189,7 @@ export const HooksCollection = {
   }
 }
 
-export const Issue = {
+export const Hook = {
   self({ self, parent, source }) {
     return self || parent.ref.pop().pop().push('one', { number: source.number });
   },
