@@ -375,7 +375,21 @@
           }
         ],
         "actions": [],
-        "events": []
+        "events": [
+          {
+            "name": "issueOpened",
+            "params": [
+              {
+                "name": "issue",
+                "type": "Ref",
+                "ofType": {
+                  "type": "Issue"
+                }
+              }
+            ],
+            "type": "Void"
+          }
+        ]
       },
       {
         "name": "IssueCollection",
@@ -545,6 +559,6 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "id": "1750e1f9-f81d-4534-9728-f64f58a61cae",
+  "id": "e45f90e7-38d3-42f4-9abc-a1edd4c9a533",
   "files": []
 }
