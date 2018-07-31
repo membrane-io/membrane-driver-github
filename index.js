@@ -165,3 +165,34 @@ export const Issue = {
   },
   activeLockReason({ source }) { return source['active_lock_reason']; },
 }
+
+export const HooksCollection = {
+  async one({ self, source, args }) {
+    const { name: owner } = self.match(root.users.one());
+    const { name: repo } = self.match(root.users.one().repos().one());
+    const { id } = args;
+    const result = await octokit.repos.getHook({owner, repo, id});
+    return result.data;
+  },
+
+  async page({ self, source, args }) {
+    const { name: owner } = self.match(root.users.one());
+    const { name: repo } = self.match(root.users.one().repos().one());
+
+    const apiArgs = toApiArgs(args, { owner, repo });
+    const res = await client.repos.getHooks(apiArgs);
+
+    return {
+      items: res.data,
+      next: getNextPageRef(self.page(args), res),
+    };
+  }
+}
+
+export const Issue = {
+  self({ self, parent, source }) {
+    return self || parent.ref.pop().pop().push('one', { number: source.number });
+  },
+  activeLockReason({ source }) { return source['active_lock_reason']; },
+}
+
