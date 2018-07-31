@@ -541,6 +541,131 @@
         "computedFields": [],
         "actions": [],
         "events": []
+      },
+      {
+        "name": "HooksCollection",
+        "fields": [],
+        "computedFields": [
+          {
+            "name": "one",
+            "params": [
+              {
+                "name": "id",
+                "type": "String"
+              }
+            ],
+            "type": "String"
+          },
+          {
+            "name": "page",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "HooksPage"
+            }
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "HooksPage",
+        "fields": [
+          {
+            "name": "items",
+            "type": "List",
+            "ofType": {
+              "type": "Hooks"
+            }
+          },
+          {
+            "name": "next",
+            "type": "Ref",
+            "ofType": {
+              "type": "HooksPage"
+            }
+          }
+        ],
+        "computedFields": [],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "Hooks",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String"
+          },
+          {
+            "name": "url",
+            "type": "String"
+          },
+          {
+            "name": "name",
+            "type": "String"
+          },
+          {
+            "name": "events",
+            "type": "List",
+            "ofType": {
+              "type": "Events"
+            }
+          },
+          {
+            "name": "active",
+            "type": "String"
+          }
+        ],
+        "computedFields": [
+          {
+            "name": "testUrl",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "pingUrl",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "updatedAt",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "createdAt",
+            "params": [],
+            "type": "String"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "Events",
+        "fields": [],
+        "computedFields": [],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "Config",
+        "fields": [
+          {
+            "name": "url",
+            "type": "String"
+          }
+        ],
+        "computedFields": [
+          {
+            "name": "contentType",
+            "params": [],
+            "type": "String"
+          }
+        ],
+        "actions": [],
+        "events": []
       }
     ]
   },
@@ -559,6 +684,6 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "id": "e45f90e7-38d3-42f4-9abc-a1edd4c9a533",
+  "id": "8084c7f9-1e5f-461e-af84-177b341064f4",
   "files": []
 }
