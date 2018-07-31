@@ -191,8 +191,18 @@ export const HooksCollection = {
 
 export const Hook = {
   self({ self, parent, source }) {
-    return self || parent.ref.pop().pop().push('one', { number: source.number });
+    return self || parent.ref.pop().pop().push('one', { id: source.hook_id });
   },
-  activeLockReason({ source }) { return source['active_lock_reason']; },
+  testUrl({ source }) { return source['test_url']; },
+  pingUrl({ source }) { return source['ping_url']; },
+  updatedAt({ source }) { return source['updated_at']; },
+  createdAt({ source }) { return source['created_at']; },
+}
+
+export const Config = {
+  self({ self, parent, source }) {
+    return self || parent.ref.pop().pop().push('one', { id: source.hook_id });
+  },
+  contentType({ source }) { return source['content_type']; },
 }
 
