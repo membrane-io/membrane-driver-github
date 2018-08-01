@@ -23,6 +23,10 @@
           {
             "name": "users",
             "type": "UserCollection"
+          },
+          {
+            "name": "hooks",
+            "type": "HooksCollection"
           }
         ],
         "computedFields": [],
