@@ -568,10 +568,7 @@
                 "type": "Int"
               }
             ],
-            "type": "Ref",
-            "ofType": {
-              "type": "HooksPage"
-            }
+            "type": "HooksPage"
           }
         ],
         "actions": [],
@@ -693,6 +690,6 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "id": "8084c7f9-1e5f-461e-af84-177b341064f4",
+  "id": "ac234779-8394-4ef1-8bdd-48655cc6e2c0",
   "files": []
 }
