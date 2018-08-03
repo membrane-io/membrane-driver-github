@@ -110,9 +110,38 @@ export const RepositoryCollection = {
   }
 }
 
+
 export const Repository = {
   self({ self, parent, source }) {
     return self || parent.ref.pop().pop().push('one', { name: source.name });
+  },
+ issueOpened: {
+    async subscribe({ self }) {
+      const { name: owner } = self.match(root.users.one());
+      const { name: repo } = self.match(root.users.one().repos().one());
+
+      const result = await client.repos.createHook({
+        owner,
+        repo,
+        name: "web",
+        active: true,
+        events: ["issues"],
+        config: {
+          url: `${program.endpoints.webhooks.url}`,
+          content_type: "json"
+        }
+      });
+      // Store the webhook id
+      program.state.issueOpened[id] = result.id;
+      await program.save();
+    },
+    unsubscribe({ self }) { 
+      const { name: owner } = self.match(root.users.one());
+      const { name: repo } = self.match(root.users.one().repos().one());    
+      
+      const webhookId = program.state.formWebhooks[id];
+      return client.repos.deleteHook({ owner, repo, webhookId })
+    }
   },
   fullName({ source }) { return source['full_name']; },
   htmlUrl({ source }) { return source['html_url']; },
