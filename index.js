@@ -14,7 +14,18 @@ export async function init() {
 export async function endpoint({ name, req }) {
   switch (name) {
     case 'webhooks': {
+      const issueNumber = req.body.issue.number || null;
+      const repoName = req.body.repository.name;
+      const userName = req.body.sender.name;
 
+      const event = {
+        issue: issueNumber && root.users.one({ userName }).repos.one({ repoName }).issues.opened({ number: issue })
+      }
+
+      if (siteId) {
+        await event.issue.issueOpened.dispatch(event);
+      }
+      break
     }
   }
 }
@@ -151,7 +162,7 @@ export const Repository = {
       const { name: owner } = self.match(root.users.one());
       const { name: repo } = self.match(root.users.one().repos().one());    
       
-      const webhookId = program.state.issueOpened[id];
+      const webhookId = program.state.webhookIds[id];
       return client.repos.deleteHook({ owner, repo, webhookId })
     }
   },
