@@ -13,7 +13,9 @@ export async function init() {
 
 export async function endpoint({ name, req }) {
   switch (name) {
-    case 'webhooks': {}
+    case 'webhooks': {
+
+    }
   }
 }
 
