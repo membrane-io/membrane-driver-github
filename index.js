@@ -14,17 +14,14 @@ export async function init() {
 export async function endpoint({ name, req }) {
   switch (name) {
     case 'webhooks': {
-      const issueNumber = req.body.issue.number || null;
+      const issueNumber = req.body.issue.number;
       const repoName = req.body.repository.name;
       const userName = req.body.sender.name;
 
-      const event = {
-        issue: issueNumber && root.users.one({ userName }).repos.one({ repoName }).issues.opened({ number: issue })
-      }
-
-      if (siteId) {
-        await event.issue.issueOpened.dispatch(event);
-      }
+      const repo = root.users.one({ userName }).repos.one({ repoName })
+      await repo.issueOpened.dispatch({
+        issue: repo.issues.one({ number: issueNumber })
+      });
       break
     }
   }
@@ -155,7 +152,7 @@ export const Repository = {
       });
       
       // Store the webhook id
-      program.state.issueOpened[id] = result.id;
+      program.state.webhookIds[id] = result.id;
       await program.save();
     },
     unsubscribe({ self }) { 
