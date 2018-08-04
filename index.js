@@ -152,6 +152,7 @@ export const Repository = {
       });
       
       // Store the webhook id
+      // acuerdate que esto hace tal
       const ref = root.users.one({ owner }).repos.one({ repo });
       const { id } = result;
       program.state.webhookIds[ref] = id;
