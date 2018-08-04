@@ -7,7 +7,7 @@ const { root } = program.refs;
 export async function init() {
   await root.users.set({});
 
-  program.state.issueOpened = {};
+  program.state.webhookIds = {};
   await program.save();
 }
 
