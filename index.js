@@ -136,8 +136,8 @@ export const Repository = {
   },
  issueOpened: {
     async subscribe({ self }) {
-      const { name: owner } = self.match(root.users.one());
-      const { name: repo } = self.match(root.users.one().repos().one());
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
 
       const result = await client.repos.createHook({
         owner,
@@ -152,15 +152,17 @@ export const Repository = {
       });
       
       // Store the webhook id
+      const ref = root.users.one({ owner }).repos.one({ repo });
       const { id } = result;
-      program.state.webhookIds[id] = id;
+      program.state.webhookIds[ref] = id;
       await program.save();
     },
     unsubscribe({ self }) { 
-      const { name: owner } = self.match(root.users.one());
-      const { name: repo } = self.match(root.users.one().repos().one());    
-      
-      const webhookId = program.state.webhookIds[id];
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);    
+
+      const ref = root.users.one({ owner }).repos.one({ repo });
+      const webhookId = program.state.webhookIds[ref];
       return client.repos.deleteHook({ owner, repo, webhookId })
     }
   },
