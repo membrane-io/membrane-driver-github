@@ -152,7 +152,8 @@ export const Repository = {
       });
       
       // Store the webhook id
-      program.state.webhookIds[id] = result.id;
+      const { id } = result;
+      program.state.webhookIds[id] = id;
       await program.save();
     },
     unsubscribe({ self }) { 
