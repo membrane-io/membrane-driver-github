@@ -6,7 +6,6 @@ const { root } = program.refs;
 
 export async function init() {
   await root.users.set({});
-
   program.state.issueOpened = {};
   await program.save();
 }
