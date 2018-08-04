@@ -134,6 +134,7 @@ export const Repository = {
           content_type: "json"
         }
       });
+      
       // Store the webhook id
       program.state.issueOpened[id] = result.id;
       await program.save();
