@@ -6,9 +6,15 @@ const { root } = program.refs;
 
 export async function init() {
   await root.users.set({});
-  
+
   program.state.issueOpened = {};
   await program.save();
+}
+
+export async function endpoint({ name, req }) {
+  switch (name) {
+    case 'webhooks': {}
+  }
 }
 
 export async function parse({ name, value }) {
@@ -143,7 +149,7 @@ export const Repository = {
       const { name: owner } = self.match(root.users.one());
       const { name: repo } = self.match(root.users.one().repos().one());    
       
-      const webhookId = program.state.formWebhooks[id];
+      const webhookId = program.state.issueOpened[id];
       return client.repos.deleteHook({ owner, repo, webhookId })
     }
   },
