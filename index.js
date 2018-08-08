@@ -236,7 +236,7 @@ export const Config = {
 }
 
 export async function timer({ key }) {
-  const result = await octokit.activity.getEvents()
+  const result = await client.activity.getEvents()
   console.log(result); 
   // if (key === 'issues') {}
 }
