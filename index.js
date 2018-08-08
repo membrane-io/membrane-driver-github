@@ -15,15 +15,15 @@ export async function init() {
 export async function endpoint({ name, req }) {
   switch (name) {
     case 'webhooks': {
-      const issueNumber = req.body.issue.number;
-      const repoName = req.body.repository.name;
-      const userName = req.body.sender.name;
+      // const issueNumber = req.body.issue.number;
+      // const repoName = req.body.repository.name;
+      // const userName = req.body.sender.name;
 
-      const repo = root.users.one({ userName }).repos.one({ repoName })
-      await repo.issueOpened.dispatch({
-        issue: repo.issues.one({ number: issueNumber })
-      });
-      break
+      // const repo = root.users.one({ userName }).repos.one({ repoName })
+      // await repo.issueOpened.dispatch({
+      //   issue: repo.issues.one({ number: issueNumber })
+      // });
+      // break
     }
   }
 }
@@ -137,34 +137,10 @@ export const Repository = {
   },
  issueOpened: {
     async subscribe({ self }) {
-      const { name: owner } = self.match(root.users.one);
-      const { name: repo } = self.match(root.users.one.repos.one);
-
-      const result = await client.repos.createHook({
-        owner,
-        repo,
-        name: "web",
-        active: true,
-        events: ["issues"],
-        config: {
-          url: `${program.endpoints.webhooks.url}`,
-          content_type: "json"
-        }
-      });
-      
-      // Store the webhook id
-      const ref = root.users.one({ owner }).repos.one({ repo });
-      const { id } = result;
-      program.state.webhookIds[ref] = id;
-      await program.save();
+      await program.setTimer('issues', 60);
     },
-    unsubscribe({ self }) { 
-      const { name: owner } = self.match(root.users.one);
-      const { name: repo } = self.match(root.users.one.repos.one);    
-
-      const ref = root.users.one({ owner }).repos.one({ repo });
-      const webhookId = program.state.webhookIds[ref];
-      return client.repos.deleteHook({ owner, repo, webhookId })
+    async unsubscribe({ self }) { 
+      await program.unsetTimer('issues', 60);
     }
   },
   fullName({ source }) { return source['full_name']; },
@@ -257,4 +233,10 @@ export const Config = {
     return self || parent.ref.pop().pop().pop().push('one', { id: source.hook_id });
   },
   contentType({ source }) { return source['content_type']; },
+}
+
+export async function timer({ key }) {
+  const result = await octokit.activity.getEvents()
+  console.log(result); 
+  // if (key === 'issues') {}
 }
