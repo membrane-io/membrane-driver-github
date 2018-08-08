@@ -137,10 +137,10 @@ export const Repository = {
   },
  issueOpened: {
     async subscribe({ self }) {
-      await program.setTimer('issues', 60);
+      await program.setTimer('issues', 0, 60);
     },
     async unsubscribe({ self }) { 
-      await program.unsetTimer('issues', 60);
+      await program.unsetTimer('issues', 0, 60);
     }
   },
   fullName({ source }) { return source['full_name']; },
