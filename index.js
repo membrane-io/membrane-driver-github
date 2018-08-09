@@ -137,10 +137,16 @@ export const Repository = {
   },
  issueOpened: {
     async subscribe({ self }) {
-      await program.setTimer('issues', 0, 10);
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+      
+      await program.setTimer(`${owner}/${repo}`, 0, 1);
     },
     async unsubscribe({ self }) { 
-      await program.unsetTimer('issues');
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+
+      await program.unsetTimer(`${owner}/${repo}`);
     }
   },
   fullName({ source }) { return source['full_name']; },
@@ -236,14 +242,19 @@ export const Config = {
 }
 
 export async function timer({ key }) {
-  const result = await client.activity.getEvents()
+  const [ owner, repo ] = key.split('/')
+  const result = await  client.activity.getEventsForRepo({ owner, repo });
     for (let event of result.data) {
       const { type } = event;
       if (type == "IssuesEvent") {
+        
         // dispatch Event
-        console.log(JSON.stringify(event));
+        const repoRef = root.users.one({ owner }).repos.one({ repo })
+        await repoRef.issueOpened.dispatch({
+          issue: repo.issues.one({ number: event.payload.issue.number })
+        });
       }
     }
-    const timer = console.log(Number.parseInt(result.meta['x-poll-interval']));
-    await program.setTimer('issues', timer);
+    const timer = Number.parseInt(result.meta['x-poll-interval']);
+    await program.setTimer(`${owner}/${repo}`, timer);
 }
