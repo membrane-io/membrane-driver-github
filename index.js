@@ -137,10 +137,10 @@ export const Repository = {
   },
  issueOpened: {
     async subscribe({ self }) {
-      await program.setTimer('issues', 0, 60);
+      await program.setTimer('issues', 0, 10);
     },
     async unsubscribe({ self }) { 
-      await program.unsetTimer('issues', 0, 60);
+      await program.unsetTimer('issues', 0, 10);
     }
   },
   fullName({ source }) { return source['full_name']; },
@@ -237,6 +237,8 @@ export const Config = {
 
 export async function timer({ key }) {
   const result = await client.activity.getEvents()
-  console.log(result); 
-  // if (key === 'issues') {}
+   for (let event of result.data) {
+    const { event } = event;
+    console.log(event);
+   }
 }
