@@ -240,10 +240,10 @@ export async function timer({ key }) {
     for (let event of result.data) {
       const { type } = event;
       if (type == "IssuesEvent") {
-      //  console.log(JSON.stringify(event));
+        // dispatch Event
+        console.log(JSON.stringify(event));
       }
     }
-    console.log(result.meta.'x-poll-interval')
-    //await program.unsetTimer('issues');
-    //await program.setTimer('issues', 0, 10);
+    const timer = console.log(Number.parseInt(result.meta['x-poll-interval']));
+    await program.setTimer('issues', timer);
 }
