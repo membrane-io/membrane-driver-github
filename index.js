@@ -140,7 +140,7 @@ export const Repository = {
       await program.setTimer('issues', 0, 10);
     },
     async unsubscribe({ self }) { 
-      await program.unsetTimer('issues', 0, 10);
+      await program.unsetTimer('issues');
     }
   },
   fullName({ source }) { return source['full_name']; },
@@ -237,8 +237,13 @@ export const Config = {
 
 export async function timer({ key }) {
   const result = await client.activity.getEvents()
-   for (let event of result.data) {
-    const { event } = event;
-    console.log(event);
-   }
+    for (let event of result.data) {
+      const { type } = event;
+      if (type == "IssuesEvent") {
+      //  console.log(JSON.stringify(event));
+      }
+    }
+    console.log(result.meta.'x-poll-interval')
+    //await program.unsetTimer('issues');
+    //await program.setTimer('issues', 0, 10);
 }
