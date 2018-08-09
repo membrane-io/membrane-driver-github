@@ -245,13 +245,13 @@ export async function timer({ key }) {
   const [ owner, repo ] = key.split('/')
   const result = await  client.activity.getEventsForRepo({ owner, repo });
     for (let event of result.data) {
-      const { type } = event;
-      if (type == "IssuesEvent") {
+      const { type, payload} = event;
+      if (type === 'IssuesEvent' && payload.action === 'opened') {
         
         // dispatch Event
-        const repoRef = root.users.one({ owner }).repos.one({ repo })
+        const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
         await repoRef.issueOpened.dispatch({
-          issue: repo.issues.one({ number: event.payload.issue.number })
+          issue: repoRef.issues.one({ number: payload.issue.number })
         });
       }
     }
