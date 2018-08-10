@@ -205,6 +205,36 @@ export const Issue = {
   activeLockReason({ source }) { return source['active_lock_reason']; },
 }
 
+export const PullRequestCollection = {
+  async one({ self, source, args }) {
+    const { name: owner } = self.match(root.users.one());
+    const { name: repo } = self.match(root.users.one().repos().one());
+    const { number } = args;
+    const result = await client.pullRequests.get({ owner, repo, number });
+    return result.data;
+  },
+
+  async page({ self, source, args }) {
+    const { name: owner } = self.match(root.users.one());
+    const { name: repo } = self.match(root.users.one().repos().one());
+
+    const apiArgs = toApiArgs(args, { owner, repo });
+    const res = await client.pullRequests.getAll(apiArgs);
+
+    return {
+      items: res.data,
+      next: getNextPageRef(self.page(args), res),
+    };
+  }
+}
+
+export const PullRequests = {
+  self({ self, parent, source }) {
+    // TODO: remove -> ()
+    return self || parent.ref.pop().pop().push('one', { number: source.number });
+  }
+}
+
 export const HooksCollection = {
   async one({ self, source, args }) {
     const { name: owner } = self.match(root.users.one());
