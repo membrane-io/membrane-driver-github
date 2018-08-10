@@ -610,6 +610,11 @@
             "ofType": {
               "type": "PullRequest"
             }
+          },
+          {
+            "name": "diffUrl",
+            "params": [],
+            "type": "String"
           }
         ],
         "actions": [],
@@ -853,6 +858,6 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "id": "9e8dcfb7-8696-4470-81a5-74769ed35d17",
+  "id": "2a4a406e-1bb3-458d-a6d8-93d358a7b60b",
   "files": []
 }

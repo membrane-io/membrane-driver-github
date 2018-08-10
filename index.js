@@ -235,7 +235,6 @@ export const PullRequest = {
   },
   activeLockReason({ source }) { return source['active_lock_reason']; },
   diffUrl({ source }) { return source['diff_url']; },
-
   // TODO:
   // async files ({ self, source}){
   //   const { name: owner } = self.match(root.users.one());
