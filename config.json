@@ -596,6 +596,14 @@
             "name": "files",
             "params": [],
             "type": "String"
+          },
+          {
+            "name": "self",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "PullRequest"
+            }
           }
         ],
         "actions": [],
