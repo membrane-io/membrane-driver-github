@@ -234,7 +234,8 @@ export const PullRequest = {
     // TODO: remove -> ()
     return self || parent.ref.pop().pop().push('one', { number: source.number });
   },
-  activeLockReason({ source }) { return source['active_lock_reason']; }
+  activeLockReason({ source }) { return source['active_lock_reason']; },
+  files({ self, source }) { return {}; },
   // async files ({ self, source}){
   //   const { name: owner } = self.match(root.users.one());
   //   const { name: repo } = self.match(root.users.one().repos().one());
