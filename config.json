@@ -690,6 +690,65 @@
         ],
         "actions": [],
         "events": []
+      },
+      {
+        "name": "PullRequestCollection",
+        "fields": [],
+        "computedFields": [
+          {
+            "name": "one",
+            "params": [
+              {
+                "name": "number",
+                "type": "Int"
+              }
+            ],
+            "type": "PullRequest"
+          },
+          {
+            "name": "page",
+            "params": [
+              {
+                "name": "state",
+                "type": "String"
+              },
+              {
+                "name": "head",
+                "type": "String"
+              },
+              {
+                "name": "base",
+                "type": "String"
+              },
+              {
+                "name": "sort",
+                "type": "String"
+              },
+              {
+                "name": "direction",
+                "type": "String"
+              },
+              {
+                "name": "page",
+                "type": "Int"
+              },
+              {
+                "name": "pageSize",
+                "type": "Int"
+              }
+            ],
+            "type": "PullRequestPage"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "PullRequestPage",
+        "fields": [],
+        "computedFields": [],
+        "actions": [],
+        "events": []
       }
     ]
   },
