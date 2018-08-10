@@ -173,7 +173,7 @@ export const Repository = {
   subscribersCount({ source }) { return source['subscribers_count']; },
   networkCount({ source }) { return source['network_count']; },
   issues({ self, source }) { return {}; },
-  pullRequest({ self, source }) { return {}; },
+  pullRequests({ self, source }) { return {}; },
 }
 
 export const IssueCollection = {
@@ -208,8 +208,8 @@ export const Issue = {
 
 export const PullRequestCollection = {
   async one({ self, source, args }) {
-    const { name: owner } = self.match(root.users.one());
-    const { name: repo } = self.match(root.users.one().repos().one());
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
     const { number } = args;
     const result = await client.pullRequests.get({ owner, repo, number });
     return result.data;
@@ -246,16 +246,16 @@ export const PullRequest = {
 
 export const HooksCollection = {
   async one({ self, source, args }) {
-    const { name: owner } = self.match(root.users.one());
-    const { name: repo } = self.match(root.users.one().repos().one());
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
     const { id } = args;
     const result = await octokit.repos.getHook({owner, repo, id});
     return result.data;
   },
 
   async page({ self, source, args }) {
-    const { name: owner } = self.match(root.users.one());
-    const { name: repo } = self.match(root.users.one().repos().one());
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
 
     const apiArgs = toApiArgs(args, { owner, repo });
     const res = await client.repos.getHooks(apiArgs);
@@ -269,7 +269,7 @@ export const HooksCollection = {
 
 export const Hook = {
   self({ self, parent, source }) {
-    return self || parent.ref.pop().pop().push('one', { id: source.hook_id });
+    return parent.parent.one({ id: source.hook_id })
   },
   testUrl({ source }) { return source['test_url']; },
   pingUrl({ source }) { return source['ping_url']; },
@@ -279,7 +279,7 @@ export const Hook = {
 
 export const Config = {
   self({ self, parent, source }) {
-    return self || parent.ref.pop().pop().pop().push('one', { id: source.hook_id });
+    return parent.parent.parent.one({ id: source.hook_id })
   },
   contentType({ source }) { return source['content_type']; },
 }
@@ -307,5 +307,5 @@ export async function timer({ key }) {
       }
     }
   const timer = Number.parseInt(result.meta['x-poll-interval']);
-  await program.setTimer(`${owner}/${repo}`, timer);
+  await program.setTimer(key, timer);
 }
