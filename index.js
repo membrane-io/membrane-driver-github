@@ -301,8 +301,8 @@ export async function timer({ key }) {
         // dispatch Event
         const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
         await repoRef.pullRequestOpened.dispatch({
-            issue: repo.issues.one({ number: issueNumber }),
-            pullRequest: repo.pullRequest.one({ number: issueNumber })
+            issue: repoRef.issues.one({ number: issueNumber }),
+            pullRequest: repoRef.pullRequest.one({ number: issueNumber })
         });
       }
     }
