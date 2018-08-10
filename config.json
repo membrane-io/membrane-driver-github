@@ -627,7 +627,7 @@
                 "type": "String"
               }
             ],
-            "type": "String"
+            "type": "Hooks"
           },
           {
             "name": "page",
