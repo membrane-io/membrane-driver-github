@@ -296,6 +296,14 @@ export async function timer({ key }) {
         await repoRef.issueOpened.dispatch({
           issue: repoRef.issues.one({ number: payload.issue.number })
         });
+      };
+      if (type === 'PullRequestEvent' && payload.action === 'opened') {
+        // dispatch Event
+        const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
+        await repoRef.pullRequestOpened.dispatch({
+            issue: repo.issues.one({ number: issueNumber }),
+            pullRequest: repo.pullRequest.one({ number: issueNumber })
+        });
       }
     }
   const timer = Number.parseInt(result.meta['x-poll-interval']);
