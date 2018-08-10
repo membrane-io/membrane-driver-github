@@ -392,6 +392,20 @@
               }
             ],
             "type": "Issue"
+          },
+          {
+            "name": "pullRequestOpened",
+            "params": [
+              {
+                "name": "issue",
+                "type": "Issue"
+              },
+              {
+                "name": "pullRequest",
+                "type": "PullRequest"
+              }
+            ],
+            "type": "Void"
           }
         ]
       },
@@ -694,6 +708,6 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "id": "ce6eb479-70f2-411a-9181-a641d6d50fff",
+  "id": "3aabeb6a-cb6f-430e-9076-50c0ba61bd3f",
   "files": []
 }
