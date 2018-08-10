@@ -627,7 +627,7 @@
                 "type": "String"
               }
             ],
-            "type": "Hooks"
+            "type": "Hook"
           },
           {
             "name": "page",
@@ -654,7 +654,7 @@
             "name": "items",
             "type": "List",
             "ofType": {
-              "type": "Hooks"
+              "type": "Hook"
             }
           },
           {
@@ -670,7 +670,7 @@
         "events": []
       },
       {
-        "name": "Hooks",
+        "name": "Hook",
         "fields": [
           {
             "name": "id",
@@ -722,7 +722,7 @@
             "params": [],
             "type": "Ref",
             "ofType": {
-              "type": "Hooks"
+              "type": "Hook"
             }
           }
         ],
@@ -749,6 +749,14 @@
             "name": "contentType",
             "params": [],
             "type": "String"
+          },
+          {
+            "name": "self",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "Config"
+            }
           }
         ],
         "actions": [],
