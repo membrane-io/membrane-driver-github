@@ -231,6 +231,7 @@ export const PullRequestCollection = {
 
 export const PullRequest = {
   self({ self, parent, source }) {
+    console.log("parent: " + parent)
     return parent.parent.one({ number: source.number });
   },
   activeLockReason({ source }) { return source['active_lock_reason']; },
