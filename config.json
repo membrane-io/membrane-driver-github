@@ -378,7 +378,7 @@
             "type": "Int"
           },
           {
-            "name": "pullRequest",
+            "name": "pullRequests",
             "params": [],
             "type": "PullRequestCollection"
           }
@@ -403,11 +403,17 @@
             "params": [
               {
                 "name": "issue",
-                "type": "Issue"
+                "type": "Ref",
+                "ofType": {
+                  "type": "Issue"
+                }
               },
               {
                 "name": "pullRequest",
-                "type": "PullRequest"
+                "type": "Ref",
+                "ofType": {
+                  "type": "PullRequest"
+                }
               }
             ],
             "type": "Void"
@@ -831,6 +837,6 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "id": "d198bc65-7b39-46b1-a5ef-5fdf30fcc1cb",
+  "id": "9e8dcfb7-8696-4470-81a5-74769ed35d17",
   "files": []
 }
