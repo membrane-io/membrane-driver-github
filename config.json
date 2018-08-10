@@ -376,6 +376,11 @@
           {
             "name": "watchersCount",
             "type": "Int"
+          },
+          {
+            "name": "pullRequest",
+            "params": [],
+            "type": "PullRequestCollection"
           }
         ],
         "actions": [],
@@ -818,6 +823,6 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "id": "d371991c-465d-4d4c-bf1c-5ebb4f9d52d0",
+  "id": "e0c7f099-66c2-4b1d-800f-0ab71dcfe70e",
   "files": []
 }

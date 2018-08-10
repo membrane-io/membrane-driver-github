@@ -173,6 +173,7 @@ export const Repository = {
   subscribersCount({ source }) { return source['subscribers_count']; },
   networkCount({ source }) { return source['network_count']; },
   issues({ self, source }) { return {}; },
+  pullRequest({ self, source }) { return {}; },
 }
 
 export const IssueCollection = {
