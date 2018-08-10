@@ -716,6 +716,14 @@
             "name": "createdAt",
             "params": [],
             "type": "String"
+          },
+          {
+            "name": "self",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "Hooks"
+            }
           }
         ],
         "actions": [],
