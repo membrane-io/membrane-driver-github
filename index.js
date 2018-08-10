@@ -234,7 +234,9 @@ export const PullRequest = {
     return parent.parent.parent.one({ number: source.number });
   },
   activeLockReason({ source }) { return source['active_lock_reason']; },
-  files({ self, source }) { return {}; },
+  diffUrl({ source }) { return source['diff_url']; },
+
+  // TODO:
   // async files ({ self, source}){
   //   const { name: owner } = self.match(root.users.one());
   //   const { name: repo } = self.match(root.users.one().repos().one());
@@ -298,11 +300,12 @@ export async function timer({ key }) {
         });
       };
       if (type === 'PullRequestEvent' && payload.action === 'opened') {
+
         // dispatch Event
         const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
         await repoRef.pullRequestOpened.dispatch({
-            issue: repoRef.issues.one({ number: issueNumber }),
-            pullRequest: repoRef.pullRequest.one({ number: issueNumber })
+            issue: repoRef.issues.one({ number: payload.pull_request.number }),
+            pullRequest: repoRef.pullRequests.one({ number: payload.pull_request.number })
         });
       }
     }
