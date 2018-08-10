@@ -228,11 +228,19 @@ export const PullRequestCollection = {
   }
 }
 
-export const PullRequests = {
+export const PullRequest = {
   self({ self, parent, source }) {
     // TODO: remove -> ()
     return self || parent.ref.pop().pop().push('one', { number: source.number });
-  }
+  },
+  activeLockReason({ source }) { return source['active_lock_reason']; }
+  // async files ({ self, source}){
+  //   const { name: owner } = self.match(root.users.one());
+  //   const { name: repo } = self.match(root.users.one().repos().one());
+  //   const { number } = source;
+
+  //   return client.pullRequests.getFiles({owner, repo, number})
+  // }
 }
 
 export const HooksCollection = {

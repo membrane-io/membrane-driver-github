@@ -555,8 +555,44 @@
       },
       {
         "name": "PullRequest",
-        "fields": [],
-        "computedFields": [],
+        "fields": [
+          {
+            "name": "number",
+            "type": "Int"
+          },
+          {
+            "name": "title",
+            "type": "String"
+          },
+          {
+            "name": "id",
+            "type": "Int"
+          },
+          {
+            "name": "state",
+            "type": "String"
+          },
+          {
+            "name": "body",
+            "type": "String"
+          },
+          {
+            "name": "locked",
+            "type": "Boolean"
+          }
+        ],
+        "computedFields": [
+          {
+            "name": "activeLockReason",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "files",
+            "params": [],
+            "type": "String"
+          }
+        ],
         "actions": [],
         "events": []
       },
@@ -745,7 +781,22 @@
       },
       {
         "name": "PullRequestPage",
-        "fields": [],
+        "fields": [
+          {
+            "name": "items",
+            "type": "List",
+            "ofType": {
+              "type": "PullRequest"
+            }
+          },
+          {
+            "name": "next",
+            "type": "Ref",
+            "ofType": {
+              "type": "PullRequestPage"
+            }
+          }
+        ],
         "computedFields": [],
         "actions": [],
         "events": []
