@@ -204,6 +204,9 @@ export const Issue = {
     return self || parent.ref.pop().pop().push('one', { number: source.number });
   },
   activeLockReason({ source }) { return source['active_lock_reason']; },
+  async subscribe({self, source}){
+    await client.activity.setNotificationThreadSubscription({thread_id: source.id})
+  },
 }
 
 export const PullRequestCollection = {
