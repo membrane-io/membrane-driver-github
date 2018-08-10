@@ -14,17 +14,7 @@ export async function init() {
 
 export async function endpoint({ name, req }) {
   switch (name) {
-    case 'webhooks': {
-      // const issueNumber = req.body.issue.number;
-      // const repoName = req.body.repository.name;
-      // const userName = req.body.sender.name;
-
-      // const repo = root.users.one({ userName }).repos.one({ repoName })
-      // await repo.issueOpened.dispatch({
-      //   issue: repo.issues.one({ number: issueNumber })
-      // });
-      // break
-    }
+    case 'webhooks': {}
   }
 }
 
@@ -135,12 +125,26 @@ export const Repository = {
   self({ self, parent, source }) {
     return self || parent.ref.pop().pop().push('one', { name: source.name });
   },
- issueOpened: {
+  issueOpened: {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       
-      await program.setTimer(`${owner}/${repo}`, 0, 1);
+      await program.setTimer(`${owner}/${repo}`, 0, 10);
+    },
+    async unsubscribe({ self }) { 
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+
+      await program.unsetTimer(`${owner}/${repo}`);
+    }
+  },
+  pullRequestOpened: {
+    async subscribe({ self }) {
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+      
+      await program.setTimer(`${owner}/${repo}`, 0, 10);
     },
     async unsubscribe({ self }) { 
       const { name: owner } = self.match(root.users.one);
@@ -255,6 +259,6 @@ export async function timer({ key }) {
         });
       }
     }
-    const timer = Number.parseInt(result.meta['x-poll-interval']);
-    await program.setTimer(`${owner}/${repo}`, timer);
+  const timer = Number.parseInt(result.meta['x-poll-interval']);
+  await program.setTimer(`${owner}/${repo}`, timer);
 }
