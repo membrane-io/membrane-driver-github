@@ -1,4 +1,5 @@
 import GithubApi from '@octokit/rest';
+import axios from 'axios';
 
 let { ACCESS_TOKEN } = process.env;
 if (!ACCESS_TOKEN) {
