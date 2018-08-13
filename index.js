@@ -237,7 +237,6 @@ export const PullRequest = {
     return parent.parent.parent.one({ number: source.number });
   },
   activeLockReason({ source }) { return source['active_lock_reason']; },
-  diffUrl({ source }) { return source['diff_url']; },
   diff({ source }){
     const diff = get(source['diff_url']);
   },
