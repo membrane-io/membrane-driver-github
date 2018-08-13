@@ -17,3 +17,13 @@ client.authenticate({
   type: 'token',
   token: ACCESS_TOKEN,
 })
+
+ 
+const instance = axios.create({
+   headers: {'Content-Type': 'Accept: application/vnd.github.diff'}
+});
+
+export async function get(url, params) {
+  const result = await instance.get(url, { params });
+  return result.data;
+}
