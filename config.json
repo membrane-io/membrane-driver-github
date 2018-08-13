@@ -599,11 +599,6 @@
             "type": "String"
           },
           {
-            "name": "files",
-            "params": [],
-            "type": "String"
-          },
-          {
             "name": "self",
             "params": [],
             "type": "Ref",
@@ -858,6 +853,6 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "id": "2a4a406e-1bb3-458d-a6d8-93d358a7b60b",
+  "id": "2ff248f2-fb8e-482b-ae47-ab9d869c47d6",
   "files": []
 }
