@@ -239,6 +239,7 @@ export const PullRequest = {
   activeLockReason({ source }) { return source['active_lock_reason']; },
   diff({ source }){
     const diff = get(source['diff_url']);
+    return diff;
   },
   // TODO:
   // async files ({ self, source}){
