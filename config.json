@@ -607,7 +607,7 @@
             }
           },
           {
-            "name": "diffUrl",
+            "name": "diff",
             "params": [],
             "type": "String"
           }
@@ -853,6 +853,6 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "id": "2ff248f2-fb8e-482b-ae47-ab9d869c47d6",
+  "id": "9a9a61d5-dce7-4c03-acc1-1a2990c70d63",
   "files": []
 }
