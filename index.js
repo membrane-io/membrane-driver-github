@@ -205,6 +205,7 @@ export const Issue = {
   },
   activeLockReason({ source }) { return source['active_lock_reason']; },
   async subscribe({self, source}){
+    console.log('Source: ' + source);
     await client.activity.setNotificationThreadSubscription({thread_id: source.id})
   },
 }
