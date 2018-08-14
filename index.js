@@ -219,7 +219,7 @@ export const Issue = {
       variables:{ id: nodeId }
     }
     const client = axios.create({
-      headers: {'Authorization': `token: ${process.env.ACCESS_TOKEN}`}
+      headers: {'Authorization': `token ${process.env.ACCESS_TOKEN}`}
     });
     await client.post(`https://api.github.com/graphql`, body)
   },
