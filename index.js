@@ -209,18 +209,20 @@ export const Issue = {
   async subscribe({ self }) {
     const id = await self.id.$query();
     
-    const instance = axios.create({
-      headers: { 'authorization': `token ${process.env.ACCESS_TOKEN}` }
-    });
+    return client.activity.starRepo({ owner: 'octokit', repo: 'rest.js' });
+
+    // const instance = axios.create({
+    //   headers: { 'authorization': `token ${process.env.ACCESS_TOKEN}` }
+    // });
     
 
-    try {
-      const result = await instance.put(`https://api.github.com/notifications/threads/${id}/subscription`, { ignored: false })
+    // try {
+    //   const result = await instance.put(`https://api.github.com/notifications/threads/${id}/subscription`, { ignored: false })
 
-      console.log(result);
-    } catch (e) {
-      console.log(e, e.data)
-    }
+    //   console.log(result);
+    // } catch (e) {
+    //   console.log(e, e.data)
+    // }
     // console.log('ID', id);
     // console.log('CLIENT', client);
     // await client.activity.setNotificationThreadSubscription({ id, thread_id: id, ignored: false });
