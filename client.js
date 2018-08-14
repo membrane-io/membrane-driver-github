@@ -27,7 +27,7 @@ const instance = axios.create({
   }
 });
 
-export async function get(url, params) {
+export async function getDiff(url, params) {
   const result = await instance.get(url, { params });
   return result.data;
 }
