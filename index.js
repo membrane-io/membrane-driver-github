@@ -14,7 +14,7 @@ export async function init() {
 
 export async function endpoint({ name, req }) {
   switch (name) {
-    case 'webhooks': {}
+    case 'webhooks': { }
   }
 }
 
@@ -129,10 +129,10 @@ export const Repository = {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      
+
       await program.setTimer(`${owner}/${repo}`, 0, 10);
     },
-    async unsubscribe({ self }) { 
+    async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
 
@@ -143,10 +143,10 @@ export const Repository = {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      
+
       await program.setTimer(`${owner}/${repo}`, 0, 10);
     },
-    async unsubscribe({ self }) { 
+    async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
 
@@ -204,8 +204,9 @@ export const Issue = {
     return self || parent.ref.pop().pop().push('one', { number: source.number });
   },
   activeLockReason({ source }) { return source['active_lock_reason']; },
-  async subscribe({self}){
-    const { id } = await self.$query('{ id }');
+  async subscribe({ self }) {
+    const id = await self.id.$query();
+    console.log('ID', id);
     await client.activity.setNotificationThreadSubscription({ id, thread_id: id, ignored: false });
   },
 }
@@ -238,7 +239,7 @@ export const PullRequest = {
     return parent.parent.parent.one({ number: source.number });
   },
   activeLockReason({ source }) { return source['active_lock_reason']; },
-  diff({ source }){
+  diff({ source }) {
     const diff = get(source['diff_url']);
     return diff;
   },
@@ -257,7 +258,7 @@ export const HooksCollection = {
     const { name: owner } = self.match(root.users.one);
     const { name: repo } = self.match(root.users.one.repos.one);
     const { id } = args;
-    const result = await octokit.repos.getHook({owner, repo, id});
+    const result = await octokit.repos.getHook({ owner, repo, id });
     return result.data;
   },
 
@@ -293,28 +294,28 @@ export const Config = {
 }
 
 export async function timer({ key }) {
-  const [ owner, repo ] = key.split('/')
-  const result = await  client.activity.getEventsForRepo({ owner, repo });
-    for (let event of result.data) {
-      const { type, payload} = event;
-      if (type === 'IssuesEvent' && payload.action === 'opened') {
-        
-        // dispatch Event
-        const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
-        await repoRef.issueOpened.dispatch({
-          issue: repoRef.issues.one({ number: payload.issue.number })
-        });
-      };
-      if (type === 'PullRequestEvent' && payload.action === 'opened') {
+  const [owner, repo] = key.split('/')
+  const result = await client.activity.getEventsForRepo({ owner, repo });
+  for (let event of result.data) {
+    const { type, payload } = event;
+    if (type === 'IssuesEvent' && payload.action === 'opened') {
 
-        // dispatch Event
-        const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
-        await repoRef.pullRequestOpened.dispatch({
-            issue: repoRef.issues.one({ number: payload.pull_request.number }),
-            pullRequest: repoRef.pullRequests.one({ number: payload.pull_request.number })
-        });
-      }
+      // dispatch Event
+      const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
+      await repoRef.issueOpened.dispatch({
+        issue: repoRef.issues.one({ number: payload.issue.number })
+      });
+    };
+    if (type === 'PullRequestEvent' && payload.action === 'opened') {
+
+      // dispatch Event
+      const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
+      await repoRef.pullRequestOpened.dispatch({
+        issue: repoRef.issues.one({ number: payload.pull_request.number }),
+        pullRequest: repoRef.pullRequests.one({ number: payload.pull_request.number })
+      });
     }
+  }
   const timer = Number.parseInt(result.meta['x-poll-interval']);
   await program.setTimer(key, timer);
 }
