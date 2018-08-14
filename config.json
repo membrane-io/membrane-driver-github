@@ -23,6 +23,10 @@
           {
             "name": "users",
             "type": "UserCollection"
+          },
+          {
+            "name": "hooks",
+            "type": "HooksCollection"
           }
         ],
         "computedFields": [],
@@ -372,10 +376,49 @@
           {
             "name": "watchersCount",
             "type": "Int"
+          },
+          {
+            "name": "pullRequests",
+            "params": [],
+            "type": "PullRequestCollection"
           }
         ],
         "actions": [],
-        "events": []
+        "events": [
+          {
+            "name": "issueOpened",
+            "params": [
+              {
+                "name": "issue",
+                "type": "Ref",
+                "ofType": {
+                  "type": "Issue"
+                }
+              }
+            ],
+            "type": "Issue"
+          },
+          {
+            "name": "pullRequestOpened",
+            "params": [
+              {
+                "name": "issue",
+                "type": "Ref",
+                "ofType": {
+                  "type": "Issue"
+                }
+              },
+              {
+                "name": "pullRequest",
+                "type": "Ref",
+                "ofType": {
+                  "type": "PullRequest"
+                }
+              }
+            ],
+            "type": "Void"
+          }
+        ]
       },
       {
         "name": "IssueCollection",
@@ -523,7 +566,272 @@
       },
       {
         "name": "PullRequest",
+        "fields": [
+          {
+            "name": "number",
+            "type": "Int"
+          },
+          {
+            "name": "title",
+            "type": "String"
+          },
+          {
+            "name": "id",
+            "type": "Int"
+          },
+          {
+            "name": "state",
+            "type": "String"
+          },
+          {
+            "name": "body",
+            "type": "String"
+          },
+          {
+            "name": "locked",
+            "type": "Boolean"
+          }
+        ],
+        "computedFields": [
+          {
+            "name": "activeLockReason",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "self",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "PullRequest"
+            }
+          },
+          {
+            "name": "diff",
+            "params": [],
+            "type": "String"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "HooksCollection",
         "fields": [],
+        "computedFields": [
+          {
+            "name": "one",
+            "params": [
+              {
+                "name": "id",
+                "type": "String"
+              }
+            ],
+            "type": "Hook"
+          },
+          {
+            "name": "page",
+            "params": [
+              {
+                "name": "page",
+                "type": "Int"
+              },
+              {
+                "name": "pageSize",
+                "type": "Int"
+              }
+            ],
+            "type": "HooksPage"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "HooksPage",
+        "fields": [
+          {
+            "name": "items",
+            "type": "List",
+            "ofType": {
+              "type": "Hook"
+            }
+          },
+          {
+            "name": "next",
+            "type": "Ref",
+            "ofType": {
+              "type": "HooksPage"
+            }
+          }
+        ],
+        "computedFields": [],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "Hook",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String"
+          },
+          {
+            "name": "url",
+            "type": "String"
+          },
+          {
+            "name": "name",
+            "type": "String"
+          },
+          {
+            "name": "events",
+            "type": "List",
+            "ofType": {
+              "type": "Events"
+            }
+          },
+          {
+            "name": "active",
+            "type": "String"
+          }
+        ],
+        "computedFields": [
+          {
+            "name": "testUrl",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "pingUrl",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "updatedAt",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "createdAt",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "self",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "Hook"
+            }
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "Events",
+        "fields": [],
+        "computedFields": [],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "Config",
+        "fields": [
+          {
+            "name": "url",
+            "type": "String"
+          }
+        ],
+        "computedFields": [
+          {
+            "name": "contentType",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "self",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "Config"
+            }
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "PullRequestCollection",
+        "fields": [],
+        "computedFields": [
+          {
+            "name": "one",
+            "params": [
+              {
+                "name": "number",
+                "type": "Int"
+              }
+            ],
+            "type": "PullRequest"
+          },
+          {
+            "name": "page",
+            "params": [
+              {
+                "name": "state",
+                "type": "String"
+              },
+              {
+                "name": "head",
+                "type": "String"
+              },
+              {
+                "name": "base",
+                "type": "String"
+              },
+              {
+                "name": "sort",
+                "type": "String"
+              },
+              {
+                "name": "direction",
+                "type": "String"
+              },
+              {
+                "name": "page",
+                "type": "Int"
+              },
+              {
+                "name": "pageSize",
+                "type": "Int"
+              }
+            ],
+            "type": "PullRequestPage"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "PullRequestPage",
+        "fields": [
+          {
+            "name": "items",
+            "type": "List",
+            "ofType": {
+              "type": "PullRequest"
+            }
+          },
+          {
+            "name": "next",
+            "type": "Ref",
+            "ofType": {
+              "type": "PullRequestPage"
+            }
+          }
+        ],
         "computedFields": [],
         "actions": [],
         "events": []
@@ -545,6 +853,6 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "id": "1750e1f9-f81d-4534-9728-f64f58a61cae",
+  "id": "4b8b40c1-ae5d-436a-a1ea-52566975ea63",
   "files": []
 }

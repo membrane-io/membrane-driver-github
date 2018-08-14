@@ -1,6 +1,6 @@
 {
   "name": "github",
-  "version": "0.0.8",
+  "version": "0.0.88",
   "description": "Membrane driver for GitHub",
   "main": "index.js",
   "repository": "https://github.com/juancampa/membrane-driver-github",
@@ -8,6 +8,7 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@octokit/rest": "^15.2.7"
+    "@octokit/rest": "^15.2.7",
+    "axios": "^0.18.0"
   }
 }

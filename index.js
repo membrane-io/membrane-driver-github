@@ -1,4 +1,5 @@
-import { client } from './client';
+// test version
+import { client, get } from './client';
 import { parse as parseUrl } from 'url';
 import { parse as parseQuery } from 'querystring';
 import getPageLinks from '@octokit/rest/lib/plugins/pagination/get-page-links';
@@ -6,6 +7,15 @@ const { root } = program.refs;
 
 export async function init() {
   await root.users.set({});
+
+  program.state.webhookIds = {};
+  await program.save();
+}
+
+export async function endpoint({ name, req }) {
+  switch (name) {
+    case 'webhooks': {}
+  }
 }
 
 export async function parse({ name, value }) {
@@ -110,9 +120,38 @@ export const RepositoryCollection = {
   }
 }
 
+
 export const Repository = {
   self({ self, parent, source }) {
     return self || parent.ref.pop().pop().push('one', { name: source.name });
+  },
+  issueOpened: {
+    async subscribe({ self }) {
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+      
+      await program.setTimer(`${owner}/${repo}`, 0, 10);
+    },
+    async unsubscribe({ self }) { 
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+
+      await program.unsetTimer(`${owner}/${repo}`);
+    }
+  },
+  pullRequestOpened: {
+    async subscribe({ self }) {
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+      
+      await program.setTimer(`${owner}/${repo}`, 0, 10);
+    },
+    async unsubscribe({ self }) { 
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+
+      await program.unsetTimer(`${owner}/${repo}`);
+    }
   },
   fullName({ source }) { return source['full_name']; },
   htmlUrl({ source }) { return source['html_url']; },
@@ -134,6 +173,7 @@ export const Repository = {
   subscribersCount({ source }) { return source['subscribers_count']; },
   networkCount({ source }) { return source['network_count']; },
   issues({ self, source }) { return {}; },
+  pullRequests({ self, source }) { return {}; },
 }
 
 export const IssueCollection = {
@@ -164,4 +204,117 @@ export const Issue = {
     return self || parent.ref.pop().pop().push('one', { number: source.number });
   },
   activeLockReason({ source }) { return source['active_lock_reason']; },
+  async subscribe({self}){
+    const { id } = await self.$query('{ id }');
+    await client.activity.setNotificationThreadSubscription({ thread_id: id });
+  },
+}
+
+export const PullRequestCollection = {
+  async one({ self, source, args }) {
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
+    const { number } = args;
+    const result = await client.pullRequests.get({ owner, repo, number });
+    return result.data;
+  },
+
+  async page({ self, source, args }) {
+    const { name: owner } = self.match(root.users.one());
+    const { name: repo } = self.match(root.users.one().repos().one());
+
+    const apiArgs = toApiArgs(args, { owner, repo });
+    const res = await client.pullRequests.getAll(apiArgs);
+
+    return {
+      items: res.data,
+      next: getNextPageRef(self.page(args), res),
+    };
+  }
+}
+
+export const PullRequest = {
+  self({ self, parent, source }) {
+    return parent.parent.parent.one({ number: source.number });
+  },
+  activeLockReason({ source }) { return source['active_lock_reason']; },
+  diff({ source }){
+    const diff = get(source['diff_url']);
+    return diff;
+  },
+  // TODO:
+  // async files ({ self, source}){
+  //   const { name: owner } = self.match(root.users.one());
+  //   const { name: repo } = self.match(root.users.one().repos().one());
+  //   const { number } = source;
+
+  //   return client.pullRequests.getFiles({owner, repo, number})
+  // }
+}
+
+export const HooksCollection = {
+  async one({ self, source, args }) {
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
+    const { id } = args;
+    const result = await octokit.repos.getHook({owner, repo, id});
+    return result.data;
+  },
+
+  async page({ self, source, args }) {
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
+
+    const apiArgs = toApiArgs(args, { owner, repo });
+    const res = await client.repos.getHooks(apiArgs);
+
+    return {
+      items: res.data,
+      next: getNextPageRef(self.page(args), res),
+    };
+  }
+}
+
+export const Hook = {
+  self({ self, parent, source }) {
+    return parent.parent.one({ id: source.hook_id })
+  },
+  testUrl({ source }) { return source['test_url']; },
+  pingUrl({ source }) { return source['ping_url']; },
+  updatedAt({ source }) { return source['updated_at']; },
+  createdAt({ source }) { return source['created_at']; },
+}
+
+export const Config = {
+  self({ self, parent, source }) {
+    return parent.parent.parent.one({ id: source.hook_id })
+  },
+  contentType({ source }) { return source['content_type']; },
+}
+
+export async function timer({ key }) {
+  const [ owner, repo ] = key.split('/')
+  const result = await  client.activity.getEventsForRepo({ owner, repo });
+    for (let event of result.data) {
+      const { type, payload} = event;
+      if (type === 'IssuesEvent' && payload.action === 'opened') {
+        
+        // dispatch Event
+        const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
+        await repoRef.issueOpened.dispatch({
+          issue: repoRef.issues.one({ number: payload.issue.number })
+        });
+      };
+      if (type === 'PullRequestEvent' && payload.action === 'opened') {
+
+        // dispatch Event
+        const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
+        await repoRef.pullRequestOpened.dispatch({
+            issue: repoRef.issues.one({ number: payload.pull_request.number }),
+            pullRequest: repoRef.pullRequests.one({ number: payload.pull_request.number })
+        });
+      }
+    }
+  const timer = Number.parseInt(result.meta['x-poll-interval']);
+  await program.setTimer(key, timer);
 }
