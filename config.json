@@ -553,6 +553,11 @@
             "name": "pullRequest",
             "params": [],
             "type": "PullRequest"
+          },
+          {
+            "name": "nodeId",
+            "params": [],
+            "type": "String"
           }
         ],
         "actions": [
@@ -608,6 +613,11 @@
           },
           {
             "name": "diff",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "nodeId",
             "params": [],
             "type": "String"
           }

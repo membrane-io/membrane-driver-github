@@ -184,7 +184,6 @@ export const IssueCollection = {
     const { name: repo } = self.match(root.users.one().repos().one());
     const { number } = args;
     const result = await client.issues.get({ owner, repo, number });
-    console.log('ISSUE', result);
     return result.data;
   },
 
@@ -208,26 +207,23 @@ export const Issue = {
   },
   activeLockReason({ source }) { return source['active_lock_reason']; },
   async subscribe({ self }) {
-    const id = await self.id.$query();
+    const nodeId = await self.nodeId.$query();
     
-    //return client.activity.unstarRepo({ owner: 'octokit', repo: 'rest.js' });
-
-    // const instance = axios.create({
-    //   headers: { 'authorization': `token ${process.env.ACCESS_TOKEN}` }
-    // });
-    
-
-    // try {
-    //   const result = await instance.put(`https://api.github.com/notifications/threads/${id}/subscription`, { ignored: false })
-
-    //   console.log(result);
-    // } catch (e) {
-    //   console.log(e, e.data)
-    // }
-    console.log('ID', id);
-    // console.log('CLIENT', client);
-    return client.activity.setNotificationThreadSubscription({ thread_id: id, ignored: false });
+    // NOTE: The REST endpoint doesn't seem to work (403) for subscriptions so we use GraphQL here instead.
+    const body = {
+      query:`mutation($id: ID!) {
+          updateSubscription(input: { subscribableId:$id, state:SUBSCRIBED }) {
+            subscribable { viewerSubscription }
+          }
+        }`,
+      variables:{ id: nodeId }
+    }
+    const client = axios.create({
+      headers: {'Authorization': `token: ${process.env.ACCESS_TOKEN}`}
+    });
+    await client.post(`https://api.github.com/graphql`, body)
   },
+  nodeId({ source }) { return source.node_id; },
 }
 
 export const PullRequestCollection = {
@@ -270,6 +266,7 @@ export const PullRequest = {
 
   //   return client.pullRequests.getFiles({owner, repo, number})
   // }
+  nodeId({ source }) { return source.node_id; },
 }
 
 export const HooksCollection = {
