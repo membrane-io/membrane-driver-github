@@ -206,9 +206,17 @@ export const Issue = {
   activeLockReason({ source }) { return source['active_lock_reason']; },
   async subscribe({ self }) {
     const id = await self.id.$query();
-    console.log('ID', id);
-    console.log('CLIENT', client);
-    await client.activity.setNotificationThreadSubscription({ id, thread_id: id, ignored: false });
+    
+    const instance = axios.create({
+      headers: { 'authorization': `token ${process.env.ACCESS_TOKEN}` }
+    });
+    
+    const result = await instance.put(`https://api.github.com/notifications/threads/${id}/subscription`, { ignored: false })
+
+    console.log(result);
+    // console.log('ID', id);
+    // console.log('CLIENT', client);
+    // await client.activity.setNotificationThreadSubscription({ id, thread_id: id, ignored: false });
   },
 }
 

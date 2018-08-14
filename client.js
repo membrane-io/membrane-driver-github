@@ -28,3 +28,4 @@ export async function get(url, params) {
   const result = await instance.get(url, { params });
   return result.data;
 }
+
