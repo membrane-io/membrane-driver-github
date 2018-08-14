@@ -2,8 +2,10 @@
 import { client, get } from './client';
 import { parse as parseUrl } from 'url';
 import { parse as parseQuery } from 'querystring';
+import axios from 'axios';
 import getPageLinks from '@octokit/rest/lib/plugins/pagination/get-page-links';
 const { root } = program.refs;
+
 
 export async function init() {
   await root.users.set({});
