@@ -7,15 +7,6 @@ const { root } = program.refs;
 
 export async function init() {
   await root.users.set({});
-
-  program.state.webhookIds = {};
-  await program.save();
-}
-
-export async function endpoint({ name, req }) {
-  switch (name) {
-    case 'webhooks': {}
-  }
 }
 
 export async function parse({ name, value }) {
