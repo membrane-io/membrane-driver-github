@@ -123,21 +123,10 @@ export const Repository = {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      
-      const { state } = program;
-      state.events.push(`${owner}/${repo}/issues`);
-      await program.save();
+      await ensureTimerIsSet(`${owner}/${repo}`);
     },
     async unsubscribe({ self }) { 
-      const { name: owner } = self.match(root.users.one);
-      const { name: repo } = self.match(root.users.one.repos.one);
 
-      const { state } = program;
-      const index = state.events.indexOf(`${owner}/${repo}/issues`);
-      if (index >= 0) {
-        state.events.splice(index, 1);
-      }
-      await program.save();
     }
   },
   pullRequestOpened: {
@@ -150,15 +139,7 @@ export const Repository = {
       await program.save();
     },
     async unsubscribe({ self }) { 
-      const { name: owner } = self.match(root.users.one);
-      const { name: repo } = self.match(root.users.one.repos.one);
 
-      const { state } = program;
-      const index = state.events.indexOf(`${owner}/${repo}/pullRequests`);
-      if (index >= 0) {
-        state.events.splice(index, 1);
-      }
-      await program.save();
     }
   },
   fullName({ source }) { return source['full_name']; },
