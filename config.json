@@ -474,14 +474,7 @@
           }
         ],
         "actions": [],
-        "events": [
-          {
-            "name": "opened",
-            "params": [],
-            "type": "Void",
-            "description": "Triggered when a new issue is opened"
-          }
-        ]
+        "events": []
       },
       {
         "name": "IssuePage",
@@ -853,6 +846,6 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "id": "4b8b40c1-ae5d-436a-a1ea-52566975ea63",
+  "id": "2be45046-91c9-4469-90b7-16ecb7b58925",
   "files": []
 }
