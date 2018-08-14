@@ -184,6 +184,7 @@ export const IssueCollection = {
     const { name: repo } = self.match(root.users.one().repos().one());
     const { number } = args;
     const result = await client.issues.get({ owner, repo, number });
+    console.log('ISSUE', result);
     return result.data;
   },
 
