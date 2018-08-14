@@ -213,9 +213,14 @@ export const Issue = {
       headers: { 'authorization': `token ${process.env.ACCESS_TOKEN}` }
     });
     
-    const result = await instance.put(`https://api.github.com/notifications/threads/${id}/subscription`, { ignored: false })
 
-    console.log(result);
+    try {
+      const result = await instance.put(`https://api.github.com/notifications/threads/${id}/subscription`, { ignored: false })
+
+      console.log(result);
+    } catch (e) {
+      console.log(e, e.data)
+    }
     // console.log('ID', id);
     // console.log('CLIENT', client);
     // await client.activity.setNotificationThreadSubscription({ id, thread_id: id, ignored: false });
