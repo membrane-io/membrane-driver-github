@@ -305,10 +305,10 @@ export async function timer({ key }) {
   await program.setTimer(key, timer);
 }
 
-async function ensureTimerIsSet(key){
+async function ensureTimerIsSet(repo, event){
   const { state } = program;
   if(state.events.length === 0){
-    state.events.push(key);
+    state.events['facebook/react'].push('issueOpened')
     await program.setTimer(key, 0, 10);
     await program.save();
   }
