@@ -325,3 +325,12 @@ export async function timer({ key }) {
   const timer = Number.parseInt(result.meta['x-poll-interval']);
   await program.setTimer(key, timer);
 }
+
+async function ensureTimerIsSet(key){
+  const { state } = program;
+  if(state.events.length === 0){
+    state.events.push(key);
+    await program.setTimer(key, 0, 10);
+    await program.save();
+  }
+};
