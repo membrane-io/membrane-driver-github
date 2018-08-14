@@ -545,7 +545,10 @@
           {
             "name": "pullRequest",
             "params": [],
-            "type": "PullRequest"
+            "type": "Ref",
+            "ofType": {
+              "type": "PullRequest"
+            }
           }
         ],
         "actions": [
