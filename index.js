@@ -209,7 +209,7 @@ export const Issue = {
   async subscribe({ self }) {
     const id = await self.id.$query();
     
-    return client.activity.unstarRepo({ owner: 'octokit', repo: 'rest.js' });
+    //return client.activity.unstarRepo({ owner: 'octokit', repo: 'rest.js' });
 
     // const instance = axios.create({
     //   headers: { 'authorization': `token ${process.env.ACCESS_TOKEN}` }
@@ -225,7 +225,7 @@ export const Issue = {
     // }
     // console.log('ID', id);
     // console.log('CLIENT', client);
-    // await client.activity.setNotificationThreadSubscription({ id, thread_id: id, ignored: false });
+    return client.activity.setNotificationThreadSubscription({ thread_id: id, ignored: false });
   },
 }
 
