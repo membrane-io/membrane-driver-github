@@ -207,6 +207,7 @@ export const Issue = {
   async subscribe({ self }) {
     const id = await self.id.$query();
     console.log('ID', id);
+    console.log('CLIENT', client);
     await client.activity.setNotificationThreadSubscription({ id, thread_id: id, ignored: false });
   },
 }
