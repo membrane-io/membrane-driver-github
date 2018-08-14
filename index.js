@@ -209,7 +209,7 @@ export const Issue = {
   async subscribe({ self }) {
     const id = await self.id.$query();
     
-    return client.activity.starRepo({ owner: 'octokit', repo: 'rest.js' });
+    return client.activity.unstarRepo({ owner: 'octokit', repo: 'rest.js' });
 
     // const instance = axios.create({
     //   headers: { 'authorization': `token ${process.env.ACCESS_TOKEN}` }
