@@ -1,5 +1,5 @@
 // test version
-import { client, get } from './client';
+import { client, getDiff } from './client';
 import { parse as parseUrl } from 'url';
 import { parse as parseQuery } from 'querystring';
 import getPageLinks from '@octokit/rest/lib/plugins/pagination/get-page-links';
@@ -239,8 +239,7 @@ export const PullRequest = {
   },
   activeLockReason({ source }) { return source['active_lock_reason']; },
   diff({ source }){
-    const diff = get(source['diff_url']);
-    return diff;
+    return getDiff(source['diff_url']);
   },
   // TODO:
   // async files ({ self, source}){
