@@ -223,7 +223,7 @@ export const Issue = {
     // } catch (e) {
     //   console.log(e, e.data)
     // }
-    // console.log('ID', id);
+    console.log('ID', id);
     // console.log('CLIENT', client);
     return client.activity.setNotificationThreadSubscription({ thread_id: id, ignored: false });
   },
