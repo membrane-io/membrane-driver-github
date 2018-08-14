@@ -474,14 +474,7 @@
           }
         ],
         "actions": [],
-        "events": [
-          {
-            "name": "opened",
-            "params": [],
-            "type": "Void",
-            "description": "Triggered when a new issue is opened"
-          }
-        ]
+        "events": []
       },
       {
         "name": "IssuePage",
