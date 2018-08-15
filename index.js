@@ -134,6 +134,7 @@ export const Repository = {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
+
       await ensureTimerIsSet(`${owner}/${repo}`, 'pullRequestOpened');
     },
     async unsubscribe({ self }) { 
@@ -308,8 +309,16 @@ export async function timer({ key }) {
 async function ensureTimerIsSet(repo, event){
   const { state } = program;
   if(state.events.length === 0){
-    state.events['facebook/react'].push('issueOpened')
+    const repository = state.events.repo = state.events.repo || [];
+    repository.push(event);
     await program.setTimer(key, 0, 10);
     await program.save();
+  }
+};
+
+async function unsetTimerRepo(repo){
+  const { state } = program;
+  if(state.events.repo.length === 0){
+    await program.unsetTimer(repo);
   }
 };
