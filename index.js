@@ -138,7 +138,6 @@ export const Repository = {
         state.events.splice(index, 1);
       }
       await program.save();
-      //await program.unsetTimer(`${owner}/${repo}`);
     }
   },
   pullRequestOpened: {
