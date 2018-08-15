@@ -153,7 +153,12 @@ export const Repository = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
 
-      await program.unsetTimer(`${owner}/${repo}`);
+      const { state } = program;
+      const index = state.events.indexOf(`${owner}/${repo}/pullRequests`);
+      if (index >= 0) {
+        state.events.splice(index, 1);
+      }
+      await program.save();
     }
   },
   fullName({ source }) { return source['full_name']; },
