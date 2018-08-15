@@ -125,10 +125,8 @@ export const Repository = {
       const { name: repo } = self.match(root.users.one.repos.one);
       
       const { state } = program;
-      state.events.push(`${owner}/${repo}`);
+      state.events.push(`${owner}/${repo}/issues`);
       await program.save();
-
-      await program.setTimer(`${owner}/${repo}`, 0, 10);
     },
     async unsubscribe({ self }) { 
       const { name: owner } = self.match(root.users.one);
@@ -142,7 +140,9 @@ export const Repository = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       
-      await program.setTimer(`${owner}/${repo}`, 0, 10);
+      const { state } = program;
+      state.events.push(`${owner}/${repo}/pullRequests`);
+      await program.save();
     },
     async unsubscribe({ self }) { 
       const { name: owner } = self.match(root.users.one);
