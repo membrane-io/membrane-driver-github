@@ -8,7 +8,7 @@ const { root } = program.refs;
 export async function init() {
   await root.users.set({});
 
-  program.state.events = [];
+  program.state.events = {};
   await program.save();
 }
 
@@ -127,7 +127,17 @@ export const Repository = {
       await ensureTimerIsSet(`${owner}/${repo}`, 'issueOpened');
     },
     async unsubscribe({ self }) { 
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+      
+      // remove event of repo from program.state.events
+      const { state } = program;
 
+      const index = state.events[`${owner}/${repo}`].indexOf('issueOpened');
+      state.observedLabels.splice(index, 1);
+      
+      await program.save();
+      await unsetTimerRepo(`${owner}/${repo}`);
     }
   },
   pullRequestOpened: {
@@ -137,8 +147,18 @@ export const Repository = {
 
       await ensureTimerIsSet(`${owner}/${repo}`, 'pullRequestOpened');
     },
-    async unsubscribe({ self }) { 
+    async unsubscribe({ self }) {
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+      
+      // remove event of repo from program.state.events
+      const { state } = program;
 
+      const index = state.events[`${owner}/${repo}`].indexOf('pullRequestOpened');
+      state.observedLabels.splice(index, 1);
+      
+      await program.save();
+      await unsetTimerRepo(`${owner}/${repo}`);
     }
   },
   fullName({ source }) { return source['full_name']; },
@@ -309,16 +329,16 @@ export async function timer({ key }) {
 async function ensureTimerIsSet(repo, event){
   const { state } = program;
   if(state.events.length === 0){
-    const repository = state.events.repo = state.events.repo || [];
+    const repository =  state.events[repo] =  state.events[repo] || [];
     repository.push(event);
-    await program.setTimer(key, 0, 10);
+    await program.setTimer(repo, 0, 10);
     await program.save();
   }
 };
 
 async function unsetTimerRepo(repo){
   const { state } = program;
-  if(state.events.repo.length === 0){
+  if(state.events[repo].length === 0){
     await program.unsetTimer(repo);
   }
 };
