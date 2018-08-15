@@ -7,6 +7,9 @@ const { root } = program.refs;
 
 export async function init() {
   await root.users.set({});
+
+  program.state.events = [];
+  await program.save();
 }
 
 export async function parse({ name, value }) {
@@ -121,6 +124,10 @@ export const Repository = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       
+      const { state } = program;
+      state.events.push(`${owner}/${repo}`);
+      await program.save();
+
       await program.setTimer(`${owner}/${repo}`, 0, 10);
     },
     async unsubscribe({ self }) { 
