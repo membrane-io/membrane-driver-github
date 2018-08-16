@@ -130,7 +130,7 @@ export const Repository = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       
-      await unsetTimerRepo(`${owner}/${repo}`);
+      await unsetTimerRepo(`${owner}/${repo}`, 'issueOpened');
     }
   },
   pullRequestOpened: {
@@ -144,14 +144,7 @@ export const Repository = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       
-      // remove event of repo from program.state.events
-      const { state } = program;
-
-      const index = state.events[`${owner}/${repo}`].indexOf('pullRequestOpened');
-      state.observedLabels.splice(index, 1);
-      
-      await program.save();
-      await unsetTimerRepo(`${owner}/${repo}`);
+      await unsetTimerRepo(`${owner}/${repo}`, 'pullRequestOpened');
     }
   },
   fullName({ source }) { return source['full_name']; },
@@ -334,9 +327,13 @@ async function ensureTimerIsSet(repo, event){
   } 
 };
 
-async function unsetTimerRepo(repo){
-  const { state } = program;
-  if(state.events[repo].length === 0){
+async function unsetTimerRepo(repo, event){
+  const repository = program.state.events[repo];
+  const index = state.events[repo].indexOf(event);
+  state.observedLabels.splice(index, 1);
+  await program.save();
+
+  if(repository.length === 0){
     await program.unsetTimer(repo);
   }
 };
