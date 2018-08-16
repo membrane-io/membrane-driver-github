@@ -292,7 +292,7 @@ export async function timer({ key }) {
   
   // TODO: result?
   const result = await client.activity.getEventsForRepo({ owner, repo });
-  
+  console.log(JSON.stringify(result));
   for (let event of state.events[repo]) {
     switch (event) {
       case 'issueOpened': {
