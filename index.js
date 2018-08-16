@@ -138,7 +138,7 @@ export const Repository = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
 
-      await ensureTimerIsSet(owner, repo,'pullRequestOpened');
+      await ensureTimerIsSet(owner, repo, 'pullRequestOpened');
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
@@ -313,7 +313,7 @@ export async function timer({ key }) {
 }
 
 async function ensureTimerIsSet(owner, repo, event){
-  const ownerRepo = `${owner}/${repo}`
+/*   const ownerRepo = `${owner}/${repo}`
 
   const { state } = program;
   
@@ -328,11 +328,11 @@ async function ensureTimerIsSet(owner, repo, event){
     repository.push(event);
     await program.save();
   }
-  console.log("REPOSITORY SUB" + JSON.stringify(state)); 
+  console.log("REPOSITORY SUB" + JSON.stringify(state));  */
 };
 
 async function unsetTimerRepo(owner, repo, event){
-  const ownerRepo = `${owner}/${repo}`
+/*   const ownerRepo = `${owner}/${repo}`
 
   const repository = program.state.events[ownerRepo];
 
@@ -346,5 +346,5 @@ async function unsetTimerRepo(owner, repo, event){
     await program.unsetTimer(ownerRepo);
     console.log("unsetTimer - OK")
   }
-   console.log("REPOSITORY UNSUB" + JSON.stringify(state)); 
+   console.log("REPOSITORY UNSUB" + JSON.stringify(state));  */
 };
