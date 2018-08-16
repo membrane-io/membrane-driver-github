@@ -326,7 +326,7 @@ async function ensureTimerIsSet(repo, event){
     repository.push(event);
     await program.save();
   }
-  console.log("REPOSITORY" + JSON.stringify(state)); 
+  console.log("REPOSITORY SUB" + JSON.stringify(state)); 
 };
 
 async function unsetTimerRepo(repo, event){
@@ -342,4 +342,5 @@ async function unsetTimerRepo(repo, event){
     await program.unsetTimer(repo);
     console.log("unsetTimer - OK")
   }
+   console.log("REPOSITORY UNSUB" + JSON.stringify(state)); 
 };
