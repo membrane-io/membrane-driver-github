@@ -7,6 +7,9 @@ const { root } = program.refs;
 
 export async function init() {
   await root.users.set({});
+
+  program.state.repos = {};
+  await program.save();
 }
 
 export async function parse({ name, value }) {
@@ -120,28 +123,28 @@ export const Repository = {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      
-      await program.setTimer(`${owner}/${repo}`, 0, 10);
+
+      await ensureTimerIsSet(`${owner}/${repo}`, 'issueOpened');
     },
     async unsubscribe({ self }) { 
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-
-      await program.unsetTimer(`${owner}/${repo}`);
+      
+      await unsetTimerRepo(`${owner}/${repo}`, 'issueOpened');
     }
   },
   pullRequestOpened: {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      
-      await program.setTimer(`${owner}/${repo}`, 0, 10);
+
+      await ensureTimerIsSet(`${owner}/${repo}`, 'pullRequestOpened');
     },
-    async unsubscribe({ self }) { 
+    async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-
-      await program.unsetTimer(`${owner}/${repo}`);
+      
+      await unsetTimerRepo(`${owner}/${repo}`, 'pullRequestOpened');
     }
   },
   fullName({ source }) { return source['full_name']; },
@@ -283,28 +286,74 @@ export const Config = {
 }
 
 export async function timer({ key }) {
+  const { state } = program;
   const [ owner, repo ] = key.split('/')
-  const result = await  client.activity.getEventsForRepo({ owner, repo });
-    for (let event of result.data) {
-      const { type, payload} = event;
-      if (type === 'IssuesEvent' && payload.action === 'opened') {
-        
-        // dispatch Event
-        const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
-        await repoRef.issueOpened.dispatch({
-          issue: repoRef.issues.one({ number: payload.issue.number })
-        });
-      };
-      if (type === 'PullRequestEvent' && payload.action === 'opened') {
+  const result = await client.activity.getEventsForRepo({ owner, repo });
 
-        // dispatch Event
-        const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
-        await repoRef.pullRequestOpened.dispatch({
-            issue: repoRef.issues.one({ number: payload.pull_request.number }),
-            pullRequest: repoRef.pullRequests.one({ number: payload.pull_request.number })
-        });
+  if(result.meta['last-modified'] > state.repos[repo].lastEventTime){
+    for (let event of state.repos[repo].events) {
+      switch (event) {
+        case 'issueOpened': {
+          for (let event of result.data) {
+            const { type, payload} = event;
+            if (type === 'IssuesEvent' && payload.action === 'opened') {
+            // dispatch Event
+              const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
+              await repoRef.issueOpened.dispatch({
+                issue: repoRef.issues.one({ number: payload.issue.number })
+              });
+            };
+          }
+        }
+        case 'pullRequestOpened': {
+          for (let event of result.data) {
+            const { type, payload} = event;
+            if (type === 'PullRequestEvent' && payload.action === 'opened') {
+              // dispatch Event
+              const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
+              await repoRef.pullRequestOpened.dispatch({
+                issue: repoRef.issues.one({ number: payload.pull_request.number }),
+                pullRequest: repoRef.pullRequests.one({ number: payload.pull_request.number })
+              });
+            }
+          }
+        }
       }
-    }
+    };
+
+    state.repos[repo].lastEventTime = new Date(result.meta['last-modified']).getTime();
+  };
   const timer = Number.parseInt(result.meta['x-poll-interval']);
   await program.setTimer(key, timer);
 }
+
+async function ensureTimerIsSet(repo, event){
+  const { state } = program;
+  const repository = state.repos[repo] = state.repost[repo] || {};
+  const events = repository["events"] = repository["events"] || [];  
+  repository["lastEventTime"] = new Date().getTime();
+
+  if(events.length === 0){
+    await timer({ key: repo });
+  }
+  
+  if(!events.includes(event)){
+    events.push(event);
+    await program.save();
+  }
+
+};
+
+async function unsetTimerRepo(repo, event){
+  const events = program.state.repos[repo].events;
+
+  const index = events.indexOf(event);
+
+  events.splice(index, 1);
+
+  await program.save();
+
+  if(events.length === 0){
+    await program.unsetTimer(repo);
+  }
+};

@@ -545,7 +545,10 @@
           {
             "name": "pullRequest",
             "params": [],
-            "type": "PullRequest"
+            "type": "Ref",
+            "ofType": {
+              "type": "PullRequest"
+            }
           }
         ],
         "actions": [
@@ -846,6 +849,6 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "id": "4b8b40c1-ae5d-436a-a1ea-52566975ea63",
+  "id": "db0fd24b-b7e0-4ebe-9ec9-dd5cf921f84c",
   "files": []
 }
