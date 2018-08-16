@@ -286,28 +286,42 @@ export const Config = {
 }
 
 export async function timer({ key }) {
+  const { state } = program;
+  
   const [ owner, repo ] = key.split('/')
+  
+  // TODO: result?
   const result = await client.activity.getEventsForRepo({ owner, repo });
-    for (let event of result.data) {
-      const { type, payload} = event;
-      if (type === 'IssuesEvent' && payload.action === 'opened') {
-        
-        // dispatch Event
-        const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
-        await repoRef.issueOpened.dispatch({
-          issue: repoRef.issues.one({ number: payload.issue.number })
-        });
-      };
-      if (type === 'PullRequestEvent' && payload.action === 'opened') {
-
-        // dispatch Event
-        const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
-        await repoRef.pullRequestOpened.dispatch({
-            issue: repoRef.issues.one({ number: payload.pull_request.number }),
-            pullRequest: repoRef.pullRequests.one({ number: payload.pull_request.number })
-        });
+  
+  for (let event of state.events[repo]) {
+    switch (event) {
+      case 'issueOpened': {
+        for (let event of result.data) {
+          const { type, payload} = event;
+          if (type === 'IssuesEvent' && payload.action === 'opened') {
+          // dispatch Event
+            const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
+            await repoRef.issueOpened.dispatch({
+              issue: repoRef.issues.one({ number: payload.issue.number })
+            });
+          };
+        }
+      }
+      case 'pullRequestOpened': {
+        for (let event of result.data) {
+          const { type, payload} = event;
+          if (type === 'PullRequestEvent' && payload.action === 'opened') {
+            // dispatch Event
+            const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
+            await repoRef.pullRequestOpened.dispatch({
+              issue: repoRef.issues.one({ number: payload.pull_request.number }),
+              pullRequest: repoRef.pullRequests.one({ number: payload.pull_request.number })
+            });
+          }
+        }
       }
     }
+  } 
   const timer = Number.parseInt(result.meta['x-poll-interval']);
   await program.setTimer(key, timer);
 }
@@ -318,7 +332,7 @@ async function ensureTimerIsSet(repo, event){
   const repository = state.events[repo] = state.events[repo] || [];
 
   if(repository.length === 0){
-    await program.setTimer(repo, 0, 10);
+    await timer({ key: repo });
   }
   
   if(!repository.includes(event)){
