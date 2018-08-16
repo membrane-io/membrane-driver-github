@@ -287,7 +287,7 @@ export const Config = {
 
 export async function timer({ key }) {
   const [ owner, repo ] = key.split('/')
-  const result = await  client.activity.getEventsForRepo({ owner, repo });
+  const result = await client.activity.getEventsForRepo({ owner, repo });
     for (let event of result.data) {
       const { type, payload} = event;
       if (type === 'IssuesEvent' && payload.action === 'opened') {
