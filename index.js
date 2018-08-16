@@ -312,13 +312,15 @@ export async function timer({ key }) {
   await program.setTimer(key, timer);
 }
 
-async function ensureTimerIsSet(repo, event){
+async function ensureTimerIsSet(owner, repo, event){
+  const ownerRepo = `${owner}/${repo}`
+
   const { state } = program;
   
-  const repository =  state.events[repo] =  state.events[repo] || [];
+  const repository =  state.events[ownerRepo] =  state.events[ownerRepo] || [];
 
   if(repository.length === 0){
-    await program.setTimer(repo, 0, 10);
+    await program.setTimer(ownerRepo, 0, 10);
     console.log("setTimer - OK")
   }
   
@@ -329,8 +331,10 @@ async function ensureTimerIsSet(repo, event){
   console.log("REPOSITORY SUB" + JSON.stringify(state)); 
 };
 
-async function unsetTimerRepo(repo, event){
-  const repository = program.state.events[repo];
+async function unsetTimerRepo(owner, repo, event){
+  const ownerRepo = `${owner}/${repo}`
+
+  const repository = program.state.events[ownerRepo];
 
   const index = repository.indexOf(event);
 
@@ -339,7 +343,7 @@ async function unsetTimerRepo(repo, event){
   await program.save();
 
   if(repository.length === 0){
-    await program.unsetTimer(repo);
+    await program.unsetTimer(ownerRepo);
     console.log("unsetTimer - OK")
   }
    console.log("REPOSITORY UNSUB" + JSON.stringify(state)); 
