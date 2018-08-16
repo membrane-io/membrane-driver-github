@@ -289,39 +289,41 @@ export async function timer({ key }) {
   const { state } = program;
   
   const [ owner, repo ] = key.split('/')
-  
-  // TODO: result?
+
   const result = await client.activity.getEventsForRepo({ owner, repo });
-  console.log(JSON.stringify(result));
-  for (let event of state.events[repo]) {
-    switch (event) {
-      case 'issueOpened': {
-        for (let event of result.data) {
-          const { type, payload} = event;
-          if (type === 'IssuesEvent' && payload.action === 'opened') {
-          // dispatch Event
-            const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
-            await repoRef.issueOpened.dispatch({
-              issue: repoRef.issues.one({ number: payload.issue.number })
-            });
-          };
-        }
-      }
-      case 'pullRequestOpened': {
-        for (let event of result.data) {
-          const { type, payload} = event;
-          if (type === 'PullRequestEvent' && payload.action === 'opened') {
+  if(result.meta['last-modified'] > state.repos[repo].lastEventTime){
+    for (let event of state.repos[repo].events) {
+      switch (event) {
+        case 'issueOpened': {
+          for (let event of result.data) {
+            const { type, payload} = event;
+            if (type === 'IssuesEvent' && payload.action === 'opened') {
             // dispatch Event
-            const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
-            await repoRef.pullRequestOpened.dispatch({
-              issue: repoRef.issues.one({ number: payload.pull_request.number }),
-              pullRequest: repoRef.pullRequests.one({ number: payload.pull_request.number })
-            });
+              const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
+              await repoRef.issueOpened.dispatch({
+                issue: repoRef.issues.one({ number: payload.issue.number })
+              });
+            };
+          }
+        }
+        case 'pullRequestOpened': {
+          for (let event of result.data) {
+            const { type, payload} = event;
+            if (type === 'PullRequestEvent' && payload.action === 'opened') {
+              // dispatch Event
+              const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
+              await repoRef.pullRequestOpened.dispatch({
+                issue: repoRef.issues.one({ number: payload.pull_request.number }),
+                pullRequest: repoRef.pullRequests.one({ number: payload.pull_request.number })
+              });
+            }
           }
         }
       }
-    }
-  } 
+    };
+
+    state.repos[repo].lastEventTime = result.meta['last-modified'];
+  };
   const timer = Number.parseInt(result.meta['x-poll-interval']);
   await program.setTimer(key, timer);
 }
