@@ -331,6 +331,7 @@ async function ensureTimerIsSet(repo, event){
   const { state } = program;
   const repository = state.repos[repo] = state.repos[repo] || {};
   const events = repository["events"] = repository["events"] || [];  
+  console.log("EVENTS" +  events);
   repository["lastEventTime"] = new Date().getTime();
 
   if(events.length === 0){
