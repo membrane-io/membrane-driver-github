@@ -315,8 +315,7 @@ export async function timer({ key }) {
 async function ensureTimerIsSet(repo, event){
   const { state } = program;
   
-  
-  state.events[repo] || [];
+  state.events[repo] = [];
   
   const repository = state.events[repo];
 
