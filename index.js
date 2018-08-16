@@ -123,8 +123,8 @@ export const Repository = {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      const repository = `${owner}/${repo}`;
-      await ensureTimerIsSet(repository, 'issueOpened');
+
+      await ensureTimerIsSet(`${owner}/${repo}`, 'issueOpened');
     },
     async unsubscribe({ self }) { 
       const { name: owner } = self.match(root.users.one);
@@ -137,8 +137,8 @@ export const Repository = {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      const repository = `${owner}/${repo}`;
-      await ensureTimerIsSet(repository , 'pullRequestOpened');
+
+      await ensureTimerIsSet(`${owner}/${repo}`, 'pullRequestOpened');
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
