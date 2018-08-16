@@ -316,7 +316,7 @@ async function ensureTimerIsSet(repo, event){
   const { state } = program;
   
   const repository =  state.events[repo] =  state.events[repo] || [];
-
+  console.log("repository: " + repository)
   if(repository.length === 0){
     await program.setTimer(repo, 0, 10);
     console.log("setTimer - OK")
