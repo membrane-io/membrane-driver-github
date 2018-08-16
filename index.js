@@ -8,7 +8,7 @@ const { root } = program.refs;
 export async function init() {
   await root.users.set({});
 
-  program.state.events = {};
+  program.state.repos = {};
   await program.save();
 }
 
@@ -328,30 +328,31 @@ export async function timer({ key }) {
 
 async function ensureTimerIsSet(repo, event){
   const { state } = program;
-  
-  const repository = state.events[repo] = state.events[repo] || [];
+  const repository = state.repos[repo] = state.repost[repo] || {};
+  const events = repository["events"] = repository["events"] || [];  
+  repository["lastEventTime"] = new Date().getTime();
 
   if(repository.length === 0){
     await timer({ key: repo });
   }
   
-  if(!repository.includes(event)){
-    repository.push(event);
+  if(!events.includes(event)){
+    events.push(event);
     await program.save();
   }
 
 };
 
 async function unsetTimerRepo(repo, event){
-  const repository = program.state.events[repo];
+  const events = program.state.repos[repo].events;
 
-  const index = repository.indexOf(event);
+  const index = events.indexOf(event);
 
-  repository.splice(index, 1);
+  events.splice(index, 1);
 
   await program.save();
 
-  if(repository.length === 0){
+  if(events.length === 0){
     await program.unsetTimer(repo);
   }
 };
