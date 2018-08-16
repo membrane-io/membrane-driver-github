@@ -333,17 +333,14 @@ async function ensureTimerIsSet(repo, event){
   const events = repository["events"] = repository["events"] || [];  
   repository["lastEventTime"] = new Date().getTime();
 
-  console.log(repository["lastEventTime"])
-
   if(events.length === 0){
     await timer({ key: repo });
   }
   
   if(!events.includes(event)){
     events.push(event);
-    await program.save();
   }
-
+  await program.save();
 };
 
 async function unsetTimerRepo(repo, event){
