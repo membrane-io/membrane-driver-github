@@ -124,13 +124,13 @@ export const Repository = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
 
-      await ensureTimerIsSet(`${owner}/${repo}`, 'issueOpened');
+      await ensureTimerIsSet(owner, repo,'issueOpened');
     },
     async unsubscribe({ self }) { 
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       
-      await unsetTimerRepo(`${owner}/${repo}`, 'issueOpened');
+      await unsetTimerRepo(owner, repo, 'issueOpened');
     }
   },
   pullRequestOpened: {
@@ -138,13 +138,13 @@ export const Repository = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
 
-      await ensureTimerIsSet(`${owner}/${repo}`, 'pullRequestOpened');
+      await ensureTimerIsSet(owner, repo,'pullRequestOpened');
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       
-      await unsetTimerRepo(`${owner}/${repo}`, 'pullRequestOpened');
+      await unsetTimerRepo(owner, repo, 'pullRequestOpened');
     }
   },
   fullName({ source }) { return source['full_name']; },
