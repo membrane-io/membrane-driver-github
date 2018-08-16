@@ -287,10 +287,9 @@ export const Config = {
 
 export async function timer({ key }) {
   const { state } = program;
-  
   const [ owner, repo ] = key.split('/')
-
   const result = await client.activity.getEventsForRepo({ owner, repo });
+
   if(result.meta['last-modified'] > state.repos[repo].lastEventTime){
     for (let event of state.repos[repo].events) {
       switch (event) {
@@ -322,7 +321,7 @@ export async function timer({ key }) {
       }
     };
 
-    state.repos[repo].lastEventTime = result.meta['last-modified'];
+    state.repos[repo].lastEventTime = new Date(result.meta['last-modified']).getTime();
   };
   const timer = Number.parseInt(result.meta['x-poll-interval']);
   await program.setTimer(key, timer);
