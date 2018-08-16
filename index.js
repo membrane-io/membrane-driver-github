@@ -124,13 +124,13 @@ export const Repository = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
 
-      await ensureTimerIsSet(owner, repo,'issueOpened');
+      await ensureTimerIsSet(`${owner}/${repo}`, 'issueOpened');
     },
     async unsubscribe({ self }) { 
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       
-      await unsetTimerRepo(owner, repo, 'issueOpened');
+      await unsetTimerRepo(`${owner}/${repo}`, 'issueOpened');
     }
   },
   pullRequestOpened: {
@@ -138,13 +138,13 @@ export const Repository = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
 
-      await ensureTimerIsSet(owner, repo, 'pullRequestOpened');
+      await ensureTimerIsSet(`${owner}/${repo}`, 'pullRequestOpened');
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       
-      await unsetTimerRepo(owner, repo, 'pullRequestOpened');
+      await unsetTimerRepo(`${owner}/${repo}`, 'pullRequestOpened');
     }
   },
   fullName({ source }) { return source['full_name']; },
@@ -312,18 +312,13 @@ export async function timer({ key }) {
   await program.setTimer(key, timer);
 }
 
-async function ensureTimerIsSet(owner, repo, event){
-  const ownerRepo = `${owner}/${repo}`;
-  console.log(ownerRepo)
-
+async function ensureTimerIsSet(repo, event){
   const { state } = program;
   
-  const repository = state.events[ownerRepo] =  state.events[ownerRepo] || [];
-  console.log(repository)
+  const repository =  state.events[repo] =  state.events[repo] || [];
 
-/*
   if(repository.length === 0){
-    await program.setTimer(ownerRepo, 0, 10);
+    await program.setTimer(repo, 0, 10);
     console.log("setTimer - OK")
   }
   
@@ -331,13 +326,11 @@ async function ensureTimerIsSet(owner, repo, event){
     repository.push(event);
     await program.save();
   }
-  console.log("REPOSITORY SUB" + JSON.stringify(state));  */
+  console.log("REPOSITORY SUB" + JSON.stringify(state)); 
 };
 
-async function unsetTimerRepo(owner, repo, event){
-/*   const ownerRepo = `${owner}/${repo}`
-
-  const repository = program.state.events[ownerRepo];
+async function unsetTimerRepo(repo, event){
+  const repository = program.state.events[repo];
 
   const index = repository.indexOf(event);
 
@@ -346,8 +339,8 @@ async function unsetTimerRepo(owner, repo, event){
   await program.save();
 
   if(repository.length === 0){
-    await program.unsetTimer(ownerRepo);
+    await program.unsetTimer(repo);
     console.log("unsetTimer - OK")
   }
-   console.log("REPOSITORY UNSUB" + JSON.stringify(state));  */
+   console.log("REPOSITORY UNSUB" + JSON.stringify(state)); 
 };
