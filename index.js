@@ -329,7 +329,7 @@ export async function timer({ key }) {
 
 async function ensureTimerIsSet(repo, event){
   const { state } = program;
-  const repository = state.repos[repo] = state.repost[repo] || {};
+  const repository = state.repos[repo] = state.repos[repo] || {};
   const events = repository["events"] = repository["events"] || [];  
   repository["lastEventTime"] = new Date().getTime();
 
