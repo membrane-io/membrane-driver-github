@@ -290,10 +290,13 @@ export async function timer({ key }) {
   const [ owner, repo ] = key.split('/')
   const result = await client.activity.getEventsForRepo({ owner, repo });
 
+  const data = result.data
+    .filter(item => formatTime(item.created_at) <= state.repos[repo].lastEventTime)
+
     for (let event of state.repos[repo].events) {
       switch (event) {
         case 'issueOpened': {
-          for (let event of result.data) {
+          for (let event of data) {
             const { type, payload} = event;
             if (type === 'IssuesEvent' && payload.action === 'opened') {
             // dispatch Event
@@ -305,7 +308,7 @@ export async function timer({ key }) {
           }
         }
         case 'pullRequestOpened': {
-          for (let event of result.data) {
+          for (let event of data) {
             const { type, payload} = event;
             if (type === 'PullRequestEvent' && payload.action === 'opened') {
               // dispatch Event
@@ -318,7 +321,7 @@ export async function timer({ key }) {
           }
         }
       }
-    //state.repos[repo].lastEventTime = new Date(result.meta['last-modified']).getTime();
+    state.repos[repo].lastEventTime = new Date(result.meta['last-modified']).getTime();
   };
   const timer = Number.parseInt(result.meta['x-poll-interval']);
   await program.setTimer(key, timer);
@@ -354,3 +357,7 @@ async function unsetTimerRepo(repo, event){
     await program.unsetTimer(repo);
   }
 };
+
+function formatTime(time) {
+  return new Date(time).getTime();
+}
