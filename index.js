@@ -130,13 +130,6 @@ export const Repository = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       
-      // remove event of repo from program.state.events
-      const { state } = program;
-
-      const index = state.events[`${owner}/${repo}`].indexOf('issueOpened');
-      state.observedLabels.splice(index, 1);
-      
-      await program.save();
       await unsetTimerRepo(`${owner}/${repo}`);
     }
   },
@@ -328,12 +321,17 @@ export async function timer({ key }) {
 
 async function ensureTimerIsSet(repo, event){
   const { state } = program;
-  if(state.events.length === 0){
-    const repository =  state.events[repo] =  state.events[repo] || [];
-    repository.push(event);
+  
+  const repository =  state.events[repo] =  state.events[repo] || [];
+
+  if(repository.length === 0){
     await program.setTimer(repo, 0, 10);
-    await program.save();
   }
+  
+  if(!repository.includes(event)){
+    repository.push(event);
+    await program.save();
+  } 
 };
 
 async function unsetTimerRepo(repo){
