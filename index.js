@@ -315,6 +315,7 @@ export async function timer({ key }) {
 async function ensureTimerIsSet(repo, event){
   const { state } = program;
   
+  console.log("<<<<<<<<<")
   if (state.events[repo] === undefined) {
       state.events[repo] = [];
       console.log(">>>>>>>>>>>>")
