@@ -315,14 +315,8 @@ export async function timer({ key }) {
 async function ensureTimerIsSet(repo, event){
   const { state } = program;
   
-  console.log("<<<<<<<<<")
-  if (state.events[repo] === undefined) {
-      state.events[repo] = [];
-      console.log(">>>>>>>>>>>>")
-  };
-  
-  const repository = state.events[repo];
-  
+  const repository = state.events[repo] = state.events[repo] || [];
+
   if(repository.length === 0){
     await program.setTimer(repo, 0, 10);
     console.log("setTimer - OK")
