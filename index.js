@@ -317,6 +317,7 @@ async function ensureTimerIsSet(repo, event){
   
   if (state.events[repo] === undefined) {
       state.events[repo] = [];
+      console.log(">>>>>>>>>>>>")
   };
   
   const repository = state.events[repo];
