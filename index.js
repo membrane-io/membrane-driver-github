@@ -316,8 +316,8 @@ async function ensureTimerIsSet(repo, event){
   const { state } = program;
   
   const repository =  state.events[repo] =  state.events[repo] || [];
-  console.log("repository: " + repository)
-/*   if(repository.length === 0){
+
+  if(repository.length === 0){
     await program.setTimer(repo, 0, 10);
     console.log("setTimer - OK")
   }
@@ -326,7 +326,7 @@ async function ensureTimerIsSet(repo, event){
     repository.push(event);
     await program.save();
   }
-  console.log("REPOSITORY SUB" + JSON.stringify(state));  */
+  console.log("REPOSITORY SUB" + JSON.stringify(state)); 
 };
 
 async function unsetTimerRepo(repo, event){
