@@ -8,7 +8,7 @@ const { root } = program.refs;
 export async function init() {
   await root.users.set({});
 
-  program.state.events = [];
+  program.state.events = {};
   await program.save();
 }
 
@@ -315,7 +315,7 @@ export async function timer({ key }) {
 async function ensureTimerIsSet(repo, event){
   const { state } = program;
   
-  const repository = state.events[repo] =  state.events[repo] || [];
+  const repository =  state.events["asd"] =  state.events["asd"] || [];
 
   if(repository.length === 0){
     await program.setTimer(repo, 0, 10);
