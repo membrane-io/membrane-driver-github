@@ -313,8 +313,9 @@ export async function timer({ key }) {
 }
 
 async function ensureTimerIsSet(owner, repo, event){
-/*   const ownerRepo = `${owner}/${repo}`
-
+  const ownerRepo = `${owner}/${repo}`;
+  console.log(ownerRepo)
+/*
   const { state } = program;
   
   const repository =  state.events[ownerRepo] =  state.events[ownerRepo] || [];
