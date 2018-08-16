@@ -329,8 +329,9 @@ async function ensureTimerIsSet(repo, event){
 
 async function unsetTimerRepo(repo, event){
   const repository = program.state.events[repo];
-  const index = state.events[repo].indexOf(event);
-  state.observedLabels.splice(index, 1);
+  
+  repository.splice(repository.indexOf(event), 1);
+
   await program.save();
 
   if(repository.length === 0){
