@@ -291,7 +291,7 @@ export async function timer({ key }) {
   const result = await client.activity.getEventsForRepo({ owner, repo });
 
   const data = result.data.reverse()
-    .filter(item => formatTime(item.created_at) >= state.repos[key].lastEventTime)
+    .filter(item => formatTime(item.created_at) > state.repos[key].lastEventTime)
 
   for (let event of data) {
     const { type, payload } = event;
