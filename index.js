@@ -321,7 +321,7 @@ export async function timer({ key }) {
           }
         }
       }
-    state.repos[key].lastEventTime = new Date(result.meta['last-modified']).getTime();
+    state.repos[key].lastEventTime = formatTime(result.meta['last-modified']);
   };
   const timer = Number.parseInt(result.meta['x-poll-interval']);
   await program.setTimer(key, 0, timer);
