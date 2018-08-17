@@ -294,7 +294,7 @@ export async function timer({ key }) {
     .filter(item => formatTime(item.created_at) <= state.repos[key].lastEventTime)
     
     console.log("DATA ITEMS" + data.length)
-    console.log("DATA EVENTS" + state)  
+    console.log("DATA EVENTS" + JSON.stringify(state))  
     for (let event of state.repos[key].events) {
       switch (event) {
         case 'issueOpened': {
