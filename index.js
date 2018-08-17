@@ -324,6 +324,7 @@ export async function timer({ key }) {
     state.repos[repo].lastEventTime = new Date(result.meta['last-modified']).getTime();
   };
   const timer = Number.parseInt(result.meta['x-poll-interval']);
+  // remove 5 by timer
   await program.setTimer(key, 5);
 }
 
