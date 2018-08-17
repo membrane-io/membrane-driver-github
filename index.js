@@ -292,10 +292,7 @@ export async function timer({ key }) {
 
   const data = result.data
     .filter(item => formatTime(item.created_at) >= state.repos[key].lastEventTime)
-    
-    console.log("DATA ITEMS" + data.length)
-    console.log("DATA EVENTS" + JSON.stringify(state))  
-    console.log(state.repos[key].lastEventTime);
+  
     for (let event of state.repos[key].events) {
       switch (event) {
         case 'issueOpened': {
@@ -324,7 +321,7 @@ export async function timer({ key }) {
           }
         }
       }
-    state.repos[repo].lastEventTime = new Date(result.meta['last-modified']).getTime();
+    state.repos[key].lastEventTime = new Date(result.meta['last-modified']).getTime();
   };
   const timer = Number.parseInt(result.meta['x-poll-interval']);
   await program.setTimer(key, timer);
