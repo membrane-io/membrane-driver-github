@@ -334,6 +334,7 @@ async function ensureTimerIsSet(repo, event){
   const events = repository["events"] = repository["events"] || [];  
   repository["lastEventTime"] = new Date().getTime();
   
+  //TODO: 
   // the first time the timer starts, 
   // it will not bring data since the timer fires
   // first before adding the event to the array.
