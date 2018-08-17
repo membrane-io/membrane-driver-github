@@ -1,6 +1,6 @@
 {
   "name": "github",
-  "version": "0.0.160",
+  "version": "0.0.161",
   "description": "Membrane driver for GitHub",
   "main": "index.js",
   "repository": "https://github.com/juancampa/membrane-driver-github",
