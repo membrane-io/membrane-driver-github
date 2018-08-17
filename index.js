@@ -323,8 +323,8 @@ export async function timer({ key }) {
       }
     state.repos[key].lastEventTime = new Date(result.meta['last-modified']).getTime();
   };
-  //const timer = Number.parseInt(result.meta['x-poll-interval']);
-  await program.setTimer(key, 5);
+  const timer = Number.parseInt(result.meta['x-poll-interval']);
+  await program.setTimer(key, timer);
 }
 
 async function ensureTimerIsSet(repo, event){
@@ -333,6 +333,7 @@ async function ensureTimerIsSet(repo, event){
   const events = repository["events"] = repository["events"] || [];  
   repository["lastEventTime"] = new Date().getTime();
 
+  // TODO:
   //if(events.length === 0){
    // await timer({ key: repo });
   //}
@@ -341,6 +342,7 @@ async function ensureTimerIsSet(repo, event){
     events.push(event);
   }
   await program.save();
+  // TEST
   await timer({ key: repo });
 };
 
