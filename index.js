@@ -295,6 +295,7 @@ export async function timer({ key }) {
     
     console.log("DATA ITEMS" + data.length)
     console.log("DATA EVENTS" + JSON.stringify(state))  
+    console.log(state.repos[key].lastEventTime);
     for (let event of state.repos[key].events) {
       switch (event) {
         case 'issueOpened': {
