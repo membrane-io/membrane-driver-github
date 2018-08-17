@@ -291,9 +291,9 @@ export async function timer({ key }) {
   const result = await client.activity.getEventsForRepo({ owner, repo });
 
   const data = result.data
-    .filter(item => formatTime(item.created_at) <= state.repos[repo].lastEventTime)
+    .filter(item => formatTime(item.created_at) <= state.repos[key].lastEventTime)
 
-    for (let event of state.repos[repo].events) {
+    for (let event of state.repos[key].events) {
       switch (event) {
         case 'issueOpened': {
           for (let event of data) {
