@@ -327,12 +327,16 @@ export async function timer({ key }) {
   await program.setTimer(key, 0, timer);
 }
 
+
 async function ensureTimerIsSet(repo, event){
   const { state } = program;
   const repository = state.repos[repo] = state.repos[repo] || {};
   const events = repository["events"] = repository["events"] || [];  
   repository["lastEventTime"] = new Date().getTime();
-
+  
+  // the first time the timer starts, 
+  // it will not bring data since the timer fires
+  // first before adding the event to the array.
   if(events.length === 0){
     await timer({ key: repo });
   }
