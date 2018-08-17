@@ -290,10 +290,13 @@ export async function timer({ key }) {
   const [ owner, repo ] = key.split('/')
   const result = await client.activity.getEventsForRepo({ owner, repo });
 
-    for (let event of state.repos[repo].events) {
+  const data = result.data
+    .filter(item => formatTime(item.created_at) >= state.repos[key].lastEventTime)
+  
+    for (let event of state.repos[key].events) {
       switch (event) {
         case 'issueOpened': {
-          for (let event of result.data) {
+          for (let event of data) {
             const { type, payload} = event;
             if (type === 'IssuesEvent' && payload.action === 'opened') {
             // dispatch Event
@@ -305,7 +308,7 @@ export async function timer({ key }) {
           }
         }
         case 'pullRequestOpened': {
-          for (let event of result.data) {
+          for (let event of data) {
             const { type, payload} = event;
             if (type === 'PullRequestEvent' && payload.action === 'opened') {
               // dispatch Event
@@ -318,27 +321,31 @@ export async function timer({ key }) {
           }
         }
       }
-    //state.repos[repo].lastEventTime = new Date(result.meta['last-modified']).getTime();
+    state.repos[key].lastEventTime = new Date(result.meta['last-modified']).getTime();
   };
   const timer = Number.parseInt(result.meta['x-poll-interval']);
-  await program.setTimer(key, timer);
+  await program.setTimer(key, 0, timer);
 }
+
 
 async function ensureTimerIsSet(repo, event){
   const { state } = program;
-  const repository = state.repos[repo] = state.repost[repo] || {};
+  const repository = state.repos[repo] = state.repos[repo] || {};
   const events = repository["events"] = repository["events"] || [];  
   repository["lastEventTime"] = new Date().getTime();
-
+  
+  //TODO: 
+  // the first time the timer starts, 
+  // it will not bring data since the timer fires
+  // first before adding the event to the array.
   if(events.length === 0){
     await timer({ key: repo });
   }
   
   if(!events.includes(event)){
     events.push(event);
-    await program.save();
   }
-
+  await program.save();
 };
 
 async function unsetTimerRepo(repo, event){
@@ -347,10 +354,14 @@ async function unsetTimerRepo(repo, event){
   const index = events.indexOf(event);
 
   events.splice(index, 1);
-
+  
   await program.save();
 
   if(events.length === 0){
     await program.unsetTimer(repo);
   }
 };
+
+function formatTime(time) {
+  return new Date(time).getTime();
+}
