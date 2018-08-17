@@ -292,9 +292,7 @@ export async function timer({ key }) {
 
   const data = result.data
     .filter(item => formatTime(item.created_at) <= state.repos[key].lastEventTime)
-    
-    console.log("DATA ITEMS" + data.length)
-    console.log("DATA EVENTS" + JSON.stringify(state))  
+
     for (let event of state.repos[key].events) {
       switch (event) {
         case 'issueOpened': {
@@ -335,15 +333,17 @@ async function ensureTimerIsSet(repo, event){
   const events = repository["events"] = repository["events"] || [];  
   repository["lastEventTime"] = new Date().getTime();
 
-  if(!events.includes(event)){
-    events.push(event);
-  }
-  
-  await program.save();
-
   if(events.length === 0){
     await timer({ key: repo });
   }
+
+  if(!events.includes(event)){
+    events.push(event);
+  }
+
+  await program.save();
+
+
 };
 
 async function unsetTimerRepo(repo, event){
