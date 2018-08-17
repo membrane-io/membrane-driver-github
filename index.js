@@ -290,10 +290,14 @@ export async function timer({ key }) {
   const [ owner, repo ] = key.split('/')
   const result = await client.activity.getEventsForRepo({ owner, repo });
 
-  const data = result.data.reverse()
-    .filter(item => formatTime(item.created_at) > state.repos[key].lastEventTime)
+  const data = result.data.reverse();
+  
+  const index = data
+    .findIndex(item => formatTime(item.created_at) > state.repos[key].lastEventTime);
 
-  for (let event of data) {
+  const newEvents = data.splice(index);
+
+  for (let event of newEvents) {
     const { type, payload } = event;
     for (let event of state.repos[key].events) {
       switch (event) {
@@ -322,6 +326,7 @@ export async function timer({ key }) {
   if (data.length > 0) {
     const lastEvent = data[data.length - 1];
     state.repos[key].lastEventTime = formatTime(lastEvent.created_at);
+    await program.save();
   }
 
   const timer = Number.parseInt(result.meta['x-poll-interval']);
