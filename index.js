@@ -330,10 +330,9 @@ export async function timer({ key }) {
 async function ensureTimerIsSet(repo, event){
   const { state } = program;
   const repository = state.repos[repo] = state.repos[repo] || {};
-  console.log("REPOSITORY: " + repository);
   const events = repository["events"] = repository["events"] || [];  
   repository["lastEventTime"] = new Date().getTime();
-
+  console.log("Repository: " + JSON.stringify(repository));
   if(events.length === 0){
     await timer({ key: repo });
   }
