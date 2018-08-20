@@ -26,22 +26,32 @@ export async function parse({ name, value }) {
       const { pathname: path } = parseUrl(value, true);
       const parts = path.split('/');
       const results = [];
+
+      // TODO: users
       if (parts.length < 3) {
-        return;
+        return root;
       }
-      const repo = root
-          .users.one({ name: parts[1] })
-          .repos().one({ name: parts[2] });
+      const repo = root.users.one({ name: parts[1] }).repos().one({ name: parts[2] });
       if (parts.length === 4 && parts[3] === 'issues') {
-        return repo.issues;
-      } else if (parts.length >= 5) {
-        const number = Number.parseInt(parts[4]);
-        if (!Number.isNaN(number)) {
-          return repo.issues.one({ number });
+        if (parts.length >= 5) {
+          const number = Number.parseInt(parts[4]);
+          if (!Number.isNaN(number)) {
+            return repo.issues.one({ number });
+          }
+          return repo.issues;
         }
-      } else {
-        return repo;
+        return repo.issues;
+      } else if (parts.length === 4 && parts[3] === 'pulls') {
+        if (parts.length >= 5) {
+          const number = Number.parseInt(parts[4]);
+          if (!Number.isNaN(number)) {
+            return repo.pullRequests.one({ number });
+          }
+          return repo.pullRequests;
+        }
+        return repo.pullRequests;
       }
+      return repo;
     }
     case 'repo': {
       const parts = path.split('/');
