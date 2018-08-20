@@ -25,9 +25,22 @@ export async function parse({ name, value }) {
     case 'url': {
       const { pathname: path } = parseUrl(value, true);
       const parts = path.split('/');
-
-      if (parts.length >= 3) {
-        return root.users.one({ name: parts[1] }).repos().one({ name: parts[2] })
+      const results = [];
+      if (parts.length < 3) {
+        return;
+      }
+      const repo = root
+          .users.one({ name: parts[1] })
+          .repos().one({ name: parts[2] });
+      if (parts.length === 4 && parts[3] === 'issues') {
+        return repo.issues;
+      } else if (parts.length >= 5) {
+        const number = Number.parseInt(parts[4]);
+        if (!Number.isNaN(number)) {
+          return repo.issues.one({ number });
+        }
+      } else {
+        return repo;
       }
     }
     case 'repo': {
