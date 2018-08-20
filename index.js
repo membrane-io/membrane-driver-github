@@ -1,4 +1,3 @@
-// test version
 import { client, getDiff } from './client';
 import { parse as parseUrl } from 'url';
 import { parse as parseQuery } from 'querystring';
@@ -288,15 +287,16 @@ export const Config = {
 export async function timer({ key }) {
   const { state } = program;
   const [ owner, repo ] = key.split('/')
-  const result = await client.activity.getEventsForRepo({ owner, repo });
-
-  const data = result.data.reverse();
+  const { data, meta } = await client.activity.getEventsForRepo({ owner, repo });
   
-  const index = data
-    .findIndex(item => formatTime(item.created_at) > state.repos[key].lastEventTime);
+  const index = data.findIndex(
+    item => formatTime(item.created_at) >= state.repos[key].lastEventTime
+  );
 
-  const newEvents = data.splice(index);
-
+  if (index > 0) {
+    const newEvents = data.slice(index).reverse();
+  }
+  
   for (let event of newEvents) {
     const { type, payload } = event;
     for (let event of state.repos[key].events) {
@@ -323,13 +323,14 @@ export async function timer({ key }) {
       }
     }
   }
-  if (data.length > 0) {
-    const lastEvent = data[data.length - 1];
+
+  if (newEvents.length > 0) {
+    const lastEvent = newEvents[newEvents.length - 1];
     state.repos[key].lastEventTime = formatTime(lastEvent.created_at);
     await program.save();
   }
-
-  const timer = Number.parseInt(result.meta['x-poll-interval']);
+  
+  const timer = Number.parseInt(meta['x-poll-interval']);
   await program.setTimer(key, 0, timer);
 }
 
