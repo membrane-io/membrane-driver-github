@@ -289,7 +289,7 @@ export async function timer({ key }) {
   const [ owner, repo ] = key.split('/')
   const { data, meta } = await client.activity.getEventsForRepo({ owner, repo });
   
-  const index = data.findIndex(
+  const index = data.reverse().findIndex(
     item => formatTime(item.created_at) >= state.repos[key].lastEventTime
   );
 
