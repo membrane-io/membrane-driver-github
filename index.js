@@ -288,13 +288,13 @@ export async function timer({ key }) {
   const { state } = program;
   const [ owner, repo ] = key.split('/')
   const { data, meta } = await client.activity.getEventsForRepo({ owner, repo });
-  
-  const index = data.reverse().findIndex(
-    item => formatTime(item.created_at) >= state.repos[key].lastEventTime
+
+  const index = data.findIndex(
+    item => formatTime(item.created_at) <= state.repos[key].lastEventTime
   );
 
   if (index > 0) {
-    const newEvents = data.slice(index).reverse();  
+    const newEvents = data.slice(0, index).reverse();  
     for (let event of newEvents) {
       const { type, payload } = event;
       for (let event of state.repos[key].events) {
