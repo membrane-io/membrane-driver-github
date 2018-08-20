@@ -41,7 +41,7 @@ export async function parse({ name, value }) {
           return repo.issues;
         }
         return repo.issues;
-      } else if (parts.length === 4 && parts[3] === 'pulls') {
+      } else if (parts.length === 4 && /^pulls?$/.test(parts[3])) {
         if (parts.length >= 5) {
           const number = Number.parseInt(parts[4]);
           if (!Number.isNaN(number)) {
