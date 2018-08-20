@@ -294,40 +294,39 @@ export async function timer({ key }) {
   );
 
   if (index > 0) {
-    const newEvents = data.slice(index).reverse();
-  }
-  
-  for (let event of newEvents) {
-    const { type, payload } = event;
-    for (let event of state.repos[key].events) {
-      switch (event) {
-        case "issueOpened": {
-          if (type === "IssuesEvent" && payload.action === "opened") {
-            // dispatch Event
-            const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
-            await repoRef.issueOpened.dispatch({
-              issue: repoRef.issues.one({ number: payload.issue.number })
-            });
+    const newEvents = data.slice(index).reverse();  
+    for (let event of newEvents) {
+      const { type, payload } = event;
+      for (let event of state.repos[key].events) {
+        switch (event) {
+          case "issueOpened": {
+            if (type === "IssuesEvent" && payload.action === "opened") {
+              // dispatch Event
+              const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
+              await repoRef.issueOpened.dispatch({
+                issue: repoRef.issues.one({ number: payload.issue.number })
+              });
+            }
           }
-        }
-        case "pullRequestOpened": {
-          if (type === "PullRequestEvent" && payload.action === "opened") {
-            // dispatch Event
-            const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
-            await repoRef.pullRequestOpened.dispatch({
-              issue: repoRef.issues.one({number: payload.pull_request.number}),
-              pullRequest: repoRef.pullRequests.one({number: payload.pull_request.number})
-            });
+          case "pullRequestOpened": {
+            if (type === "PullRequestEvent" && payload.action === "opened") {
+              // dispatch Event
+              const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
+              await repoRef.pullRequestOpened.dispatch({
+                issue: repoRef.issues.one({number: payload.pull_request.number}),
+                pullRequest: repoRef.pullRequests.one({number: payload.pull_request.number})
+              });
+            }
           }
         }
       }
     }
-  }
 
-  if (newEvents.length > 0) {
-    const lastEvent = newEvents[newEvents.length - 1];
-    state.repos[key].lastEventTime = formatTime(lastEvent.created_at);
-    await program.save();
+    if (newEvents.length > 0) {
+      const lastEvent = newEvents[newEvents.length - 1];
+      state.repos[key].lastEventTime = formatTime(lastEvent.created_at);
+      await program.save();
+    }
   }
   
   const timer = Number.parseInt(meta['x-poll-interval']);
