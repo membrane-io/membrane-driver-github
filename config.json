@@ -914,7 +914,16 @@
             "type": "Int"
           }
         ],
-        "computedFields": [],
+        "computedFields": [
+          {
+            "name": "self",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "Release"
+            }
+          }
+        ],
         "actions": [],
         "events": []
       }
@@ -935,6 +944,5 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "files": [],
-  "id": "81c693e6-d5e6-4270-bbc9-b9ebaae0ba8d"
+  "files": []
 }
