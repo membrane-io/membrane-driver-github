@@ -288,7 +288,6 @@ export const ReleaseCollection = {
     const { id } = args;
 
     const result = await client.repos.getRelease({owner, repo, id})
-    console.log(result)
     return result.data;
   },
 
@@ -298,6 +297,7 @@ export const ReleaseCollection = {
 
     const apiArgs = toApiArgs(args, { owner, repo });
     const res = await client.repos.getReleases(apiArgs);
+    console.log(res)
     return {
       items: res.data,
       next: getNextPageRef(self.page(args), res),
