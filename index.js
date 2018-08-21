@@ -287,14 +287,13 @@ export const ReleaseCollection = {
     const { name: repo } = self.match(root.users.one().repos().one());
     const { id } = args;
     const result = await client.repos.getRelease({owner, repo, id})
+    console.log(result)
     return result.data;
   },
 
   async page({ self, source, args }) {
     const { name: owner } = self.match(root.users.one);
     const { name: repo } = self.match(root.users.one.repos.one);
-    console.log(owner)
-    console.log(repo)
     const apiArgs = toApiArgs(args, { owner, repo });
     const res = await client.repos.getReleases(apiArgs);
     console.log(res)
