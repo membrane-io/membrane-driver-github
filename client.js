@@ -31,4 +31,14 @@ export async function getDiff(url, params) {
   const result = await instance.get(url, { params });
   return result.data;
 }
-
+// TODO: axios client
+export async function graphql(query, variables){
+  const body = {
+      query: query,
+      variables: variables
+    }
+    const client = axios.create({
+      headers: {'Authorization': `token ${process.env.ACCESS_TOKEN}`}
+    });
+    await client.post(`https://api.github.com/graphql`, body)
+}

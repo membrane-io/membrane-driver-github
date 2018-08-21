@@ -233,20 +233,15 @@ export const Issue = {
   activeLockReason({ source }) { return source['active_lock_reason']; },
   async subscribe({ self }) {
     const nodeId = await self.nodeId.$query();
-    
-    // NOTE: The REST endpoint doesn't seem to work (403) for subscriptions so we use GraphQL here instead.
-    const body = {
-      query:`mutation($id: ID!) {
+    const query = `
+      mutation($id: ID!) {
           updateSubscription(input: { subscribableId:$id, state:SUBSCRIBED }) {
             subscribable { viewerSubscription }
           }
-        }`,
-      variables:{ id: nodeId }
-    }
-    const client = axios.create({
-      headers: {'Authorization': `token ${process.env.ACCESS_TOKEN}`}
-    });
-    await client.post(`https://api.github.com/graphql`, body)
+      }`;
+    const variables = { id: nodeId };
+    // NOTE: The REST endpoint doesn't seem to work (403) for subscriptions so we use GraphQL here instead.
+    await graphql(query, variables);
   },
   nodeId({ source }) { return source.node_id; },
 }
