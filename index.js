@@ -5,7 +5,6 @@ import axios from 'axios';
 import getPageLinks from '@octokit/rest/lib/plugins/pagination/get-page-links';
 const { root } = program.refs;
 
-
 export async function init() {
   await root.users.set({});
 
