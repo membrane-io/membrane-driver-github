@@ -305,7 +305,7 @@ export const ReleaseCollection = {
 
 export const Release = {
   self({ self, parent, source }) {
-    return parent.parent.parent.one({ number: source.number });
+    return parent.parent.parent.one({ id: source.id });
   },
 }
 
