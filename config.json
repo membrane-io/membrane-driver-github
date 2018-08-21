@@ -911,7 +911,7 @@
           },
           {
             "name": "id",
-            "type": "Int"
+            "type": "String"
           }
         ],
         "computedFields": [
