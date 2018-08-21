@@ -167,6 +167,18 @@ export const Repository = {
       await unsetTimerRepo(`${owner}/${repo}`, 'pullRequestOpened');
     }
   },
+  releasePublished: {
+    async subscribe({ self }) {
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+      await ensureTimerIsSet(`${owner}/${repo}`, 'releasePublished');
+    },
+    async unsubscribe({ self }) {
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+      await unsetTimerRepo(`${owner}/${repo}`, 'releasePublished');
+    }
+  },
   fullName({ source }) { return source['full_name']; },
   htmlUrl({ source }) { return source['html_url']; },
   forksCount({ source }) { return source['forks_count']; },
