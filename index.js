@@ -307,6 +307,10 @@ export const Release = {
   self({ self, parent, source }) {
     return parent.parent.parent.one({ id: `${source.id}` });
   },
+  nodeId({ source }) { return source.node_id; },
+  tagName({ source }) { return source.tag_name; },
+  targetCommitish({ source }) { return source.target_commitish; },
+  createdAt({ source }) { return source.created_at; },
 }
 
 export const HooksCollection = {

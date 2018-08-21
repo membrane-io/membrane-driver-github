@@ -911,6 +911,22 @@
           {
             "name": "id",
             "type": "String"
+          },
+          {
+            "name": "name",
+            "type": "String"
+          },
+          {
+            "name": "body",
+            "type": "String"
+          },
+          {
+            "name": "draft",
+            "type": "Boolean"
+          },
+          {
+            "name": "prerelease",
+            "type": "Boolean"
           }
         ],
         "computedFields": [
@@ -921,6 +937,26 @@
             "ofType": {
               "type": "Release"
             }
+          },
+          {
+            "name": "nodeId",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "tagName",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "targetCommitish",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "createdAt",
+            "params": [],
+            "type": "String"
           }
         ],
         "actions": [],
