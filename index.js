@@ -1,4 +1,4 @@
-import { client, getDiff } from './client';
+import { client, getDiff, graphql } from './client';
 import { parse as parseUrl } from 'url';
 import { parse as parseQuery } from 'querystring';
 import axios from 'axios';
