@@ -287,10 +287,6 @@
           {
             "name": "url",
             "type": "String"
-          },
-          {
-            "name": "releases",
-            "type": "ReleaseCollection"
           }
         ],
         "computedFields": [
@@ -385,6 +381,11 @@
             "name": "pullRequests",
             "params": [],
             "type": "PullRequestCollection"
+          },
+          {
+            "name": "releases",
+            "params": [],
+            "type": "ReleaseCollection"
           }
         ],
         "actions": [],
