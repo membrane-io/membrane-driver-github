@@ -287,6 +287,10 @@
           {
             "name": "url",
             "type": "String"
+          },
+          {
+            "name": "releases",
+            "type": "String"
           }
         ],
         "computedFields": [
@@ -841,6 +845,78 @@
         "computedFields": [],
         "actions": [],
         "events": []
+      },
+      {
+        "name": "ReleaseCollection",
+        "fields": [],
+        "computedFields": [
+          {
+            "name": "one",
+            "params": [
+              {
+                "name": "id",
+                "type": "Int"
+              }
+            ],
+            "type": "Release"
+          },
+          {
+            "name": "page",
+            "params": [
+              {
+                "name": "pageSize",
+                "type": "String"
+              },
+              {
+                "name": "page",
+                "type": "String"
+              }
+            ],
+            "type": "ReleasePage"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "ReleasePage",
+        "fields": [],
+        "computedFields": [
+          {
+            "name": "items",
+            "params": [],
+            "type": "List",
+            "ofType": {
+              "type": "Release"
+            }
+          },
+          {
+            "name": "next",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "ReleasePage"
+            }
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "Release",
+        "fields": [
+          {
+            "name": "url",
+            "type": "String"
+          },
+          {
+            "name": "id",
+            "type": "String"
+          }
+        ],
+        "computedFields": [],
+        "actions": [],
+        "events": []
       }
     ]
   },
@@ -859,5 +935,6 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "files": []
+  "files": [],
+  "id": "eb10fe61-e944-47f3-a73a-4fac84a71d16"
 }
