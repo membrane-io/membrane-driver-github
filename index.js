@@ -400,9 +400,9 @@ export async function timer({ key }) {
           case "releasePublished": {
             if (type === "ReleaseEvent" && payload.action === "published") {
               const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
-              const number = payload.release.id;
+              const id = payload.release.id;
               await repoRef.releasePublished.dispatch({
-                release: repoRef.releases.one({ number })
+                release: repoRef.releases.one({ id })
               });
             }
             break;
