@@ -474,14 +474,7 @@
           }
         ],
         "actions": [],
-        "events": [
-          {
-            "name": "opened",
-            "params": [],
-            "type": "Void",
-            "description": "Triggered when a new issue is opened"
-          }
-        ]
+        "events": []
       },
       {
         "name": "IssuePage",
@@ -552,7 +545,10 @@
           {
             "name": "pullRequest",
             "params": [],
-            "type": "PullRequest"
+            "type": "Ref",
+            "ofType": {
+              "type": "PullRequest"
+            }
           },
           {
             "name": "nodeId",
@@ -863,6 +859,5 @@
   "database": [],
   "isDriver": false,
   "name": "github",
-  "id": "46ae5d64-9adb-4271-aa90-f683d7a7d8ec",
   "files": []
 }
