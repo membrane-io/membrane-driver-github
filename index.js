@@ -283,8 +283,9 @@ export const PullRequest = {
 
 export const ReleaseCollection = {
   async one({ self, source, args }) {
-    const { name: owner } = self.match(root.users.one);
-    const { name: repo } = self.match(root.users.one.repos.one);
+    const { name: owner } = self.match(root.users.one());
+    const { name: repo } = self.match(root.users.one().repos().one());
+
     const { id } = args;
     console.log(res)
     const result = await client.repos.getRelease({owner, repo, id})
