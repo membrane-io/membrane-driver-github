@@ -623,7 +623,13 @@
             "type": "String"
           }
         ],
-        "actions": [],
+        "actions": [
+          {
+            "name": "subscribe",
+            "params": [],
+            "type": "Void"
+          }
+        ],
         "events": []
       },
       {
@@ -905,10 +911,6 @@
         "name": "Release",
         "fields": [
           {
-            "name": "url",
-            "type": "String"
-          },
-          {
             "name": "id",
             "type": "String"
           },
@@ -927,6 +929,10 @@
           {
             "name": "prerelease",
             "type": "Boolean"
+          },
+          {
+            "name": "url",
+            "type": "String"
           }
         ],
         "computedFields": [
