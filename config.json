@@ -425,8 +425,16 @@
           },
           {
             "name": "releasePublished",
-            "params": [],
-            "type": "Release"
+            "params": [
+              {
+                "name": "release",
+                "type": "Ref",
+                "ofType": {
+                  "type": "Release"
+                }
+              }
+            ],
+            "type": "Void"
           }
         ]
       },
