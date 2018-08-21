@@ -397,6 +397,16 @@ export async function timer({ key }) {
             }
             break;
           }
+          case "releasePublished": {
+            if (type === "ReleaseEvent" && payload.action === "published") {
+              const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
+              const number = payload.release.id;
+              await repoRef.releasePublished.dispatch({
+                release: repoRef.releases.one({ number })
+              });
+            }
+            break;
+          }
           case "pullRequestOpened": {
             if (type === "PullRequestEvent" && payload.action === "opened") {
               const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
