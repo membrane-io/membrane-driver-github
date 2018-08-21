@@ -426,7 +426,7 @@
           {
             "name": "releasePublished",
             "params": [],
-            "type": "Void"
+            "type": "Release"
           }
         ]
       },
