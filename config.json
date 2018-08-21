@@ -290,7 +290,7 @@
           },
           {
             "name": "releases",
-            "type": "String"
+            "type": "ReleaseCollection"
           }
         ],
         "computedFields": [
