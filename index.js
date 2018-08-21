@@ -1,4 +1,3 @@
-// test version
 import { client, getDiff } from './client';
 import { parse as parseUrl } from 'url';
 import { parse as parseQuery } from 'querystring';
@@ -7,6 +6,9 @@ const { root } = program.refs;
 
 export async function init() {
   await root.users.set({});
+
+  program.state.repos = {};
+  await program.save();
 }
 
 export async function parse({ name, value }) {
@@ -120,28 +122,28 @@ export const Repository = {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      
-      await program.setTimer(`${owner}/${repo}`, 0, 10);
+
+      await ensureTimerIsSet(`${owner}/${repo}`, 'issueOpened');
     },
     async unsubscribe({ self }) { 
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-
-      await program.unsetTimer(`${owner}/${repo}`);
+      
+      await unsetTimerRepo(`${owner}/${repo}`, 'issueOpened');
     }
   },
   pullRequestOpened: {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      
-      await program.setTimer(`${owner}/${repo}`, 0, 10);
+
+      await ensureTimerIsSet(`${owner}/${repo}`, 'pullRequestOpened');
     },
-    async unsubscribe({ self }) { 
+    async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-
-      await program.unsetTimer(`${owner}/${repo}`);
+      
+      await unsetTimerRepo(`${owner}/${repo}`, 'pullRequestOpened');
     }
   },
   fullName({ source }) { return source['full_name']; },
@@ -283,28 +285,87 @@ export const Config = {
 }
 
 export async function timer({ key }) {
+  const { state } = program;
   const [ owner, repo ] = key.split('/')
-  const result = await  client.activity.getEventsForRepo({ owner, repo });
-    for (let event of result.data) {
-      const { type, payload} = event;
-      if (type === 'IssuesEvent' && payload.action === 'opened') {
-        
-        // dispatch Event
-        const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
-        await repoRef.issueOpened.dispatch({
-          issue: repoRef.issues.one({ number: payload.issue.number })
-        });
-      };
-      if (type === 'PullRequestEvent' && payload.action === 'opened') {
+  const { data, meta } = await client.activity.getEventsForRepo({ owner, repo });
 
-        // dispatch Event
-        const repoRef = root.users.one({ name: owner }).repos.one({ name: repo })
-        await repoRef.pullRequestOpened.dispatch({
-            issue: repoRef.issues.one({ number: payload.pull_request.number }),
-            pullRequest: repoRef.pullRequests.one({ number: payload.pull_request.number })
-        });
+  const index = data.findIndex(
+    item => formatTime(item.created_at) <= state.repos[key].lastEventTime
+  );
+
+  if (index > 0) {
+    const newEvents = data.slice(0, index).reverse();  
+    for (let event of newEvents) {
+      const { type, payload } = event;
+      for (let event of state.repos[key].events) {
+        switch (event) {
+          case "issueOpened": {
+            if (type === "IssuesEvent" && payload.action === "opened") {
+              // dispatch Event
+              const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
+              await repoRef.issueOpened.dispatch({
+                issue: repoRef.issues.one({ number: payload.issue.number })
+              });
+            }
+            break;
+          }
+          case "pullRequestOpened": {
+            if (type === "PullRequestEvent" && payload.action === "opened") {
+              // dispatch Event
+              const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
+              await repoRef.pullRequestOpened.dispatch({
+                issue: repoRef.issues.one({number: payload.pull_request.number}),
+                pullRequest: repoRef.pullRequests.one({number: payload.pull_request.number})
+              });
+            }
+            break;
+          }
+        }
       }
     }
-  const timer = Number.parseInt(result.meta['x-poll-interval']);
-  await program.setTimer(key, timer);
+
+    if (newEvents.length > 0) {
+      const lastEvent = newEvents[newEvents.length - 1];
+      state.repos[key].lastEventTime = formatTime(lastEvent.created_at);
+      await program.save();
+    }
+  }
+  
+  const timer = Number.parseInt(meta['x-poll-interval']);
+  await program.setTimer(key, 0, timer);
+}
+
+
+async function ensureTimerIsSet(repo, event){
+  const { state } = program;
+  const repository = state.repos[repo] = state.repos[repo] || {};
+  const events = repository["events"] = repository["events"] || [];  
+
+  if(events.length === 0){
+    repository["lastEventTime"] = new Date().getTime();
+    await timer({ key: repo });
+  }
+  
+  if(!events.includes(event)){
+    events.push(event);
+    await program.save();
+  }
+};
+
+async function unsetTimerRepo(repo, event){
+  const events = program.state.repos[repo].events;
+
+  const index = events.indexOf(event);
+  if (index >= 0) {
+    events.splice(index, 1);
+  }
+  await program.save();
+
+  if(events.length === 0){
+    await program.unsetTimer(repo);
+  }
+};
+
+function formatTime(time) {
+  return new Date(time).getTime();
 }
