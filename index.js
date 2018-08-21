@@ -5,6 +5,7 @@ import axios from 'axios';
 import getPageLinks from '@octokit/rest/lib/plugins/pagination/get-page-links';
 const { root } = program.refs;
 
+
 export async function init() {
   await root.users.set({});
 
@@ -187,6 +188,7 @@ export const Repository = {
   networkCount({ source }) { return source['network_count']; },
   issues({ self, source }) { return {}; },
   pullRequests({ self, source }) { return {}; },
+  releases({ self, source }) { return {}; },
 }
 
 export const IssueCollection = {
@@ -277,6 +279,35 @@ export const PullRequest = {
   //   return client.pullRequests.getFiles({owner, repo, number})
   // }
   nodeId({ source }) { return source.node_id; },
+}
+
+export const ReleaseCollection = {
+  async one({ self, source, args }) {
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
+    const { id } = args;
+
+    const result = await client.repos.getRelease({owner, repo, id})
+    return result.data;
+  },
+
+  async page({ self, source, args }) {
+    const { name: owner } = self.match(root.users.one());
+    const { name: repo } = self.match(root.users.one().repos().one());
+
+    const apiArgs = toApiArgs(args, { owner, repo });
+    const res = await client.repos.getReleases(apiArgs);
+    return {
+      items: res.data,
+      next: getNextPageRef(self.page(args), res),
+    };
+  }
+}
+
+export const Release = {
+  self({ self, parent, source }) {
+    return parent.parent.parent.one({ number: source.number });
+  },
 }
 
 export const HooksCollection = {
