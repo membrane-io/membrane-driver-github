@@ -881,11 +881,9 @@
       },
       {
         "name": "ReleasePage",
-        "fields": [],
-        "computedFields": [
+        "fields": [
           {
             "name": "items",
-            "params": [],
             "type": "List",
             "ofType": {
               "type": "Release"
@@ -893,13 +891,13 @@
           },
           {
             "name": "next",
-            "params": [],
             "type": "Ref",
             "ofType": {
               "type": "ReleasePage"
             }
           }
         ],
+        "computedFields": [],
         "actions": [],
         "events": []
       },
