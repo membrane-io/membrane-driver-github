@@ -283,10 +283,15 @@ export const PullRequest = {
 
 export const ReleaseCollection = {
   async one({ self, source, args }) {
-    const { name: owner } = self.match(root.users.one());
-    const { name: repo } = self.match(root.users.one().repos().one());
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
     const { id } = args;
-    const result = await client.repos.getRelease({owner, repo, id})
+    console.log(owner)
+    console.log(repo)
+    console.log(id)
+    const result = await client.repos.getRelease({ owner, repo, id })
+    console.log(result)
+    
     return result.data;
   },
 
@@ -294,7 +299,11 @@ export const ReleaseCollection = {
     const { name: owner } = self.match(root.users.one);
     const { name: repo } = self.match(root.users.one.repos.one);
     const apiArgs = toApiArgs(args, { owner, repo });
+    console.log(apiArgs)
+
     const res = await client.repos.getReleases(apiArgs);
+    console.log(res)
+    
     return {
       items: res.data,
       next: getNextPageRef(self.page(args), res),
