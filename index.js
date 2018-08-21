@@ -307,6 +307,7 @@ export async function timer({ key }) {
                 issue: repoRef.issues.one({ number: payload.issue.number })
               });
             }
+            break;
           }
           case "pullRequestOpened": {
             if (type === "PullRequestEvent" && payload.action === "opened") {
@@ -317,6 +318,7 @@ export async function timer({ key }) {
                 pullRequest: repoRef.pullRequests.one({number: payload.pull_request.number})
               });
             }
+            break;
           }
         }
       }
