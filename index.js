@@ -288,6 +288,7 @@ export const ReleaseCollection = {
     const { id } = args;
 
     const result = await client.repos.getRelease({owner, repo, id})
+    console.log(result)
     return result.data;
   },
 
