@@ -422,6 +422,11 @@
               }
             ],
             "type": "Void"
+          },
+          {
+            "name": "releasePublished",
+            "params": [],
+            "type": "Void"
           }
         ]
       },
