@@ -40,6 +40,6 @@ export async function graphql(query, variables){
     const client = axios.create({
       headers: {'Authorization': `token ${process.env.ACCESS_TOKEN}`}
     });
-    const reult = await client.post(`https://api.github.com/graphql`, body)
+    const result = await client.post(`https://api.github.com/graphql`, body)
      console.log(result);
 }
