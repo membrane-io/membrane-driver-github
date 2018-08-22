@@ -241,6 +241,8 @@ export const Issue = {
           }
       }`;
     const variables = { id: nodeId };
+    const test = graphql(query, variables);
+    console.log(test);
     await graphql(query, variables);
   },
   nodeId({ source }) { return source.node_id; },
