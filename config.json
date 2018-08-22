@@ -434,7 +434,7 @@
                 }
               }
             ],
-            "type": "Void"
+            "type": "Release"
           }
         ]
       },
