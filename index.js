@@ -400,7 +400,6 @@ export async function timer({ key }) {
             break;
           }
           case "releasePublished": {
-            console.log('releasePublished')
             if (type === "ReleaseEvent" && payload.action === "published") {
               const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
               const id = payload.release.id;
