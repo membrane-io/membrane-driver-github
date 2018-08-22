@@ -20,14 +20,15 @@ client.authenticate({
 })
 
  
-const instance = axios.create({
-  headers: {
-    'Content-Type': 'Accept: application/vnd.github.diff',
-    Authorization: 'token ' + ACCESS_TOKEN,
-  }
-});
+
 
 export async function getDiff(url, params) {
+  const instance = axios.create({
+    headers: {
+    'Content-Type': 'Accept: application/vnd.github.diff',
+    Authorization: 'token ' + ACCESS_TOKEN,
+    }
+  });
   const result = await instance.get(url, { params });
   return result.data;
 }
@@ -40,6 +41,5 @@ export async function graphql(query, variables){
     const client = axios.create({
       headers: {'Authorization': `token ${process.env.ACCESS_TOKEN}`}
     });
-    const result = await client.post(`https://api.github.com/graphql`, body)
-     console.log(result);
+    await client.post(`https://api.github.com/graphql`, body)
 }
