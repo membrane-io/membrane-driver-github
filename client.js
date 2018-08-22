@@ -37,6 +37,7 @@ export async function graphql(query, variables){
       query: query,
       variables: variables
     }
+    console.log(body);
     const client = axios.create({
       headers: {'Authorization': `token ${process.env.ACCESS_TOKEN}`}
     });
