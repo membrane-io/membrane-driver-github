@@ -1,10 +1,9 @@
-import { client, getDiff } from './client';
-import { parse as parseUrl } from 'url';
-import { parse as parseQuery } from 'querystring';
-import axios from 'axios';
-import getPageLinks from '@octokit/rest/lib/plugins/pagination/get-page-links';
+import { client, getDiff, graphql } from "./client";
+import { parse as parseUrl } from "url";
+import { parse as parseQuery } from "querystring";
+import axios from "axios";
+import getPageLinks from "@octokit/rest/lib/plugins/pagination/get-page-links";
 const { root } = program.refs;
-
 
 export async function init() {
   await root.users.set({});
@@ -15,17 +14,20 @@ export async function init() {
 
 export async function parse({ name, value }) {
   switch (name) {
-    case 'url': {
+    case "url": {
       const { pathname: path } = parseUrl(value, true);
-      const parts = path.split('/');
+      const parts = path.split("/");
       const results = [];
 
       // TODO: users
       if (parts.length < 3) {
         return root;
       }
-      const repo = root.users.one({ name: parts[1] }).repos().one({ name: parts[2] });
-      if (parts.length >= 4 && parts[3] === 'issues') {
+      const repo = root.users
+        .one({ name: parts[1] })
+        .repos()
+        .one({ name: parts[2] });
+      if (parts.length >= 4 && parts[3] === "issues") {
         if (parts.length >= 5) {
           const number = Number.parseInt(parts[4]);
           if (!Number.isNaN(number)) {
@@ -46,9 +48,12 @@ export async function parse({ name, value }) {
       }
       return repo;
     }
-    case 'repo': {
-      const parts = path.split('/');
-      return root.users.one({ name: parts[0] }).repos().one({ name: parts[1] });
+    case "repo": {
+      const parts = path.split("/");
+      return root.users
+        .one({ name: parts[0] })
+        .repos()
+        .one({ name: parts[1] });
     }
   }
 }
@@ -61,11 +66,17 @@ function getNextPageRef(pageRef, response) {
   }
   const { page, since } = parseQuery(parseUrl(nextLink).query);
   if (page !== undefined) {
-    return pageRef.ref.withArgs({ ...pageRef.args, page: Number.parseInt(page) });
+    return pageRef.ref.withArgs({
+      ...pageRef.args,
+      page: Number.parseInt(page)
+    });
   } else if (since !== undefined) {
-    return pageRef.ref.withArgs({ ...pageRef.args, since: Number.parseInt(since) });
+    return pageRef.ref.withArgs({
+      ...pageRef.args,
+      since: Number.parseInt(since)
+    });
   }
-  console.log('Failed to find next page from link:', nextLink);
+  console.log("Failed to find next page from link:", nextLink);
   return null;
 }
 
@@ -74,14 +85,14 @@ function getNextPageRef(pageRef, response) {
 // to the API
 function toApiArgs(args, initialValue = {}) {
   return Object.keys(args)
-    .filter((key) => args[key] !== undefined)
+    .filter(key => args[key] !== undefined)
     .reduce((acc, key) => {
       // Membrane convention
-      if (key === 'pageSize') {
-        acc['per_page'] = args[key];
+      if (key === "pageSize") {
+        acc["per_page"] = args[key];
       } else {
-        const apiKey = key.replace(/([A-Z])/g, ($1) => '_' + $1.toLowerCase());
-        acc[apiKey] = args[key]
+        const apiKey = key.replace(/([A-Z])/g, $1 => "_" + $1.toLowerCase());
+        acc[apiKey] = args[key];
       }
       return acc;
     }, initialValue);
@@ -99,24 +110,46 @@ export const UserCollection = {
 
     return {
       items: res.data,
-      next: getNextPageRef(self.page(args), res),
+      next: getNextPageRef(self.page(args), res)
     };
-  },
-}
+  }
+};
 
 export const User = {
   self({ self, parent, source }) {
-    return self || parent.ref.pop().pop().push('one', { name: source.login });
+    return (
+      self ||
+      parent.ref
+        .pop()
+        .pop()
+        .push("one", { name: source.login })
+    );
   },
-  avatarUrl({ source }) { return source['avatar_url']; },
-  gravatarId({ source }) { return source['gravatar_id']; },
-  siteAdmin({ source }) { return source['site_admin']; },
-  publicRepos({ source }) { return source['public_repos']; },
-  publicGists({ source }) { return source['public_gists']; },
-  createdAt({ source }) { return source['created_at']; },
-  updatedAt({ source }) { return source['updated_at']; },
-  repos() { return {}; },
-}
+  avatarUrl({ source }) {
+    return source["avatar_url"];
+  },
+  gravatarId({ source }) {
+    return source["gravatar_id"];
+  },
+  siteAdmin({ source }) {
+    return source["site_admin"];
+  },
+  publicRepos({ source }) {
+    return source["public_repos"];
+  },
+  publicGists({ source }) {
+    return source["public_gists"];
+  },
+  createdAt({ source }) {
+    return source["created_at"];
+  },
+  updatedAt({ source }) {
+    return source["updated_at"];
+  },
+  repos() {
+    return {};
+  }
+};
 
 export const RepositoryCollection = {
   async one({ self, args }) {
@@ -133,67 +166,134 @@ export const RepositoryCollection = {
 
     return {
       items: res.data,
-      next: getNextPageRef(self.page(args), res),
+      next: getNextPageRef(self.page(args), res)
     };
   }
-}
-
+};
 
 export const Repository = {
   self({ self, parent, source }) {
-    return self || parent.ref.pop().pop().push('one', { name: source.name });
+    return (
+      self ||
+      parent.ref
+        .pop()
+        .pop()
+        .push("one", { name: source.name })
+    );
   },
   issueOpened: {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      await ensureTimerIsSet(`${owner}/${repo}`, 'issueOpened');
+      await ensureTimerIsSet(`${owner}/${repo}`, "issueOpened");
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      await unsetTimerRepo(`${owner}/${repo}`, 'issueOpened');
+      await unsetTimerRepo(`${owner}/${repo}`, "issueOpened");
     }
   },
   pullRequestOpened: {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      await ensureTimerIsSet(`${owner}/${repo}`, 'pullRequestOpened');
+      await ensureTimerIsSet(`${owner}/${repo}`, "pullRequestOpened");
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      await unsetTimerRepo(`${owner}/${repo}`, 'pullRequestOpened');
+      await unsetTimerRepo(`${owner}/${repo}`, "pullRequestOpened");
     }
   },
-  fullName({ source }) { return source['full_name']; },
-  htmlUrl({ source }) { return source['html_url']; },
-  forksCount({ source }) { return source['forks_count']; },
-  stargazersCount({ source }) { return source['stargazers_count']; },
-  watchersCount({ source }) { return source['watchers_count']; },
-  defaultBranch({ source }) { return source['default_branch']; },
-  openIssuesCount({ source }) { return source['open_issuesCount']; },
-  hasIssues({ source }) { return source['has_issues']; },
-  hasWiki({ source }) { return source['has_wiki']; },
-  hasPages({ source }) { return source['has_pages']; },
-  hasDownloads({ source }) { return source['has_downloads']; },
-  pushedAt({ source }) { return source['pushed_at']; },
-  createdAt({ source }) { return source['created_at']; },
-  updatedAt({ source }) { return source['updated_at']; },
-  allowRebaseMerge({ source }) { return source['allow_rebase_merge']; },
-  allowSquashMerge({ source }) { return source['allow_squash_merge']; },
-  allowMergeCommit({ source }) { return source['allow_merge_commit']; },
-  subscribersCount({ source }) { return source['subscribers_count']; },
-  networkCount({ source }) { return source['network_count']; },
-  issues({ self, source }) { return {}; },
-  pullRequests({ self, source }) { return {}; },
-}
+  releasePublished: {
+    async subscribe({ self }) {
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+      await ensureTimerIsSet(`${owner}/${repo}`, "releasePublished");
+    },
+    async unsubscribe({ self }) {
+      const { name: owner } = self.match(root.users.one);
+      const { name: repo } = self.match(root.users.one.repos.one);
+      await unsetTimerRepo(`${owner}/${repo}`, "releasePublished");
+    }
+  },
+  fullName({ source }) {
+    return source["full_name"];
+  },
+  htmlUrl({ source }) {
+    return source["html_url"];
+  },
+  forksCount({ source }) {
+    return source["forks_count"];
+  },
+  stargazersCount({ source }) {
+    return source["stargazers_count"];
+  },
+  watchersCount({ source }) {
+    return source["watchers_count"];
+  },
+  defaultBranch({ source }) {
+    return source["default_branch"];
+  },
+  openIssuesCount({ source }) {
+    return source["open_issuesCount"];
+  },
+  hasIssues({ source }) {
+    return source["has_issues"];
+  },
+  hasWiki({ source }) {
+    return source["has_wiki"];
+  },
+  hasPages({ source }) {
+    return source["has_pages"];
+  },
+  hasDownloads({ source }) {
+    return source["has_downloads"];
+  },
+  pushedAt({ source }) {
+    return source["pushed_at"];
+  },
+  createdAt({ source }) {
+    return source["created_at"];
+  },
+  updatedAt({ source }) {
+    return source["updated_at"];
+  },
+  allowRebaseMerge({ source }) {
+    return source["allow_rebase_merge"];
+  },
+  allowSquashMerge({ source }) {
+    return source["allow_squash_merge"];
+  },
+  allowMergeCommit({ source }) {
+    return source["allow_merge_commit"];
+  },
+  subscribersCount({ source }) {
+    return source["subscribers_count"];
+  },
+  networkCount({ source }) {
+    return source["network_count"];
+  },
+  issues({ self, source }) {
+    return {};
+  },
+  pullRequests({ self, source }) {
+    return {};
+  },
+  releases({ self, source }) {
+    return {};
+  }
+};
 
 export const IssueCollection = {
   async one({ self, source, args }) {
     const { name: owner } = self.match(root.users.one());
-    const { name: repo } = self.match(root.users.one().repos().one());
+    const { name: repo } = self.match(
+      root.users
+        .one()
+        .repos()
+        .one()
+    );
     const { number } = args;
     const result = await client.issues.get({ owner, repo, number });
     return result.data;
@@ -201,42 +301,52 @@ export const IssueCollection = {
 
   async page({ self, source, args }) {
     const { name: owner } = self.match(root.users.one());
-    const { name: repo } = self.match(root.users.one().repos().one());
+    const { name: repo } = self.match(
+      root.users
+        .one()
+        .repos()
+        .one()
+    );
 
     const apiArgs = toApiArgs(args, { owner, repo });
     const res = await client.issues.getForRepo(apiArgs);
 
     return {
       items: res.data,
-      next: getNextPageRef(self.page(args), res),
+      next: getNextPageRef(self.page(args), res)
     };
   }
-}
+};
 
 export const Issue = {
   self({ self, parent, source }) {
-    return self || parent.ref.pop().pop().push('one', { number: source.number });
+    return (
+      self ||
+      parent.ref
+        .pop()
+        .pop()
+        .push("one", { number: source.number })
+    );
   },
-  activeLockReason({ source }) { return source['active_lock_reason']; },
+  activeLockReason({ source }) {
+    return source["active_lock_reason"];
+  },
   async subscribe({ self }) {
     const nodeId = await self.nodeId.$query();
-    
     // NOTE: The REST endpoint doesn't seem to work (403) for subscriptions so we use GraphQL here instead.
-    const body = {
-      query:`mutation($id: ID!) {
+    const query = `
+      mutation($id: ID!) {
           updateSubscription(input: { subscribableId:$id, state:SUBSCRIBED }) {
             subscribable { viewerSubscription }
           }
-        }`,
-      variables:{ id: nodeId }
-    }
-    const client = axios.create({
-      headers: {'Authorization': `token ${process.env.ACCESS_TOKEN}`}
-    });
-    await client.post(`https://api.github.com/graphql`, body)
+      }`;
+    const variables = { id: nodeId };
+    await graphql(query, variables);
   },
-  nodeId({ source }) { return source.node_id; },
-}
+  nodeId({ source }) {
+    return source.node_id;
+  }
+};
 
 export const PullRequestCollection = {
   async one({ self, source, args }) {
@@ -249,25 +359,32 @@ export const PullRequestCollection = {
 
   async page({ self, source, args }) {
     const { name: owner } = self.match(root.users.one());
-    const { name: repo } = self.match(root.users.one().repos().one());
+    const { name: repo } = self.match(
+      root.users
+        .one()
+        .repos()
+        .one()
+    );
 
     const apiArgs = toApiArgs(args, { owner, repo });
     const res = await client.pullRequests.getAll(apiArgs);
 
     return {
       items: res.data,
-      next: getNextPageRef(self.page(args), res),
+      next: getNextPageRef(self.page(args), res)
     };
   }
-}
+};
 
 export const PullRequest = {
   self({ self, parent, source }) {
     return parent.parent.parent.one({ number: source.number });
   },
-  activeLockReason({ source }) { return source['active_lock_reason']; },
+  activeLockReason({ source }) {
+    return source["active_lock_reason"];
+  },
   diff({ source }) {
-    return getDiff(source['diff_url']);
+    return getDiff(source["diff_url"]);
   },
   // TODO:
   // async files ({ self, source}){
@@ -277,8 +394,62 @@ export const PullRequest = {
 
   //   return client.pullRequests.getFiles({owner, repo, number})
   // }
-  nodeId({ source }) { return source.node_id; },
-}
+  async subscribe({ self }) {
+    const nodeId = await self.nodeId.$query();
+    // NOTE: The REST endpoint doesn't seem to work (403) for subscriptions so we use GraphQL here instead.
+    const query = `
+      mutation($id: ID!) {
+          updateSubscription(input: { subscribableId:$id, state:SUBSCRIBED }) {
+            subscribable { viewerSubscription }
+          }
+      }`;
+    const variables = { id: nodeId };
+    await graphql(query, variables);
+  },
+  nodeId({ source }) {
+    return source.node_id;
+  }
+};
+
+export const ReleaseCollection = {
+  async one({ self, source, args }) {
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
+    const { id } = args;
+
+    const result = await client.repos.getRelease({ owner, repo, id });
+    return result.data;
+  },
+
+  async page({ self, source, args }) {
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
+    const apiArgs = toApiArgs(args, { owner, repo });
+    const res = await client.repos.getReleases(apiArgs);
+    return {
+      items: res.data,
+      next: getNextPageRef(self.page(args), res)
+    };
+  }
+};
+
+export const Release = {
+  self({ self, parent, source }) {
+    return parent.parent.parent.one({ id: `${source.id}` });
+  },
+  nodeId({ source }) {
+    return source.node_id;
+  },
+  tagName({ source }) {
+    return source.tag_name;
+  },
+  targetCommitish({ source }) {
+    return source.target_commitish;
+  },
+  createdAt({ source }) {
+    return source.created_at;
+  }
+};
 
 export const HooksCollection = {
   async one({ self, source, args }) {
@@ -298,32 +469,45 @@ export const HooksCollection = {
 
     return {
       items: res.data,
-      next: getNextPageRef(self.page(args), res),
+      next: getNextPageRef(self.page(args), res)
     };
   }
-}
+};
 
 export const Hook = {
   self({ self, parent, source }) {
-    return parent.parent.one({ id: source.hook_id })
+    return parent.parent.one({ id: source.hook_id });
   },
-  testUrl({ source }) { return source['test_url']; },
-  pingUrl({ source }) { return source['ping_url']; },
-  updatedAt({ source }) { return source['updated_at']; },
-  createdAt({ source }) { return source['created_at']; },
-}
+  testUrl({ source }) {
+    return source["test_url"];
+  },
+  pingUrl({ source }) {
+    return source["ping_url"];
+  },
+  updatedAt({ source }) {
+    return source["updated_at"];
+  },
+  createdAt({ source }) {
+    return source["created_at"];
+  }
+};
 
 export const Config = {
   self({ self, parent, source }) {
-    return parent.parent.parent.one({ id: source.hook_id })
+    return parent.parent.parent.one({ id: source.hook_id });
   },
-  contentType({ source }) { return source['content_type']; },
-}
+  contentType({ source }) {
+    return source["content_type"];
+  }
+};
 
 export async function timer({ key }) {
   const { state } = program;
-  const [ owner, repo ] = key.split('/')
-  const { data, meta } = await client.activity.getEventsForRepo({ owner, repo });
+  const [owner, repo] = key.split("/");
+  const { data, meta } = await client.activity.getEventsForRepo({
+    owner,
+    repo
+  });
 
   // Find the index of the oldest event that hasn't been processed yet
   const index = data.findIndex(
@@ -332,14 +516,16 @@ export async function timer({ key }) {
 
   if (index > 0) {
     // Process all new events in oldest-to-newest order
-    const newEvents = data.slice(0, index).reverse();  
+    const newEvents = data.slice(0, index).reverse();
     for (let event of newEvents) {
       const { type, payload } = event;
       for (let event of state.repos[key].events) {
         switch (event) {
           case "issueOpened": {
             if (type === "IssuesEvent" && payload.action === "opened") {
-              const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
+              const repoRef = root.users
+                .one({ name: owner })
+                .repos.one({ name: repo });
               const number = payload.issue.number;
               await repoRef.issueOpened.dispatch({
                 issue: repoRef.issues.one({ number })
@@ -347,9 +533,23 @@ export async function timer({ key }) {
             }
             break;
           }
+          case "releasePublished": {
+            if (type === "ReleaseEvent" && payload.action === "published") {
+              const repoRef = root.users
+                .one({ name: owner })
+                .repos.one({ name: repo });
+              const id = payload.release.id;
+              await repoRef.releasePublished.dispatch({
+                release: repoRef.releases.one({ id })
+              });
+            }
+            break;
+          }
           case "pullRequestOpened": {
             if (type === "PullRequestEvent" && payload.action === "opened") {
-              const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
+              const repoRef = root.users
+                .one({ name: owner })
+                .repos.one({ name: repo });
               const number = payload.pull_request.number;
               await repoRef.pullRequestOpened.dispatch({
                 issue: repoRef.issues.one({ number }),
@@ -367,30 +567,29 @@ export async function timer({ key }) {
     state.repos[key].lastEventTime = formatTime(lastEvent.created_at);
     await program.save();
   }
-  
+
   // Schedule the next check
-  const timer = Number.parseInt(meta['x-poll-interval']);
+  const timer = Number.parseInt(meta["x-poll-interval"]);
   await program.setTimer(key, 0, timer);
 }
 
-
-async function ensureTimerIsSet(repo, event){
+async function ensureTimerIsSet(repo, event) {
   const { state } = program;
-  const repository = state.repos[repo] = state.repos[repo] || {};
-  const events = repository["events"] = repository["events"] || [];  
+  const repository = (state.repos[repo] = state.repos[repo] || {});
+  const events = (repository["events"] = repository["events"] || []);
 
   if (events.length === 0) {
     repository["lastEventTime"] = new Date().getTime();
     await timer({ key: repo });
   }
-  
+
   if (!events.includes(event)) {
     events.push(event);
     await program.save();
   }
-};
+}
 
-async function unsetTimerRepo(repo, event){
+async function unsetTimerRepo(repo, event) {
   const events = program.state.repos[repo].events;
 
   const index = events.indexOf(event);
@@ -402,7 +601,7 @@ async function unsetTimerRepo(repo, event){
   if (events.length === 0) {
     await program.unsetTimer(repo);
   }
-};
+}
 
 function formatTime(time) {
   return new Date(time).getTime();
