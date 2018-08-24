@@ -581,7 +581,13 @@
             "type": "Void"
           }
         ],
-        "events": []
+        "events": [
+          {
+            "name": "issueClosed",
+            "params": [],
+            "type": "Boolean"
+          }
+        ]
       },
       {
         "name": "PullRequest",
@@ -643,7 +649,18 @@
             "type": "Void"
           }
         ],
-        "events": []
+        "events": [
+          {
+            "name": "pullRequestClosed",
+            "params": [],
+            "type": "Boolean"
+          },
+          {
+            "name": "pullRequestMerged",
+            "params": [],
+            "type": "Boolean"
+          }
+        ]
       },
       {
         "name": "HooksCollection",
