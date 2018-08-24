@@ -351,14 +351,14 @@ export const Issue = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       const { number } = self.match(root.users.one.repos.one.issues.one);
-      
+
       await ensureTimerIsSet(`${owner}/${repo}`, `issueClosed/${number}`);
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       const { number } = self.match(root.users.one.repos.one.issues.one);
-      
+
       await unsetTimerRepo(`${owner}/${repo}`, `issueClosed/${number}`);
     },
   },
@@ -422,14 +422,14 @@ export const PullRequest = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       const { number } = self.match(root.users.one.repos.one.issues.one);
-      
+
       await ensureTimerIsSet(`${owner}/${repo}`, `pullRequestClosed/${number}`);
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       const { number } = self.match(root.users.one.repos.one.issues.one);
-      
+
       await unsetTimerRepo(`${owner}/${repo}`, `pullRequestClosed/${number}`);
     },
   },
@@ -438,14 +438,14 @@ export const PullRequest = {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       const { number } = self.match(root.users.one.repos.one.issues.one);
-      
+
       await ensureTimerIsSet(`${owner}/${repo}`, `pullRequestMerged/${number}`);
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
       const { number } = self.match(root.users.one.repos.one.issues.one);
-      
+
       await unsetTimerRepo(`${owner}/${repo}`, `pullRequestMerged/${number}`);
     },
   },
@@ -558,7 +558,7 @@ export async function timer({ key }) {
     for (let event of newEvents) {
       const { type, payload } = event;
       for (let eventData of state.repos[key].events) {
-        const [event, number] = split(eventData, '/')
+        const [event, number] = split(eventData, '/');
         switch (event) {
           case 'issueOpened': {
             if (type === 'IssuesEvent' && payload.action === 'opened') {
@@ -572,7 +572,10 @@ export async function timer({ key }) {
           }
           case 'issueClosed': {
             if (type === 'IssuesEvent' && payload.action === 'closed') {
-              const issueRef = root.users.one({ name: owner }).repos.one({ name: repo }).issues.one({number: number});
+              const issueRef = root.users
+                .one({ name: owner })
+                .repos.one({ name: repo })
+                .issues.one({ number: number });
               await issueRef.closed.dispatch();
             }
             break;
@@ -600,14 +603,20 @@ export async function timer({ key }) {
           }
           case 'pullRequestClosed': {
             if (type === 'PullRequestEvent' && payload.action === 'closed') {
-              const pullRef = root.users.one({ name: owner }).repos.one({ name: repo }).pullRequests.one({number: number});
+              const pullRef = root.users
+                .one({ name: owner })
+                .repos.one({ name: repo })
+                .pullRequests.one({ number: number });
               await pullRef.closed.dispatch();
             }
             break;
           }
           case 'pullRequestMerged': {
             if (type === 'PullRequestEvent' && payload.merged === 'true') {
-              const pullRef = root.users.one({ name: owner }).repos.one({ name: repo }).pullRequests.one({number: number});
+              const pullRef = root.users
+                .one({ name: owner })
+                .repos.one({ name: repo })
+                .pullRequests.one({ number: number });
               await pullRef.closed.dispatch();
             }
             break;
