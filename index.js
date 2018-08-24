@@ -117,13 +117,7 @@ export const UserCollection = {
 
 export const User = {
   self({ self, parent, source }) {
-    return (
-      self ||
-      parent.ref
-        .pop()
-        .pop()
-        .push('one', { name: source.login })
-    );
+    return parent.parent.parent.one({ name: source.login });
   },
   avatarUrl({ source }) {
     return source['avatar_url'];
@@ -173,13 +167,7 @@ export const RepositoryCollection = {
 
 export const Repository = {
   self({ self, parent, source }) {
-    return (
-      self ||
-      parent.ref
-        .pop()
-        .pop()
-        .push('one', { name: source.name })
-    );
+    return parent.parent.parent.one({ name: source.name });
   },
   issueOpened: {
     async subscribe({ self }) {
@@ -288,12 +276,7 @@ export const Repository = {
 export const IssueCollection = {
   async one({ self, source, args }) {
     const { name: owner } = self.match(root.users.one());
-    const { name: repo } = self.match(
-      root.users
-        .one()
-        .repos()
-        .one(),
-    );
+    const { name: repo } = self.match(root.users.one.repos.one);
     const { number } = args;
     const result = await client.issues.get({ owner, repo, number });
     return result.data;
@@ -301,12 +284,7 @@ export const IssueCollection = {
 
   async page({ self, source, args }) {
     const { name: owner } = self.match(root.users.one());
-    const { name: repo } = self.match(
-      root.users
-        .one()
-        .repos()
-        .one(),
-    );
+    const { name: repo } = self.match(root.users.one.repos.one);
 
     const apiArgs = toApiArgs(args, { owner, repo });
     const res = await client.issues.getForRepo(apiArgs);
@@ -320,13 +298,7 @@ export const IssueCollection = {
 
 export const Issue = {
   self({ self, parent, source }) {
-    return (
-      self ||
-      parent.ref
-        .pop()
-        .pop()
-        .push('one', { number: source.number })
-    );
+    return parent.parent.parent.one({ number: source.number });
   },
   activeLockReason({ source }) {
     return source['active_lock_reason'];
@@ -379,7 +351,7 @@ export const PullRequestCollection = {
       root.users
         .one()
         .repos()
-        .one(),
+        .one()
     );
 
     const apiArgs = toApiArgs(args, { owner, repo });
@@ -491,47 +463,6 @@ export const Release = {
   },
 };
 
-export const HooksCollection = {
-  async one({ self, source, args }) {
-    const { name: owner } = self.match(root.users.one);
-    const { name: repo } = self.match(root.users.one.repos.one);
-    const { id } = args;
-    const result = await octokit.repos.getHook({ owner, repo, id });
-    return result.data;
-  },
-
-  async page({ self, source, args }) {
-    const { name: owner } = self.match(root.users.one);
-    const { name: repo } = self.match(root.users.one.repos.one);
-
-    const apiArgs = toApiArgs(args, { owner, repo });
-    const res = await client.repos.getHooks(apiArgs);
-
-    return {
-      items: res.data,
-      next: getNextPageRef(self.page(args), res),
-    };
-  },
-};
-
-export const Hook = {
-  self({ self, parent, source }) {
-    return parent.parent.one({ id: source.hook_id });
-  },
-  testUrl({ source }) {
-    return source['test_url'];
-  },
-  pingUrl({ source }) {
-    return source['ping_url'];
-  },
-  updatedAt({ source }) {
-    return source['updated_at'];
-  },
-  createdAt({ source }) {
-    return source['created_at'];
-  },
-};
-
 export const Config = {
   self({ self, parent, source }) {
     return parent.parent.parent.one({ id: source.hook_id });
@@ -544,10 +475,7 @@ export const Config = {
 export async function timer({ key }) {
   const { state } = program;
   const [owner, repo] = key.split('/');
-  const { data, meta } = await client.activity.getEventsForRepo({
-    owner,
-    repo,
-  });
+  const { data, meta } = await client.activity.getEventsForRepo({ owner, repo });
 
   // Find the index of the oldest event that hasn't been processed yet
   const index = data.findIndex((item) => formatTime(item.created_at) <= state.repos[key].lastEventTime);
