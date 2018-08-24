@@ -617,7 +617,7 @@ export async function timer({ key }) {
                 .one({ name: owner })
                 .repos.one({ name: repo })
                 .pullRequests.one({ number: number });
-              await pullRef.closed.dispatch();
+              await pullRef.merged.dispatch();
             }
             break;
           }
