@@ -612,7 +612,7 @@ export async function timer({ key }) {
             break;
           }
           case 'pullRequestMerged': {
-            if (type === 'PullRequestEvent' && payload.merged === 'true') {
+            if (type === 'PullRequestEvent' && payload.merged === true) {
               const pullRef = root.users
                 .one({ name: owner })
                 .repos.one({ name: repo })
