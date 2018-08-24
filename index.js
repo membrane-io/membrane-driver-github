@@ -421,14 +421,14 @@ export const PullRequest = {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      const { number } = self.match(root.users.one.repos.one.issues.one);
+      const { number } = self.match(root.users.one.repos.one.pullRequests.one);
 
       await ensureTimerIsSet(`${owner}/${repo}`, `pullRequestClosed/${number}`);
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      const { number } = self.match(root.users.one.repos.one.issues.one);
+      const { number } = self.match(root.users.one.repos.one.pullRequests.one);
 
       await unsetTimerRepo(`${owner}/${repo}`, `pullRequestClosed/${number}`);
     },
@@ -437,14 +437,14 @@ export const PullRequest = {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      const { number } = self.match(root.users.one.repos.one.issues.one);
+      const { number } = self.match(root.users.one.repos.one.pullRequests.one);
 
       await ensureTimerIsSet(`${owner}/${repo}`, `pullRequestMerged/${number}`);
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      const { number } = self.match(root.users.one.repos.one.issues.one);
+      const { number } = self.match(root.users.one.repos.one.pullRequests.one);
 
       await unsetTimerRepo(`${owner}/${repo}`, `pullRequestMerged/${number}`);
     },
