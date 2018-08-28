@@ -542,6 +542,10 @@
           {
             "name": "comments",
             "type": "Int"
+          },
+          {
+            "name": "user",
+            "type": "Owner"
           }
         ],
         "computedFields": [
@@ -844,6 +848,13 @@
             "type": "String"
           }
         ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "Owner",
+        "fields": [],
+        "computedFields": [],
         "actions": [],
         "events": []
       }
