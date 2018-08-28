@@ -472,6 +472,24 @@ export const Config = {
   },
 };
 
+export const Owner = {
+  nodeId({ source }) {
+    return source.node_id;
+  },
+  avatarUrl({ source }) {
+    return source.avatar_url;
+  },
+  subscriptionsUrl({ source }) {
+    return source.subscriptions_url;
+  },
+  eventsUrl({ source }) {
+    return source.events_url;
+  },
+  receivedEventsUrl({ source }) {
+    return source.received_events_url;
+  },
+}
+
 export async function timer({ key }) {
   const { state } = program;
   const [owner, repo] = key.split('/');
