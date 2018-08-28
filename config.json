@@ -853,8 +853,51 @@
       },
       {
         "name": "Owner",
-        "fields": [],
-        "computedFields": [],
+        "fields": [
+          {
+            "name": "login",
+            "type": "String"
+          },
+          {
+            "name": "id",
+            "type": "Int"
+          },
+          {
+            "name": "url",
+            "type": "String"
+          },
+          {
+            "name": "type",
+            "type": "String"
+          }
+        ],
+        "computedFields": [
+          {
+            "name": "nodeId",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "avatarUrl",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "subscriptionsUrl",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "eventsUrl",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "receivedEventsUrl",
+            "params": [],
+            "type": "String"
+          }
+        ],
         "actions": [],
         "events": []
       }
