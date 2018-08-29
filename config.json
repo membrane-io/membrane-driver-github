@@ -619,6 +619,10 @@
           {
             "name": "user",
             "type": "Owner"
+          },
+          {
+            "name": "merged",
+            "type": "String"
           }
         ],
         "computedFields": [

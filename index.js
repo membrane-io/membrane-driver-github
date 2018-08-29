@@ -405,22 +405,6 @@ export const PullRequest = {
       await unsetTimerRepo(`${owner}/${repo}`, `pullRequestClosed/${number}`);
     },
   },
-  merged: {
-    async subscribe({ self }) {
-      const { name: owner } = self.match(root.users.one);
-      const { name: repo } = self.match(root.users.one.repos.one);
-      const { number } = self.match(root.users.one.repos.one.pullRequests.one);
-
-      await ensureTimerIsSet(`${owner}/${repo}`, `pullRequestMerged/${number}`);
-    },
-    async unsubscribe({ self }) {
-      const { name: owner } = self.match(root.users.one);
-      const { name: repo } = self.match(root.users.one.repos.one);
-      const { number } = self.match(root.users.one.repos.one.pullRequests.one);
-
-      await unsetTimerRepo(`${owner}/${repo}`, `pullRequestMerged/${number}`);
-    },
-  },
 };
 
 export const ReleaseCollection = {
@@ -554,16 +538,6 @@ export async function timer({ key }) {
                 .repos.one({ name: repo })
                 .pullRequests.one({ number: number });
               await pullRef.closed.dispatch();
-            }
-            break;
-          }
-          case 'pullRequestMerged': {
-            if (type === 'PullRequestEvent' && payload.merged === true) {
-              const pullRef = root.users
-                .one({ name: owner })
-                .repos.one({ name: repo })
-                .pullRequests.one({ number: number });
-              await pullRef.merged.dispatch();
             }
             break;
           }
