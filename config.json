@@ -23,10 +23,6 @@
           {
             "name": "users",
             "type": "UserCollection"
-          },
-          {
-            "name": "hooks",
-            "type": "HooksCollection"
           }
         ],
         "computedFields": [],
@@ -572,6 +568,14 @@
             "name": "nodeId",
             "params": [],
             "type": "String"
+          },
+          {
+            "name": "owner",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "User"
+            }
           }
         ],
         "actions": [
@@ -581,7 +585,13 @@
             "type": "Void"
           }
         ],
-        "events": []
+        "events": [
+          {
+            "name": "issueClosed",
+            "params": [],
+            "type": "Boolean"
+          }
+        ]
       },
       {
         "name": "PullRequest",
@@ -609,6 +619,10 @@
           {
             "name": "locked",
             "type": "Boolean"
+          },
+          {
+            "name": "merged",
+            "type": "Boolean"
           }
         ],
         "computedFields": [
@@ -634,6 +648,14 @@
             "name": "nodeId",
             "params": [],
             "type": "String"
+          },
+          {
+            "name": "owner",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "User"
+            }
           }
         ],
         "actions": [
@@ -643,154 +665,13 @@
             "type": "Void"
           }
         ],
-        "events": []
-      },
-      {
-        "name": "HooksCollection",
-        "fields": [],
-        "computedFields": [
+        "events": [
           {
-            "name": "one",
-            "params": [
-              {
-                "name": "id",
-                "type": "String"
-              }
-            ],
-            "type": "Hook"
-          },
-          {
-            "name": "page",
-            "params": [
-              {
-                "name": "page",
-                "type": "Int"
-              },
-              {
-                "name": "pageSize",
-                "type": "Int"
-              }
-            ],
-            "type": "HooksPage"
+            "name": "pullRequestClosed",
+            "params": [],
+            "type": "Boolean"
           }
-        ],
-        "actions": [],
-        "events": []
-      },
-      {
-        "name": "HooksPage",
-        "fields": [
-          {
-            "name": "items",
-            "type": "List",
-            "ofType": {
-              "type": "Hook"
-            }
-          },
-          {
-            "name": "next",
-            "type": "Ref",
-            "ofType": {
-              "type": "HooksPage"
-            }
-          }
-        ],
-        "computedFields": [],
-        "actions": [],
-        "events": []
-      },
-      {
-        "name": "Hook",
-        "fields": [
-          {
-            "name": "id",
-            "type": "String"
-          },
-          {
-            "name": "url",
-            "type": "String"
-          },
-          {
-            "name": "name",
-            "type": "String"
-          },
-          {
-            "name": "events",
-            "type": "List",
-            "ofType": {
-              "type": "Events"
-            }
-          },
-          {
-            "name": "active",
-            "type": "String"
-          }
-        ],
-        "computedFields": [
-          {
-            "name": "testUrl",
-            "params": [],
-            "type": "String"
-          },
-          {
-            "name": "pingUrl",
-            "params": [],
-            "type": "String"
-          },
-          {
-            "name": "updatedAt",
-            "params": [],
-            "type": "String"
-          },
-          {
-            "name": "createdAt",
-            "params": [],
-            "type": "String"
-          },
-          {
-            "name": "self",
-            "params": [],
-            "type": "Ref",
-            "ofType": {
-              "type": "Hook"
-            }
-          }
-        ],
-        "actions": [],
-        "events": []
-      },
-      {
-        "name": "Events",
-        "fields": [],
-        "computedFields": [],
-        "actions": [],
-        "events": []
-      },
-      {
-        "name": "Config",
-        "fields": [
-          {
-            "name": "url",
-            "type": "String"
-          }
-        ],
-        "computedFields": [
-          {
-            "name": "contentType",
-            "params": [],
-            "type": "String"
-          },
-          {
-            "name": "self",
-            "params": [],
-            "type": "Ref",
-            "ofType": {
-              "type": "Config"
-            }
-          }
-        ],
-        "actions": [],
-        "events": []
+        ]
       },
       {
         "name": "PullRequestCollection",
@@ -863,6 +744,121 @@
           }
         ],
         "computedFields": [],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "ReleaseCollection",
+        "fields": [],
+        "computedFields": [
+          {
+            "name": "one",
+            "params": [
+              {
+                "name": "id",
+                "type": "String"
+              }
+            ],
+            "type": "Release"
+          },
+          {
+            "name": "page",
+            "params": [
+              {
+                "name": "pageSize",
+                "type": "String"
+              },
+              {
+                "name": "page",
+                "type": "String"
+              }
+            ],
+            "type": "ReleasePage"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "ReleasePage",
+        "fields": [
+          {
+            "name": "items",
+            "type": "List",
+            "ofType": {
+              "type": "Release"
+            }
+          },
+          {
+            "name": "next",
+            "type": "Ref",
+            "ofType": {
+              "type": "ReleasePage"
+            }
+          }
+        ],
+        "computedFields": [],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "Release",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String"
+          },
+          {
+            "name": "name",
+            "type": "String"
+          },
+          {
+            "name": "body",
+            "type": "String"
+          },
+          {
+            "name": "draft",
+            "type": "Boolean"
+          },
+          {
+            "name": "prerelease",
+            "type": "Boolean"
+          },
+          {
+            "name": "url",
+            "type": "String"
+          }
+        ],
+        "computedFields": [
+          {
+            "name": "self",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "Release"
+            }
+          },
+          {
+            "name": "nodeId",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "tagName",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "targetCommitish",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "createdAt",
+            "params": [],
+            "type": "String"
+          }
+        ],
         "actions": [],
         "events": []
       },
