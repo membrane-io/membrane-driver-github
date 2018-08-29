@@ -544,7 +544,7 @@
             "type": "Int"
           },
           {
-            "name": "user",
+            "name": "owner",
             "type": "User"
           }
         ],
@@ -617,7 +617,7 @@
             "type": "Boolean"
           },
           {
-            "name": "user",
+            "name": "owner",
             "type": "User"
           },
           {
@@ -852,56 +852,6 @@
           },
           {
             "name": "createdAt",
-            "params": [],
-            "type": "String"
-          }
-        ],
-        "actions": [],
-        "events": []
-      },
-      {
-        "name": "Owner",
-        "fields": [
-          {
-            "name": "login",
-            "type": "String"
-          },
-          {
-            "name": "id",
-            "type": "Int"
-          },
-          {
-            "name": "url",
-            "type": "String"
-          },
-          {
-            "name": "type",
-            "type": "String"
-          }
-        ],
-        "computedFields": [
-          {
-            "name": "nodeId",
-            "params": [],
-            "type": "String"
-          },
-          {
-            "name": "avatarUrl",
-            "params": [],
-            "type": "String"
-          },
-          {
-            "name": "subscriptionsUrl",
-            "params": [],
-            "type": "String"
-          },
-          {
-            "name": "eventsUrl",
-            "params": [],
-            "type": "String"
-          },
-          {
-            "name": "receivedEventsUrl",
             "params": [],
             "type": "String"
           }
