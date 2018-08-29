@@ -621,13 +621,6 @@
             "type": "Boolean"
           },
           {
-            "name": "owner",
-            "type": "Ref",
-            "ofType": {
-              "type": "User"
-            }
-          },
-          {
             "name": "merged",
             "type": "Boolean"
           }
@@ -655,6 +648,14 @@
             "name": "nodeId",
             "params": [],
             "type": "String"
+          },
+          {
+            "name": "owner",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "User"
+            }
           }
         ],
         "actions": [

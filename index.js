@@ -392,6 +392,9 @@ export const PullRequest = {
   nodeId({ source }) {
     return source.node_id;
   },
+  owner({ source }){
+    return root.users.one({name: source.user.login})
+  },
   closed: {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
