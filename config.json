@@ -545,7 +545,10 @@
           },
           {
             "name": "owner",
-            "type": "User"
+            "type": "Ref",
+            "ofType": {
+              "type": "User"
+            }
           }
         ],
         "computedFields": [
@@ -618,7 +621,10 @@
           },
           {
             "name": "owner",
-            "type": "User"
+            "type": "Ref",
+            "ofType": {
+              "type": "User"
+            }
           },
           {
             "name": "merged",
