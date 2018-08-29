@@ -670,11 +670,6 @@
             "name": "pullRequestClosed",
             "params": [],
             "type": "Boolean"
-          },
-          {
-            "name": "pullRequestMerged",
-            "params": [],
-            "type": "Boolean"
           }
         ]
       },
@@ -749,6 +744,121 @@
           }
         ],
         "computedFields": [],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "ReleaseCollection",
+        "fields": [],
+        "computedFields": [
+          {
+            "name": "one",
+            "params": [
+              {
+                "name": "id",
+                "type": "String"
+              }
+            ],
+            "type": "Release"
+          },
+          {
+            "name": "page",
+            "params": [
+              {
+                "name": "pageSize",
+                "type": "String"
+              },
+              {
+                "name": "page",
+                "type": "String"
+              }
+            ],
+            "type": "ReleasePage"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "ReleasePage",
+        "fields": [
+          {
+            "name": "items",
+            "type": "List",
+            "ofType": {
+              "type": "Release"
+            }
+          },
+          {
+            "name": "next",
+            "type": "Ref",
+            "ofType": {
+              "type": "ReleasePage"
+            }
+          }
+        ],
+        "computedFields": [],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "Release",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String"
+          },
+          {
+            "name": "name",
+            "type": "String"
+          },
+          {
+            "name": "body",
+            "type": "String"
+          },
+          {
+            "name": "draft",
+            "type": "Boolean"
+          },
+          {
+            "name": "prerelease",
+            "type": "Boolean"
+          },
+          {
+            "name": "url",
+            "type": "String"
+          }
+        ],
+        "computedFields": [
+          {
+            "name": "self",
+            "params": [],
+            "type": "Ref",
+            "ofType": {
+              "type": "Release"
+            }
+          },
+          {
+            "name": "nodeId",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "tagName",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "targetCommitish",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "createdAt",
+            "params": [],
+            "type": "String"
+          }
+        ],
         "actions": [],
         "events": []
       },

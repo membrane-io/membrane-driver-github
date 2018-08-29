@@ -14,9 +14,9 @@ export async function init() {
 
 export async function parse({ name, value }) {
   switch (name) {
-    case 'url': {
+    case "url": {
       const { pathname: path } = parseUrl(value, true);
-      const parts = path.split('/');
+      const parts = path.split("/");
       const results = [];
 
       // TODO: users
@@ -76,7 +76,7 @@ function getNextPageRef(pageRef, response) {
       since: Number.parseInt(since),
     });
   }
-  console.log('Failed to find next page from link:', nextLink);
+  console.log("Failed to find next page from link:", nextLink);
   return null;
 }
 
@@ -85,11 +85,11 @@ function getNextPageRef(pageRef, response) {
 // to the API
 function toApiArgs(args, initialValue = {}) {
   return Object.keys(args)
-    .filter((key) => args[key] !== undefined)
+    .filter(key => args[key] !== undefined)
     .reduce((acc, key) => {
       // Membrane convention
-      if (key === 'pageSize') {
-        acc['per_page'] = args[key];
+      if (key === "pageSize") {
+        acc["per_page"] = args[key];
       } else {
         const apiKey = key.replace(/([A-Z])/g, ($1) => '_' + $1.toLowerCase());
         acc[apiKey] = args[key];
@@ -110,7 +110,7 @@ export const UserCollection = {
 
     return {
       items: res.data,
-      next: getNextPageRef(self.page(args), res),
+      next: getNextPageRef(self.page(args), res)
     };
   },
 };
@@ -160,7 +160,7 @@ export const RepositoryCollection = {
 
     return {
       items: res.data,
-      next: getNextPageRef(self.page(args), res),
+      next: getNextPageRef(self.page(args), res)
     };
   },
 };
@@ -173,7 +173,7 @@ export const Repository = {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      await ensureTimerIsSet(`${owner}/${repo}`, 'issueOpened');
+      await ensureTimerIsSet(`${owner}/${repo}`, "issueOpened");
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
@@ -185,7 +185,7 @@ export const Repository = {
     async subscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
       const { name: repo } = self.match(root.users.one.repos.one);
-      await ensureTimerIsSet(`${owner}/${repo}`, 'pullRequestOpened');
+      await ensureTimerIsSet(`${owner}/${repo}`, "pullRequestOpened");
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.match(root.users.one);
@@ -277,6 +277,7 @@ export const IssueCollection = {
   async one({ self, source, args }) {
     const { name: owner } = self.match(root.users.one());
     const { name: repo } = self.match(root.users.one.repos.one);
+
     const { number } = args;
     const result = await client.issues.get({ owner, repo, number });
     return result.data;
@@ -288,10 +289,9 @@ export const IssueCollection = {
 
     const apiArgs = toApiArgs(args, { owner, repo });
     const res = await client.issues.getForRepo(apiArgs);
-
     return {
       items: res.data,
-      next: getNextPageRef(self.page(args), res),
+      next: getNextPageRef(self.page(args), res)
     };
   },
 };
@@ -350,12 +350,7 @@ export const PullRequestCollection = {
 
   async page({ self, source, args }) {
     const { name: owner } = self.match(root.users.one());
-    const { name: repo } = self.match(
-      root.users
-        .one()
-        .repos()
-        .one()
-    );
+    const { name: repo } = self.match(root.users.one().repos().one());
 
     const apiArgs = toApiArgs(args, { owner, repo });
     const res = await client.pullRequests.getAll(apiArgs);
