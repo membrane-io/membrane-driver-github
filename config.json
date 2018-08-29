@@ -622,7 +622,7 @@
           },
           {
             "name": "merged",
-            "type": "String"
+            "type": "Boolean"
           }
         ],
         "computedFields": [
