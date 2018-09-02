@@ -539,8 +539,8 @@ export async function timer({ key }) {
   }
 
   // Schedule the next check
-  const eventTimer = Number.parseInt(meta['x-poll-interval'], 10);
-  await program.setTimer(key, 0, eventTimer);
+  const pollInterval = Number.parseInt(meta['x-poll-interval'], 10);
+  await program.setTimer(key, pollInterval);
 }
 
 async function ensureTimerIsSet(repo, event) {
