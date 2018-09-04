@@ -1,7 +1,6 @@
 import { client, getDiff, graphql } from './client';
 import { parse as parseUrl } from 'url';
 import { parse as parseQuery } from 'querystring';
-import axios from 'axios';
 import getPageLinks from '@octokit/rest/lib/plugins/pagination/get-page-links';
 const { root } = program.refs;
 
@@ -17,8 +16,6 @@ export async function parse({ name, value }) {
     case "url": {
       const { pathname: path } = parseUrl(value, true);
       const parts = path.split("/");
-      const results = [];
-
       // TODO: users
       if (parts.length < 3) {
         return root;
@@ -29,7 +26,7 @@ export async function parse({ name, value }) {
         .one({ name: parts[2] });
       if (parts.length >= 4 && parts[3] === 'issues') {
         if (parts.length >= 5) {
-          const number = Number.parseInt(parts[4]);
+          const number = Number.parseInt(parts[4], 10);
           if (!Number.isNaN(number)) {
             return repo.issues.one({ number });
           }
@@ -38,7 +35,7 @@ export async function parse({ name, value }) {
         return repo.issues;
       } else if (parts.length >= 4 && /^pulls?$/.test(parts[3])) {
         if (parts.length >= 5) {
-          const number = Number.parseInt(parts[4]);
+          const number = Number.parseInt(parts[4], 10);
           if (!Number.isNaN(number)) {
             return repo.pullRequests.one({ number });
           }
@@ -50,10 +47,7 @@ export async function parse({ name, value }) {
     }
     case 'repo': {
       const parts = path.split('/');
-      return root.users
-        .one({ name: parts[0] })
-        .repos()
-        .one({ name: parts[1] });
+      return root.users.one({ name: parts[0] }).repos().one({ name: parts[1] });
     }
   }
 }
@@ -68,12 +62,12 @@ function getNextPageRef(pageRef, response) {
   if (page !== undefined) {
     return pageRef.ref.withArgs({
       ...pageRef.args,
-      page: Number.parseInt(page),
+      page: Number.parseInt(page, 10),
     });
   } else if (since !== undefined) {
     return pageRef.ref.withArgs({
       ...pageRef.args,
-      since: Number.parseInt(since),
+      since: Number.parseInt(since, 10),
     });
   }
   console.log("Failed to find next page from link:", nextLink);
@@ -85,7 +79,7 @@ function getNextPageRef(pageRef, response) {
 // to the API
 function toApiArgs(args, initialValue = {}) {
   return Object.keys(args)
-    .filter(key => args[key] !== undefined)
+    .filter((key) => args[key] !== undefined)
     .reduce((acc, key) => {
       // Membrane convention
       if (key === "pageSize") {
@@ -318,8 +312,8 @@ export const Issue = {
   nodeId({ source }) {
     return source.node_id;
   },
-  owner({ source }){
-    return root.users.one({name: source.user.login})
+  owner({ source }) {
+    return root.users.one({name: source.user.login});
   },
   closed: {
     async subscribe({ self }) {
@@ -387,8 +381,8 @@ export const PullRequest = {
   nodeId({ source }) {
     return source.node_id;
   },
-  owner({ source }){
-    return root.users.one({name: source.user.login})
+  owner({ source }) {
+    return root.users.one({ name: source.user.login });
   },
   closed: {
     async subscribe({ self }) {
@@ -473,7 +467,7 @@ export const Owner = {
   receivedEventsUrl({ source }) {
     return source.received_events_url;
   },
-}
+};
 
 export async function timer({ key }) {
   const { state } = program;
@@ -486,15 +480,14 @@ export async function timer({ key }) {
   if (index > 0) {
     // Process all new events in oldest-to-newest order
     const newEvents = data.slice(0, index).reverse();
-    for (let event of newEvents) {
-      const { type, payload } = event;
+    for (let item of newEvents) {
+      const { type, payload } = item;
       for (let eventData of state.repos[key].events) {
-        const [event, number] = split(eventData, '/');
+        const [event, number] = eventData.split('/');
         switch (event) {
           case 'issueOpened': {
             if (type === 'IssuesEvent' && payload.action === 'opened') {
               const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
-              const number = payload.issue.number;
               await repoRef.issueOpened.dispatch({
                 issue: repoRef.issues.one({ number }),
               });
@@ -503,10 +496,7 @@ export async function timer({ key }) {
           }
           case 'issueClosed': {
             if (type === 'IssuesEvent' && payload.action === 'closed') {
-              const issueRef = root.users
-                .one({ name: owner })
-                .repos.one({ name: repo })
-                .issues.one({ number: number });
+              const issueRef = root.users.one({ name: owner }).repos.one({ name: repo }).issues.one({ number });
               await issueRef.closed.dispatch();
             }
             break;
@@ -524,7 +514,6 @@ export async function timer({ key }) {
           case 'pullRequestOpened': {
             if (type === 'PullRequestEvent' && payload.action === 'opened') {
               const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
-              const number = payload.pull_request.number;
               await repoRef.pullRequestOpened.dispatch({
                 issue: repoRef.issues.one({ number }),
                 pullRequest: repoRef.pullRequests.one({ number }),
@@ -534,10 +523,7 @@ export async function timer({ key }) {
           }
           case 'pullRequestClosed': {
             if (type === 'PullRequestEvent' && payload.action === 'closed') {
-              const pullRef = root.users
-                .one({ name: owner })
-                .repos.one({ name: repo })
-                .pullRequests.one({ number: number });
+              const pullRef = root.users.one({ name: owner }).repos.one({ name: repo }).pullRequests.one({ number });
               await pullRef.closed.dispatch();
             }
             break;
@@ -553,8 +539,8 @@ export async function timer({ key }) {
   }
 
   // Schedule the next check
-  const timer = Number.parseInt(meta['x-poll-interval']);
-  await program.setTimer(key, 0, timer);
+  const pollInterval = Number.parseInt(meta['x-poll-interval'], 10);
+  await program.setTimer(key, pollInterval);
 }
 
 async function ensureTimerIsSet(repo, event) {
