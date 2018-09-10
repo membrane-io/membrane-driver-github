@@ -587,7 +587,7 @@
         ],
         "events": [
           {
-            "name": "issueClosed",
+            "name": "closed",
             "params": [],
             "type": "Boolean"
           }
@@ -667,7 +667,7 @@
         ],
         "events": [
           {
-            "name": "pullRequestClosed",
+            "name": "closed",
             "params": [],
             "type": "Boolean"
           }
