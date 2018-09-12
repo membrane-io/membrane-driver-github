@@ -386,10 +386,10 @@ export const PullRequest = {
   async createComment({ self, args }) {
     const { name: owner } = self.match(root.users.one);
     const { name: repo } = self.match(root.users.one.repos.one);
-    const { number } = self.match(root.users.one.repos.one.issues.one);
-    const { body, commitId, path, position } = args;
+    const { number } = self.match(root.users.one.repos.one.pullRequests.one);
+    const { body } = args;
 
-    return client.pullRequests.createComment({owner, repo, number, body, commitId, path, position});
+    return client.issues.createComment({owner, repo, number, body});
   },
   nodeId({ source }) {
     return source.node_id;
