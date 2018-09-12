@@ -680,18 +680,6 @@
               {
                 "name": "body",
                 "type": "String"
-              },
-              {
-                "name": "commitId",
-                "type": "String"
-              },
-              {
-                "name": "path",
-                "type": "String"
-              },
-              {
-                "name": "position",
-                "type": "Int"
               }
             ],
             "type": "Void"
