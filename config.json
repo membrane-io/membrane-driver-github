@@ -583,11 +583,21 @@
             "name": "subscribe",
             "params": [],
             "type": "Void"
+          },
+          {
+            "name": "createComment",
+            "params": [
+              {
+                "name": "body",
+                "type": "String"
+              }
+            ],
+            "type": "Void"
           }
         ],
         "events": [
           {
-            "name": "issueClosed",
+            "name": "closed",
             "params": [],
             "type": "Boolean"
           }
@@ -663,11 +673,21 @@
             "name": "subscribe",
             "params": [],
             "type": "Void"
+          },
+          {
+            "name": "createComment",
+            "params": [
+              {
+                "name": "body",
+                "type": "String"
+              }
+            ],
+            "type": "Void"
           }
         ],
         "events": [
           {
-            "name": "pullRequestClosed",
+            "name": "closed",
             "params": [],
             "type": "Boolean"
           }

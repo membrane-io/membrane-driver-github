@@ -20,10 +20,7 @@ export async function parse({ name, value }) {
       if (parts.length < 3) {
         return root;
       }
-      const repo = root.users
-        .one({ name: parts[1] })
-        .repos()
-        .one({ name: parts[2] });
+      const repo = root.users.one({ name: parts[1] }).repos().one({ name: parts[2] });
       if (parts.length >= 4 && parts[3] === 'issues') {
         if (parts.length >= 5) {
           const number = Number.parseInt(parts[4], 10);
@@ -309,6 +306,14 @@ export const Issue = {
     const variables = { id: nodeId };
     await graphql(query, variables);
   },
+  async createComment({ self, args }) {
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
+    const { number } = self.match(root.users.one.repos.one.issues.one);
+    const { body } = args;
+
+    return client.issues.createComment({owner, repo, number, body});
+  },
   nodeId({ source }) {
     return source.node_id;
   },
@@ -377,6 +382,14 @@ export const PullRequest = {
       }`;
     const variables = { id: nodeId };
     await graphql(query, variables);
+  },
+  async createComment({ self, args }) {
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
+    const { number } = self.match(root.users.one.repos.one.pullRequests.one);
+    const { body } = args;
+
+    return client.issues.createComment({owner, repo, number, body});
   },
   nodeId({ source }) {
     return source.node_id;
@@ -504,7 +517,7 @@ export async function timer({ key }) {
           case 'releasePublished': {
             if (type === 'ReleaseEvent' && payload.action === 'published') {
               const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
-              const id = payload.release.id;
+              const id = `${payload.release.id}`;
               await repoRef.releasePublished.dispatch({
                 release: repoRef.releases.one({ id }),
               });
