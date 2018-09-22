@@ -266,7 +266,7 @@ export const Repository = {
     const { name: owner } = self.match(root.users.one);
     const { name: repo } = self.match(root.users.one.repos.one);
     
-    const result = await octokit.misc.getRepoLicense({owner, repo})
+    return client.misc.getRepoLicense({owner, repo});
   }
 };
 
