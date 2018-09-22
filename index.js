@@ -488,6 +488,25 @@ export const Owner = {
   },
 };
 
+
+export const License = {
+  htmlUrl({ source }) {
+    return source['html_url'];
+  },
+  gitUrl({ source }) {
+    return source['git_url'];
+  },
+  downloadUrl({ source }) {
+    return source['download_url'];
+  },
+};
+
+export const LicenseDesc = {
+  spdxId({ source }) {
+    return source['spdx_id'];
+  },
+};
+
 export async function timer({ key }) {
   const { state } = program;
   const [owner, repo] = key.split('/');

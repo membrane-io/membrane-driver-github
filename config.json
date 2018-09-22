@@ -927,7 +927,23 @@
             "type": "LicenseDesc"
           }
         ],
-        "computedFields": [],
+        "computedFields": [
+          {
+            "name": "htmlUrl",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "gitUrl",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "downloadUrl",
+            "params": [],
+            "type": "String"
+          }
+        ],
         "actions": [],
         "events": []
       },
