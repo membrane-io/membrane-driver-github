@@ -386,7 +386,7 @@
           {
             "name": "license",
             "params": [],
-            "type": "String"
+            "type": "License"
           }
         ],
         "actions": [],
