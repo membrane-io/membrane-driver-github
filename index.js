@@ -262,7 +262,7 @@ export const Repository = {
   releases({ self, source }) {
     return {};
   },
-  async license() {
+  async license({ self, source}) {
     const { name: owner } = self.match(root.users.one);
     const { name: repo } = self.match(root.users.one.repos.one);
     
