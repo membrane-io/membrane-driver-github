@@ -889,8 +889,71 @@
       },
       {
         "name": "License",
-        "fields": [],
+        "fields": [
+          {
+            "name": "name",
+            "type": "String"
+          },
+          {
+            "name": "path",
+            "type": "String"
+          },
+          {
+            "name": "sha",
+            "type": "String"
+          },
+          {
+            "name": "size",
+            "type": "Int"
+          },
+          {
+            "name": "url",
+            "type": "String"
+          },
+          {
+            "name": "type",
+            "type": "String"
+          },
+          {
+            "name": "content",
+            "type": "String"
+          },
+          {
+            "name": "encoding",
+            "type": "String"
+          },
+          {
+            "name": "license",
+            "type": "LicenseDesc"
+          }
+        ],
         "computedFields": [],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "LicenseDesc",
+        "fields": [
+          {
+            "name": "key",
+            "type": "String"
+          },
+          {
+            "name": "name",
+            "type": "String"
+          },
+          {
+            "name": "url",
+            "type": "String"
+          }
+        ],
+        "computedFields": [
+          {
+            "name": "spdxId",
+            "params": [],
+            "type": "String"
+          }
+        ],
         "actions": [],
         "events": []
       }
