@@ -262,6 +262,12 @@ export const Repository = {
   releases({ self, source }) {
     return {};
   },
+  async license() {
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
+    
+    const result = await octokit.misc.getRepoLicense({owner, repo})
+  }
 };
 
 export const IssueCollection = {
