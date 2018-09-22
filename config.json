@@ -382,6 +382,11 @@
             "name": "releases",
             "params": [],
             "type": "ReleaseCollection"
+          },
+          {
+            "name": "license",
+            "params": [],
+            "type": "String"
           }
         ],
         "actions": [],
