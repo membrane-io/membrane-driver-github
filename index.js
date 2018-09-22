@@ -266,9 +266,7 @@ export const Repository = {
     const { name: owner } = self.match(root.users.one);
     const { name: repo } = self.match(root.users.one.repos.one);
     
-    const res = await client.misc.getRepoLicense({owner, repo});
-    console.log("RES"+res);
-    return res;
+    return client.misc.getRepoLicense({owner, repo});
   }
 };
 

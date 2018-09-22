@@ -386,7 +386,10 @@
           {
             "name": "license",
             "params": [],
-            "type": "License"
+            "type": "Ref",
+            "ofType": {
+              "type": "License"
+            }
           }
         ],
         "actions": [],
