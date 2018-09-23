@@ -262,6 +262,13 @@ export const Repository = {
   releases({ self, source }) {
     return {};
   },
+  async license({ self, source}) {
+    const { name: owner } = self.match(root.users.one);
+    const { name: repo } = self.match(root.users.one.repos.one);
+    
+    const res = await client.misc.getRepoLicense({owner, repo});
+    return res.data
+  }
 };
 
 export const IssueCollection = {
@@ -479,6 +486,25 @@ export const Owner = {
   },
   receivedEventsUrl({ source }) {
     return source.received_events_url;
+  },
+};
+
+
+export const License = {
+  htmlUrl({ source }) {
+    return source['html_url'];
+  },
+  gitUrl({ source }) {
+    return source['git_url'];
+  },
+  downloadUrl({ source }) {
+    return source['download_url'];
+  },
+};
+
+export const LicenseDesc = {
+  spdxId({ source }) {
+    return source['spdx_id'];
   },
 };
 

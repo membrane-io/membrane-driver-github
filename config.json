@@ -382,6 +382,11 @@
             "name": "releases",
             "params": [],
             "type": "ReleaseCollection"
+          },
+          {
+            "name": "license",
+            "params": [],
+            "type": "License"
           }
         ],
         "actions": [],
@@ -875,6 +880,92 @@
           },
           {
             "name": "createdAt",
+            "params": [],
+            "type": "String"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "License",
+        "fields": [
+          {
+            "name": "name",
+            "type": "String"
+          },
+          {
+            "name": "path",
+            "type": "String"
+          },
+          {
+            "name": "sha",
+            "type": "String"
+          },
+          {
+            "name": "size",
+            "type": "Int"
+          },
+          {
+            "name": "url",
+            "type": "String"
+          },
+          {
+            "name": "type",
+            "type": "String"
+          },
+          {
+            "name": "content",
+            "type": "String"
+          },
+          {
+            "name": "encoding",
+            "type": "String"
+          },
+          {
+            "name": "license",
+            "type": "LicenseDesc"
+          }
+        ],
+        "computedFields": [
+          {
+            "name": "htmlUrl",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "gitUrl",
+            "params": [],
+            "type": "String"
+          },
+          {
+            "name": "downloadUrl",
+            "params": [],
+            "type": "String"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "LicenseDesc",
+        "fields": [
+          {
+            "name": "key",
+            "type": "String"
+          },
+          {
+            "name": "name",
+            "type": "String"
+          },
+          {
+            "name": "url",
+            "type": "String"
+          }
+        ],
+        "computedFields": [
+          {
+            "name": "spdxId",
             "params": [],
             "type": "String"
           }
