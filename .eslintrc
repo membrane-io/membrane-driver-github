@@ -5,7 +5,8 @@
     "node": true
   },
   "globals": {
-    "program"
+    "program",
+    "path"
   },
   "rules": {
     "array-bracket-spacing": [2, "never"],
