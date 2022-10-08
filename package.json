@@ -8,7 +8,8 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@octokit/rest": "^15.9.5",
-    "axios": "^0.18.0"
+    "@octokit/rest": "^18.12.0",
+    "querystring": "^0.2.1",
+    "url": "^0.11.0"
   }
 }

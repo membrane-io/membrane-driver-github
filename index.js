@@ -1,55 +1,144 @@
-import { client, getDiff, graphql } from './client';
-import { parse as parseUrl } from 'url';
-import { parse as parseQuery } from 'querystring';
-import getPageLinks from '@octokit/rest/lib/plugins/pagination/get-page-links';
-const { root } = program.refs;
+const { root } = M;
+// import { client, getDiff, graphql } from './client';
+// import { parse as parseUrl } from 'url';
+// import { parse as parseQuery } from 'querystring';
+import { Octokit } from "@octokit/rest";
+// import getPageLinks from '@octokit/rest/lib/plugins/pagination/get-page-links';
 
-export async function init() {
-  await root.users.set({});
+export const state = {};
 
-  program.state.repos = {};
-  await program.save();
+let _client;
+function client() {
+  if (!_client) {
+    throw new Error("You must invoke configure with your Github token before using this driver");
+  }
+  return _client;
 }
 
-export async function parse({ name, value }) {
-  switch (name) {
-    case "url": {
-      const { pathname: path } = parseUrl(value, true);
-      const parts = path.split("/");
-      // TODO: users
-      if (parts.length < 3) {
-        return root;
-      }
-      const repo = root.users.one({ name: parts[1] }).repos().one({ name: parts[2] });
-      if (parts.length >= 4 && parts[3] === 'issues') {
-        if (parts.length >= 5) {
-          const number = Number.parseInt(parts[4], 10);
-          if (!Number.isNaN(number)) {
-            return repo.issues.one({ number });
-          }
-          return repo.issues;
-        }
-        return repo.issues;
-      } else if (parts.length >= 4 && /^pulls?$/.test(parts[3])) {
-        if (parts.length >= 5) {
-          const number = Number.parseInt(parts[4], 10);
-          if (!Number.isNaN(number)) {
-            return repo.pullRequests.one({ number });
-          }
-          return repo.pullRequests;
-        }
-        return repo.pullRequests;
-      }
-      return repo;
-    }
-    case 'repo': {
-      const parts = path.split('/');
-      return root.users.one({ name: parts[0] }).repos().one({ name: parts[1] });
-    }
+class Response {
+  constructor(body, opts) {
+    this._body = body;
+    this.status = opts.status;
+    this.headers = opts.headers || {};
+  }
+
+  async json() {
+    console.log("GETTING AS JSON");
+    return JSON.parse(this._body);
+  }
+  async text() {
+    console.log("GETTING AS TEXT");
+    return this._body;
+  }
+
+  [Symbol.iterator]() {
+    console.log("CALLING ITERATOR");
   }
 }
 
-// Generic way to get the next ref for this driver
+class Headers {
+  constructor(headers) {
+    this.headers = {};
+    for (let [name, value] of Object.entries(headers)) {
+      this.headers[name.toLowerCase()] = value;
+    }
+  }
+  get(name) {
+    return this.headers[name.toLowerCase()];
+  }
+  set(name, value) {
+    return this.headers[name.toLowerCase()] = value;
+  }
+  append(name, value) {
+    // TODO: on support for multiple headers
+    const lower = name.toLowerCase();
+    if (this.headers[lower]) {
+      console.log("WARNING: Multiple headers with the same key are not supported");
+    }
+    return this.headers[lower] = value;
+  }
+  delete(name) {
+    delete this.headers[name.toLowerCase()];
+  }
+  entries() {
+    return Object.entries(this.headers);
+  }
+  has(name) {
+    return (name.toLowerCase()) in this.headers;
+  }
+  keys() {
+    return Object.keys(this.headers);
+  }
+  values() {
+    return Object.values(this.headers);
+  }
+  [Symbol.iterator]() {
+    return this.headers[Symbol.iterator]();
+  }
+}
+
+function createClient() {
+  return new Octokit({
+    auth: state.token,
+    request: {
+      fetch: async (url, options) => {
+        const { method, headers, body, credentials } = options;
+        // const gref = M.nodes.http.get({ url: url.toString() });
+        const gref = M.nodes.http[(method || 'get').toLowerCase()]({ url, headers: JSON.stringify(headers) });
+        let res;
+        if (!method || method === 'GET') {
+          res = await gref.$query('{ status headers body }');
+        } else {
+          res = await gref.$invoke();
+        }
+
+        const resHeaders = JSON.stringify(JSON.parse(res.headers || '{}'), null, ' ');
+        console.log("HEADERS", resHeaders);
+        return new Response(res.body, { status: res.status, headers: new Headers(resHeaders) });
+      },
+    },
+  });
+}
+
+// export async function parse({ name, value }) {
+//   switch (name) {
+//     case "url": {
+//       const { pathname: path } = parseUrl(value, true);
+//       const parts = path.split("/");
+//       // TODO: users
+//       if (parts.length < 3) {
+//         return root;
+//       }
+//       const repo = root.users.one({ name: parts[1] }).repos().one({ name: parts[2] });
+//       if (parts.length >= 4 && parts[3] === 'issues') {
+//         if (parts.length >= 5) {
+//           const number = Number.parseInt(parts[4], 10);
+//           if (!Number.isNaN(number)) {
+//             return repo.issues.one({ number });
+//           }
+//           return repo.issues;
+//         }
+//         return repo.issues;
+//       } else if (parts.length >= 4 && /^pulls?$/.test(parts[3])) {
+//         if (parts.length >= 5) {
+//           const number = Number.parseInt(parts[4], 10);
+//           if (!Number.isNaN(number)) {
+//             return repo.pullRequests.one({ number });
+//           }
+//           return repo.pullRequests;
+//         }
+//         return repo.pullRequests;
+//       }
+//       return repo;
+//     }
+//     case 'repo': {
+//       const parts = path.split('/');
+//       return root.users.one({ name: parts[0] }).repos().one({ name: parts[1] });
+//     }
+//   }
+// }
+
+// Generic helper to get the next ref for this driver
 function getNextPageRef(pageRef, response) {
   const nextLink = getPageLinks(response).next;
   if (!nextLink) {
@@ -89,10 +178,24 @@ function toApiArgs(args, initialValue = {}) {
     }, initialValue);
 }
 
+export const reset = () => {
+  _client = createClient();
+}
+
+export const Root = {
+  configure: ({ args }) => {
+    state.token = args.token;
+    _client = createClient();
+  },
+  users: () => ({}),
+}
+
 export const UserCollection = {
   async one({ args }) {
-    const { name: username } = args;
-    const result = await client.users.getForUser({ username });
+    console.log(typeof client);
+    console.log(typeof client());
+    const result = await client().users.getByUsername({ username: args.name });
+    console.log('FINNALLY RESULT!', typeof result);
     return result.data;
   },
   async page({ self, args }) {
@@ -107,33 +210,8 @@ export const UserCollection = {
 };
 
 export const User = {
-  self({ self, parent, source }) {
-    return parent.parent.parent.one({ name: source.login });
-  },
-  avatarUrl({ source }) {
-    return source['avatar_url'];
-  },
-  gravatarId({ source }) {
-    return source['gravatar_id'];
-  },
-  siteAdmin({ source }) {
-    return source['site_admin'];
-  },
-  publicRepos({ source }) {
-    return source['public_repos'];
-  },
-  publicGists({ source }) {
-    return source['public_gists'];
-  },
-  createdAt({ source }) {
-    return source['created_at'];
-  },
-  updatedAt({ source }) {
-    return source['updated_at'];
-  },
-  repos() {
-    return {};
-  },
+  gref: ({ obj }) => root.users.one({ name: obj.login }),
+  repos: () => ({})
 };
 
 export const RepositoryCollection = {
@@ -302,16 +380,16 @@ export const Issue = {
     return source['active_lock_reason'];
   },
   async subscribe({ self }) {
-    const nodeId = await self.nodeId.$query();
-    // NOTE: The REST endpoint doesn't seem to work (403) for subscriptions so we use GraphQL here instead.
-    const query = `
-      mutation($id: ID!) {
-          updateSubscription(input: { subscribableId:$id, state:SUBSCRIBED }) {
-            subscribable { viewerSubscription }
-          }
-      }`;
-    const variables = { id: nodeId };
-    await graphql(query, variables);
+    // const nodeId = await self.nodeId.$query();
+    // // NOTE: The REST endpoint doesn't seem to work (403) for subscriptions so we use GraphQL here instead.
+    // const query = `
+    //   mutation($id: ID!) {
+    //       updateSubscription(input: { subscribableId:$id, state:SUBSCRIBED }) {
+    //         subscribable { viewerSubscription }
+    //       }
+    //   }`;
+    // const variables = { id: nodeId };
+    // await graphql(query, variables);
   },
   async createComment({ self, args }) {
     const { name: owner } = self.match(root.users.one);
@@ -346,7 +424,7 @@ export const Issue = {
 };
 
 export const PullRequestCollection = {
-  async one({ self, source, args }) {
+  async one({ self, args }) {
     const { name: owner } = self.match(root.users.one);
     const { name: repo } = self.match(root.users.one.repos.one);
     const { number } = args;
@@ -354,7 +432,7 @@ export const PullRequestCollection = {
     return result.data;
   },
 
-  async page({ self, source, args }) {
+  async page({ self, args }) {
     const { name: owner } = self.match(root.users.one());
     const { name: repo } = self.match(root.users.one().repos().one());
 
