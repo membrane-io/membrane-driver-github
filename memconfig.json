@@ -2,6 +2,62 @@
   "dependencies": {
     "http": "http:"
   },
+  "expressions": {
+    "user": {
+      "description": "User",
+      "type": "url",
+      "searchIn": "https://github.com",
+      "regex": "https://github.com/((?!pulls$|issues$|marketplace$|explore$|notifications$|codespaces$)[^/])+$"
+    },
+    "repo": {
+      "description": "Repo",
+      "type": "url",
+      "searchIn": "https://github.com",
+      "regex": "https://github.com/[^/]+/[^/]+$"
+    },
+    "issue": {
+      "description": "Issue",
+      "type": "url",
+      "searchIn": "https://github.com",
+      "regex": "https://github.com/[^/]+/[^/]+/issues/[0-9]+$"
+    },
+    "pullRequest": {
+      "description": "Pull Request",
+      "type": "url",
+      "searchIn": "https://github.com",
+      "regex": "https://github.com/[^/]+/[^/]+/pull/[0-9]+$"
+    },
+    "search": {
+      "description": "Issue/PR Search",
+      "type": "url",
+      "searchIn": "https://github.com",
+      "regex": "https://github.com/[^/]+/[^/]+/(pulls|issues$|issues\\?q=.*$)"
+    },
+    "prCommits": {
+      "description": "PR Commits",
+      "type": "url",
+      "searchIn": "https://github.com",
+      "regex": "https://github.com/[^/]+/[^/]+/pull/[0-9]+/commits$"
+    },
+    "prCommit": {
+      "description": "PR Commit",
+      "type": "url",
+      "searchIn": "https://github.com",
+      "regex": "https://github.com/[^/]+/[^/]+/pull/[0-9]+/commits/[a-f0-9]+$"
+    },
+    "prChanges": {
+      "description": "PR Changes",
+      "type": "url",
+      "searchIn": "https://github.com",
+      "regex": "https://github.com/[^/]+/[^/]+/pull/[0-9]+/files$"
+    },
+    "comment": {
+      "description": "Comment",
+      "type": "url",
+      "searchIn": "https://github.com",
+      "regex": "https://github.com/[^/]+/[^/]+/(pull|issue)/[0-9]+#issue(comment)?-[0-9]+$"
+    }
+  },
   "schema": {
     "types": [
       {
@@ -11,6 +67,31 @@
           {
             "name": "users",
             "type": "UserCollection"
+          },
+          {
+            "name": "status",
+            "type": "String"
+          },
+          {
+            "name": "parse",
+            "type": "List",
+            "hints": {
+              "hidden": false
+            },
+            "ofType": {
+              "type": "Ref",
+              "ofType": "Repository"
+            },
+            "params": [
+              {
+                "name": "name",
+                "type": "String"
+              },
+              {
+                "name": "value",
+                "type": "String"
+              }
+            ]
           }
         ],
         "actions": [
@@ -47,7 +128,7 @@
             "params": [
               {
                 "name": "since",
-                "type": "Int"
+                "type": "String"
               }
             ]
           }
@@ -76,6 +157,20 @@
         "name": "User",
         "fields": [
           {
+            "name": "login",
+            "type": "String",
+            "hints": {
+              "primary": true
+            }
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "hints": {
+              "secondary": true
+            }
+          },
+          {
             "name": "bio",
             "type": "String"
           },
@@ -88,8 +183,16 @@
             "type": "String"
           },
           {
+            "name": "repos",
+            "type": "RepositoryCollection"
+          },
+          {
             "name": "email",
             "type": "String"
+          },
+          {
+            "name": "id",
+            "type": "Int"
           },
           {
             "name": "followers",
@@ -100,33 +203,12 @@
             "type": "Int"
           },
           {
-            "name": "hireable",
-            "type": "Boolean"
-          },
-          {
-            "name": "id",
-            "type": "Int"
-          },
-          {
             "name": "location",
-            "type": "String"
-          },
-          {
-            "name": "login",
-            "type": "String"
-          },
-          {
-            "name": "name",
             "type": "String"
           },
           {
             "name": "type",
             "type": "String"
-          },
-          {
-            "name": "self",
-            "type": "Ref",
-            "ofType": "User"
           },
           {
             "name": "avatar_url",
@@ -149,11 +231,11 @@
             "type": "Int"
           },
           {
-            "name": "repos",
-            "type": "RepositoryCollection"
+            "name": "site_admin",
+            "type": "Boolean"
           },
           {
-            "name": "site_admin",
+            "name": "hireable",
             "type": "Boolean"
           },
           {
@@ -228,12 +310,36 @@
         "name": "Repository",
         "fields": [
           {
-            "name": "archived",
-            "type": "String"
+            "name": "name",
+            "type": "String",
+            "hints": {
+              "primary": true
+            }
           },
           {
             "name": "description",
-            "type": "String"
+            "type": "String",
+            "hints": {
+              "secondary": true
+            }
+          },
+          {
+            "name": "content",
+            "type": "Content",
+            "params": [
+              {
+                "name": "path",
+                "type": "String"
+              }
+            ]
+          },
+          {
+            "name": "archived",
+            "type": "Boolean"
+          },
+          {
+            "name": "branches",
+            "type": "BranchCollection"
           },
           {
             "name": "fork",
@@ -252,72 +358,63 @@
             "type": "String"
           },
           {
-            "name": "name",
-            "type": "String"
-          },
-          {
             "name": "private",
             "type": "Boolean"
           },
           {
             "name": "size",
-            "type": "String"
+            "type": "Int"
           },
           {
             "name": "url",
             "type": "String"
           },
           {
-            "name": "self",
-            "type": "Ref",
-            "ofType": "Repository"
+            "name": "allow_merge_commit",
+            "type": "Boolean"
           },
           {
-            "name": "allowMergeCommit",
+            "name": "allow_rebase_merge",
+            "type": "Boolean"
+          },
+          {
+            "name": "allow_squash_merge",
+            "type": "Boolean"
+          },
+          {
+            "name": "created_at",
             "type": "String"
           },
           {
-            "name": "allowRebaseMerge",
+            "name": "default_branch",
             "type": "String"
           },
           {
-            "name": "allowSquashMerge",
-            "type": "String"
-          },
-          {
-            "name": "createdAt",
-            "type": "String"
-          },
-          {
-            "name": "defaultBranch",
-            "type": "String"
-          },
-          {
-            "name": "forksCount",
+            "name": "forks_count",
             "type": "Int"
           },
           {
-            "name": "fullName",
+            "name": "full_name",
             "type": "String"
           },
           {
-            "name": "hasDownloads",
+            "name": "has_downloads",
             "type": "Boolean"
           },
           {
-            "name": "hasIssues",
+            "name": "has_issues",
             "type": "Boolean"
           },
           {
-            "name": "hasPages",
+            "name": "has_pages",
             "type": "Boolean"
           },
           {
-            "name": "hasWiki",
+            "name": "has_wiki",
             "type": "Boolean"
           },
           {
-            "name": "htmlUrl",
+            "name": "html_url",
             "type": "String"
           },
           {
@@ -325,35 +422,35 @@
             "type": "IssueCollection"
           },
           {
-            "name": "networkCount",
+            "name": "network_count",
             "type": "Int"
           },
           {
-            "name": "openIssuesCount",
+            "name": "open_issues_count",
             "type": "Int"
           },
           {
-            "name": "pushedAt",
+            "name": "pushed_at",
             "type": "String"
           },
           {
-            "name": "stargazersCount",
+            "name": "stargazers_count",
             "type": "Int"
           },
           {
-            "name": "subscribersCount",
+            "name": "subscribers_count",
             "type": "Int"
           },
           {
-            "name": "updatedAt",
+            "name": "updated_at",
             "type": "String"
           },
           {
-            "name": "watchersCount",
+            "name": "watchers_count",
             "type": "Int"
           },
           {
-            "name": "pullRequests",
+            "name": "pull_requests",
             "params": [],
             "type": "PullRequestCollection"
           },
@@ -388,6 +485,131 @@
         ]
       },
       {
+        "name": "BranchCollection",
+        "fields": [
+          {
+            "name": "one",
+            "type": "Branch",
+            "params": [
+              {
+                "name": "name",
+                "type": "String"
+              }
+            ]
+          },
+          {
+            "name": "page",
+            "type": "BranchPage",
+            "params": [
+              {
+                "name": "page",
+                "type": "Int"
+              },
+              {
+                "name": "pageSize",
+                "type": "Int"
+              }
+            ]
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "BranchPage",
+        "fields": [
+          {
+            "name": "items",
+            "type": "List",
+            "ofType": "Branch"
+          },
+          {
+            "name": "next",
+            "type": "Ref",
+            "ofType": "BranchPage"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "Branch",
+        "fields": [
+          {
+            "name": "name",
+            "type": "String"
+          },
+          {
+            "name": "commit",
+            "type": "Commit"
+          },
+          {
+            "name": "protected",
+            "type": "Boolean"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "Commit",
+        "fields": [
+          {
+            "name": "sha",
+            "type": "String"
+          },
+          {
+            "name": "message",
+            "type": "String"
+          },
+          {
+            "name": "author",
+            "type": "User"
+          }
+        ]
+      },
+      {
+        "name": "Content",
+        "description": "A file, directory, symlink or submodule",
+        "fields": [
+          {
+            "name": "type",
+            "type": "String",
+            "hints": { "primary": true }
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "hints": { "primary": true }
+          },
+          {
+            "name": "encoding",
+            "type": "String"
+          },
+          {
+            "name": "content",
+            "type": "String"
+          },
+          {
+            "name": "files",
+            "type": "List",
+            "ofType": "Content"
+          },
+          {
+            "name": "path",
+            "type": "String"
+          },
+          {
+            "name": "sha",
+            "type": "String"
+          },
+          {
+            "name": "download_url",
+            "type": "String"
+          }
+        ]
+      },
+      {
         "name": "IssueCollection",
         "fields": [
           {
@@ -401,33 +623,9 @@
             ]
           },
           {
-            "name": "page",
-            "type": "IssuePage",
+            "name": "search",
+            "type": "IssueSearchPage",
             "params": [
-              {
-                "name": "filter",
-                "type": "String"
-              },
-              {
-                "name": "state",
-                "type": "String"
-              },
-              {
-                "name": "labels",
-                "type": "String"
-              },
-              {
-                "name": "sort",
-                "type": "String"
-              },
-              {
-                "name": "direction",
-                "type": "String"
-              },
-              {
-                "name": "since",
-                "type": "String"
-              },
               {
                 "name": "page",
                 "type": "Int"
@@ -435,8 +633,112 @@
               {
                 "name": "pageSize",
                 "type": "Int"
+              },
+              {
+                "name": "q",
+                "type": "String",
+                "description": "Github API returns pull requests in the issues endpoint. Use this to include/exclude them. Can be either issue or pr"
+              },
+              {
+                "name": "sort",
+                "type": "String",
+                "description": "What to sort results by. Can be created, updated, comments."
+              },
+              {
+                "name": "order",
+                "type": "String",
+                "description": "One of asc (ascending) or desc (descending)."
               }
             ]
+          },
+          {
+            "name": "page",
+            "type": "IssuePage",
+            "params": [
+              {
+                "name": "page",
+                "type": "Int"
+              },
+              {
+                "name": "pageSize",
+                "type": "Int"
+              },
+              {
+                "name": "kind",
+                "type": "String",
+                "description": "Github API returns pull requests in the issues endpoint. Use this to include/exclude them. Can be either issue or pr"
+              },
+              {
+                "name": "milestone",
+                "type": "String",
+                "description": "If an integer is passed, it should refer to a milestone by its number field. If the string * is passed, issues with any milestone are accepted. If the string none is passed, issues without milestones are returned."
+              },
+              {
+                "name": "state",
+                "type": "String",
+                "description": "Indicates the state of the issues to return. Can be open, closed, or all."
+              },
+              {
+                "name": "assignee",
+                "type": "String",
+                "description": "Can be the name of a user. Pass in none for issues with no assigned user, and * for issues assigned to any user."
+              },
+              {
+                "name": "creator",
+                "type": "String",
+                "description": "The user that created the issue."
+              },
+              {
+                "name": "mentioned",
+                "type": "String",
+                "description": "A user that's mentioned in the issue."
+              },
+              {
+                "name": "labels",
+                "type": "String",
+                "description": "A list of comma separated label names. Example: bug,ui,@high"
+              },
+              {
+                "name": "sort",
+                "type": "String",
+                "description": "What to sort results by. Can be created, updated, comments."
+              },
+              {
+                "name": "direction",
+                "type": "String",
+                "description": "One of asc (ascending) or desc (descending)."
+              },
+              {
+                "name": "since",
+                "type": "String",
+                "description": "Only show notifications updated after the given time. This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ"
+              }
+            ]
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "IssueSearchPage",
+        "fields": [
+          {
+            "name": "total_count",
+            "type": "Int"
+          },
+          {
+            "name": "incomplete_results",
+            "type": "Boolean"
+          },
+          {
+            "name": "next",
+            "type": "Ref",
+            "ofType": "IssueSearchPage"
+          },
+          {
+            "name": "items",
+            "type": "List",
+            "ofType": "Issue"
           }
         ],
         "actions": [],
@@ -463,19 +765,20 @@
         "name": "Issue",
         "fields": [
           {
-            "name": "number",
-            "type": "Int"
-          },
-          {
-            "name": "title",
+            "name": "active_lock_reason",
             "type": "String"
           },
           {
-            "name": "id",
-            "type": "Int"
+            "name": "assignee",
+            "type": "User"
           },
           {
-            "name": "state",
+            "name": "assignees",
+            "type": "List",
+            "ofType": "User"
+          },
+          {
+            "name": "author_association",
             "type": "String"
           },
           {
@@ -483,38 +786,83 @@
             "type": "String"
           },
           {
-            "name": "locked",
-            "type": "Boolean"
+            "name": "closed_at",
+            "type": "String"
+          },
+          {
+            "name": "closed_by",
+            "type": "User"
           },
           {
             "name": "comments",
             "type": "Int"
           },
           {
-            "name": "self",
-            "type": "Ref",
-            "ofType": "Issue"
-          },
-          {
-            "name": "activeLockReason",
+            "name": "created_at",
             "type": "String"
           },
           {
-            "name": "pullRequest",
-            "params": [],
-            "type": "Ref",
-            "ofType": "PullRequest"
+            "name": "draft",
+            "type": "Boolean"
           },
           {
-            "name": "nodeId",
-            "params": [],
+            "name": "id",
+            "type": "Int"
+          },
+          {
+            "name": "labels",
+            "type": "List",
+            "ofType": "Label"
+          },
+          {
+            "name": "locked",
+            "type": "Boolean"
+          },
+          {
+            "name": "milestone",
             "type": "String"
           },
           {
-            "name": "owner",
-            "params": [],
-            "type": "Ref",
-            "ofType": "User"
+            "name": "node_id",
+            "type": "String"
+          },
+          {
+            "name": "number",
+            "type": "Int",
+            "hints": {
+              "primary": true
+            }
+          },
+          {
+            "name": "pull_request",
+            "type": "PullRequest"
+          },
+          {
+            "name": "reactions",
+            "type": "Reactions"
+          },
+          {
+            "name": "state",
+            "type": "String"
+          },
+          {
+            "name": "title",
+            "type": "String",
+            "hints": {
+              "secondary": true
+            }
+          },
+          {
+            "name": "updated_at",
+            "type": "String"
+          },
+          {
+            "name": "url",
+            "type": "String"
+          },
+          {
+            "name": "user",
+            "type": "User"
           }
         ],
         "actions": [
@@ -543,15 +891,94 @@
         ]
       },
       {
+        "name": "Label",
+        "fields": [
+          {
+            "name": "name",
+            "type": "String",
+            "hints": {
+              "primary": true
+            }
+          },
+          {
+            "name": "node_id",
+            "type": "String"
+          },
+          {
+            "name": "id",
+            "type": "Int"
+          },
+          {
+            "name": "color",
+            "type": "String"
+          },
+          {
+            "name": "description",
+            "type": "String"
+          },
+          {
+            "name": "default",
+            "type": "Boolean"
+          }
+        ]
+      },
+      {
+        "name": "Reactions",
+        "fields": [
+          {
+            "name": "total_count",
+            "type": "Int"
+          },
+          {
+            "name": "plus_1",
+            "type": "Int"
+          },
+          {
+            "name": "minus_1",
+            "type": "Int"
+          },
+          {
+            "name": "laugh",
+            "type": "Int"
+          },
+          {
+            "name": "hooray",
+            "type": "Int"
+          },
+          {
+            "name": "confused",
+            "type": "Int"
+          },
+          {
+            "name": "heart",
+            "type": "Int"
+          },
+          {
+            "name": "rocket",
+            "type": "Int"
+          },
+          {
+            "name": "eyes",
+            "type": "Int"
+          }
+        ]
+      },
+      {
         "name": "PullRequest",
         "fields": [
           {
             "name": "number",
-            "type": "Int"
+            "type": "Int",
+            "hints": {
+              "primary": true
+            }
           },
           {
             "name": "title",
-            "type": "String"
+            "type": "String",
+            "hints": {
+              "primary": true
+            }
           },
           {
             "name": "id",
@@ -574,15 +1001,9 @@
             "type": "Boolean"
           },
           {
-            "name": "activeLockReason",
+            "name": "active_lock_reason",
             "params": [],
             "type": "String"
-          },
-          {
-            "name": "self",
-            "params": [],
-            "type": "Ref",
-            "ofType": "PullRequest"
           },
           {
             "name": "diff",
@@ -590,7 +1011,7 @@
             "type": "String"
           },
           {
-            "name": "nodeId",
+            "name": "node_id",
             "params": [],
             "type": "String"
           },
@@ -628,6 +1049,7 @@
       },
       {
         "name": "PullRequestCollection",
+
         "fields": [
           {
             "name": "one",
@@ -770,28 +1192,22 @@
             "type": "String"
           },
           {
-            "name": "self",
-            "params": [],
-            "type": "Ref",
-            "ofType": "Release"
-          },
-          {
-            "name": "nodeId",
+            "name": "node_id",
             "params": [],
             "type": "String"
           },
           {
-            "name": "tagName",
+            "name": "tag_name",
             "params": [],
             "type": "String"
           },
           {
-            "name": "targetCommitish",
+            "name": "target_commitish",
             "params": [],
             "type": "String"
           },
           {
-            "name": "createdAt",
+            "name": "created_at",
             "params": [],
             "type": "String"
           }
@@ -839,17 +1255,17 @@
             "type": "LicenseDesc"
           },
           {
-            "name": "htmlUrl",
+            "name": "html_url",
             "params": [],
             "type": "String"
           },
           {
-            "name": "gitUrl",
+            "name": "git_url",
             "params": [],
             "type": "String"
           },
           {
-            "name": "downloadUrl",
+            "name": "download_url",
             "params": [],
             "type": "String"
           }
@@ -873,7 +1289,7 @@
             "type": "String"
           },
           {
-            "name": "spdxId",
+            "name": "spdx_id",
             "params": [],
             "type": "String"
           }

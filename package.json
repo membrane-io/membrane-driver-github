@@ -9,6 +9,7 @@
   "private": false,
   "dependencies": {
     "@octokit/rest": "^18.12.0",
+    "parse-link-header": "^2.0.0",
     "querystring": "^0.2.1",
     "url": "^0.11.0"
   }
