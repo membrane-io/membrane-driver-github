@@ -284,6 +284,32 @@
                 "type": "Int"
               }
             ]
+          },
+          {
+            "name": "search",
+            "type": "RepositoryPage",
+            "params": [
+              {
+                "name": "q",
+                "type": "String"
+              },
+              {
+                "name": "sort",
+                "type": "String"
+              },
+              {
+                "name": "order",
+                "type": "String"
+              },
+              {
+                "name": "page",
+                "type": "Int"
+              },
+              {
+                "name": "pageSize",
+                "type": "Int"
+              }
+            ]
           }
         ],
         "actions": [],
@@ -465,7 +491,37 @@
             "type": "License"
           }
         ],
-        "actions": [],
+        "actions": [
+          {
+            "name": "transfer",
+            "params": [
+              {
+                "name": "new_owner",
+                "type": "String"
+              },
+              {
+                "name": "new_name",
+                "type": "String"
+              }
+            ],
+            "type": "Void"
+          },
+          {
+            "name": "addCollaborator",
+            "params": [
+              {
+                "name": "username",
+                "type": "String"
+              },
+              {
+                "name": "permission",
+                "type": "String",
+                "description": "The permission to grant the collaborator. One of: pull, triage, push, maintain, admin. Default: push"
+              }
+            ],
+            "type": "Void"
+          }
+        ],
         "events": [
           {
             "name": "issueOpened",
