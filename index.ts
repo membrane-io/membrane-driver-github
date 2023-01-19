@@ -34,22 +34,31 @@ const shouldFetch = (info: ResolverInfo, simpleFields: string[]) =>
     })
     .some(({ name: { value } }) => !simpleFields.includes(value));
 
-// Generic helper to get the next ref for this driver
-function getPageRefs(page, response: { headers: any }): { next?: any } {
+// Generic helper to extract the "next" gref from the headers of a response
+// TODO: support `prev` and `last` links
+function getPageRefs(
+  gref: Gref<unknown>,
+  response: { headers: any }
+): { next?: any } {
   const links = parseLinks(response.headers.link);
   if (!links) {
     return {};
   }
   const refs: { next?: any } = {};
-  const args = page.$args();
-  const collection = page.$pop();
+  const args = gref.$args();
+
+  // Github's API uses different methods to paginate depending on the endpoint
   if (links.next?.since !== undefined) {
-    refs.next = collection.page({ ...args, since: links.next.since });
+    refs.next = gref({ ...args, since: links.next.since });
   } else if (links.next?.page !== undefined) {
     const page = Number.parseInt(links.next.page, 10);
-    refs.next = collection.page({ ...args, page });
+    refs.next = gref({ ...args, page });
+  } else if (links.next?.url) {
+    // Extract the page number from the URL
+    const url = new URL(links.next.url);
+    const page = Number.parseInt(url.searchParams.get("page") || "1", 10);
+    refs.next = gref({ ...args, page });
   }
-  // TODO: prev, first, last, cursor based pagination
   return refs;
 }
 
@@ -190,12 +199,33 @@ export const RepositoryCollection = {
       next: getPageRefs(self.page(args), res).next,
     };
   },
+  async search({ self, args }) {
+    const { name: username } = self.$argsAt(root.users.one());
+    const q = (args.q ?? "") + ` user:${username}`;
+
+    const apiArgs = toGithubArgs({ ...args, q, username });
+    const res = await client().search.repos(apiArgs);
+
+    return {
+      items: res.data.items,
+      next: getPageRefs(self.search(args), res).next,
+    };
+  },
 };
 
 export const Repository = {
   gref: ({ self, obj }) => {
-    const { name: owner } = self.$argsAt(root.users.one());
+    const { name: owner } = self.$argsAt(root.users.one);
     return root.users.one({ name: owner }).repos.one({ name: obj.name });
+  },
+  transfer: async ({ self, args }) => {
+    const { name: owner } = self.$argsAt(root.users.one);
+    await client().repos.transfer({ ...args, owner });
+  },
+  addCollaborator: async ({ self, args }) => {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    await client().repos.addCollaborator({ ...args, owner, repo });
   },
   // issueOpened: {
   //   async subscribe({ self }) {
