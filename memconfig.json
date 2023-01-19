@@ -872,6 +872,11 @@
             "type": "Void"
           },
           {
+            "name": "close",
+            "params": [],
+            "type": "Void"
+          },
+          {
             "name": "createComment",
             "params": [
               {
@@ -1025,6 +1030,11 @@
         "actions": [
           {
             "name": "subscribe",
+            "params": [],
+            "type": "Void"
+          },
+          {
+            "name": "close",
             "params": [],
             "type": "Void"
           },

@@ -248,8 +248,7 @@ export const Repository = {
       const gref = root.users.one({ name: owner }).repos.one({ name: repo });
       return {
         type: "directory",
-        files: data,
-        // files: data.map((e) => gref.content({ path: e.path }))
+        files: data.map((e) => gref.content({ path: e.path }))
       };
     }
     return data;
@@ -263,6 +262,9 @@ export const Repository = {
 };
 
 export const Content = {
+  gref: ({ obj }) => {
+   return obj;
+  },
   async content({ obj, self, args: { path }, info }) {
     let encoding;
     let content;
@@ -366,6 +368,18 @@ export const Issue = {
       .one({ name: owner })
       .repos.one({ name: repo })
       .issues.one({ number });
+  },
+  close: ({ self, obj }) => {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const { number } = self.$argsAt(root.users.one.repos.one.issues.one);
+    
+    return client().issues.update({
+      owner,
+      repo,
+      issue_number: number,
+      state: "closed",
+    });
   },
   pull_request: () => {
     // TODO: parse obj.url which looks like this URL:
@@ -508,6 +522,18 @@ export const PullRequest = {
       .one({ name: owner })
       .repos.one({ name: repo })
       .pull_requests.one({ number });
+  },
+  close: ({ self, obj }) => {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const { number } = self.$argsAt(root.users.one.repos.one.pull_requests.one);
+    
+    return client().pulls.update({
+      owner,
+      repo,
+      pull_number: number,
+      state: "closed",
+    });
   },
   diff({ obj }) {
     // TODO
