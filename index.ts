@@ -242,10 +242,10 @@ export const Repository = {
       return { path };
     }
     const { name: owner } = self.$argsAt(root.users.one);
-    const { name: repo } = self.$argsAt(root.users.one.repos.one);
-    const { data } = await client().repos.getContent({ owner, repo, path });
+    const { name: repo } = self.$argsAt(root.users.one.repos.one); 1
+    const { data } = await client().repos.getContent({ owner, repo, path }); 2
     if (Array.isArray(data)) {
-      const gref = root.users.one({ name: owner }).repos.one({ name: repo });
+      const gref = root.users.one({ name: owner }).repos.one({ name: repo }); 3 
       return {
         type: "directory",
         files: data.map((e) => gref.content({ path: e.path }))
@@ -286,7 +286,7 @@ export const Content = {
         // Failed to decode, keep base64
       }
     }
-    return content;
+    return {};
   },
 };
 let x: Gref<string>;
