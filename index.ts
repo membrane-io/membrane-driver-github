@@ -272,10 +272,10 @@ export const Repository = {
       return { path };
     }
     const { name: owner } = self.$argsAt(root.users.one);
-    const { name: repo } = self.$argsAt(root.users.one.repos.one); 1
-    const { data } = await client().repos.getContent({ owner, repo, path }); 2
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const { data } = await client().repos.getContent({ owner, repo, path });
     if (Array.isArray(data)) {
-      const gref = root.users.one({ name: owner }).repos.one({ name: repo }); 3 
+      const gref = root.users.one({ name: owner }).repos.one({ name: repo });
       return {
         type: "directory",
         files: data.map((e) => gref.content({ path: e.path }))
