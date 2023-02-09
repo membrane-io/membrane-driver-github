@@ -281,8 +281,7 @@ export const Repository = {
         files: data.map((e) => gref.content({ path: e.path }))
       };
     }
-    console.log('acme>: ' ,JSON.stringify(data, null, 2));
-    
+
     return data;
   },
   async license({ self }) {
