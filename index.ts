@@ -281,6 +281,8 @@ export const Repository = {
         files: data.map((e) => gref.content({ path: e.path }))
       };
     }
+    console.log('acme>: ' ,JSON.stringify(data, null, 2));
+    
     return data;
   },
   async license({ self }) {
@@ -313,10 +315,10 @@ export const Content = {
         content = Buffer.from(content, "base64").toString("utf8");
         encoding = "utf8";
       } catch {
-        // Failed to decode, keep base64
+        throw new Error("Failed to decode, keep base64");
       }
     }
-    return {};
+    return content;
   },
 };
 let x: Gref<string>;
