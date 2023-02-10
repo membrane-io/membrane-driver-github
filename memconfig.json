@@ -351,13 +351,7 @@
           },
           {
             "name": "content",
-            "type": "Content",
-            "params": [
-              {
-                "name": "path",
-                "type": "String"
-              }
-            ]
+            "type": "ContentCollection"
           },
           {
             "name": "archived",
@@ -489,6 +483,10 @@
             "name": "license",
             "params": [],
             "type": "License"
+          },
+          {
+            "name": "commits",
+            "type": "CommitCollection"
           }
         ],
         "actions": [
@@ -608,6 +606,54 @@
         "events": []
       },
       {
+        "name": "CommitCollection",
+        "fields": [
+          {
+            "name": "one",
+            "type": "Commit",
+            "params": [
+              {
+                "name": "ref",
+                "type": "String"
+              }
+            ]
+          },
+          {
+            "name": "page",
+            "type": "CommitPage",
+            "params": [
+              {
+                "name": "page",
+                "type": "Int"
+              },
+              {
+                "name": "pageSize",
+                "type": "Int"
+              }
+            ]
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "CommitPage",
+        "fields": [
+          {
+            "name": "items",
+            "type": "List",
+            "ofType": "Commit"
+          },
+          {
+            "name": "next",
+            "type": "Ref",
+            "ofType": "CommitPage"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
         "name": "Commit",
         "fields": [
           {
@@ -623,6 +669,34 @@
             "type": "User"
           }
         ]
+      },
+      {
+        "name": "ContentCollection",
+        "fields": [
+          {
+            "name": "file",
+            "type": "Content",
+            "params": [
+              {
+                "name": "path",
+                "type": "String"
+              }
+            ]
+          },
+          {
+            "name": "dir",
+            "type": "List",
+            "ofType": "Content",
+            "params": [
+              {
+                "name": "path",
+                "type": "String"
+              }
+            ]
+          }
+        ],
+        "actions": [],
+        "events": []
       },
       {
         "name": "Content",
@@ -647,16 +721,23 @@
             "type": "String"
           },
           {
-            "name": "files",
-            "type": "List",
-            "ofType": "Content"
-          },
-          {
             "name": "path",
             "type": "String"
           },
           {
             "name": "sha",
+            "type": "String"
+          },
+          {
+            "name": "size",
+            "type": "Int"
+          },
+          {
+            "name": "submodule_git_url",
+            "type": "String"
+          },
+          {
+            "name": "html_url",
             "type": "String"
           },
           {
