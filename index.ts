@@ -264,26 +264,11 @@ export const Repository = {
   //   },
   // },
   branches: () => ({}),
+  commits: () => ({}),
   issues: () => ({}),
   pull_requests: () => ({}),
   releases: () => ({}),
-  async content({ obj, self, args: { path }, info }) {
-    if (!shouldFetch(info, ["path", ...Object.keys(obj)])) {
-      return { path };
-    }
-    const { name: owner } = self.$argsAt(root.users.one);
-    const { name: repo } = self.$argsAt(root.users.one.repos.one);
-    const { data } = await client().repos.getContent({ owner, repo, path });
-    if (Array.isArray(data)) {
-      const gref = root.users.one({ name: owner }).repos.one({ name: repo });
-      return {
-        type: "directory",
-        files: data,
-        // files: data.map((e) => gref.content({ path: e.path }))
-      };
-    }
-    return data;
-  },
+  content: () => ({}),
   async license({ self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
@@ -292,31 +277,6 @@ export const Repository = {
   },
 };
 
-export const Content = {
-  async content({ obj, self, args: { path }, info }) {
-    let encoding;
-    let content;
-    if (obj.content) {
-      content = obj.content;
-      encoding = obj.encoding;
-    } else {
-      const { name: owner } = self.$argsAt(root.users.one);
-      const { name: repo } = self.$argsAt(root.users.one.repos.one);
-      const { data } = await client().repos.getContent({ owner, repo, path });
-      content = (data as any)?.content;
-      encoding = (data as any)?.encoding;
-    }
-    if (encoding === "base64") {
-      try {
-        content = Buffer.from(content, "base64").toString("utf8");
-        encoding = "utf8";
-      } catch {
-        // Failed to decode, keep base64
-      }
-    }
-    return content;
-  },
-};
 let x: Gref<string>;
 
 export const IssueCollection = {
@@ -397,6 +357,18 @@ export const Issue = {
       .repos.one({ name: repo })
       .issues.one({ number });
   },
+  close: ({ self, obj }) => {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const { number } = self.$argsAt(root.users.one.repos.one.issues.one);
+    
+    return client().issues.update({
+      owner,
+      repo,
+      issue_number: number,
+      state: "closed",
+    });
+  },
   pull_request: () => {
     // TODO: parse obj.url which looks like this URL:
     // https://api.github.com/repos/octocat/Hello-World/pulls/1347
@@ -454,6 +426,109 @@ export const Reactions = {
   minus_one: ({ obj }) => obj["-1"],
 };
 
+export const CommitCollection = {
+  async one({ self, args: { ref }, info }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const result = await client().repos.getCommit({
+      owner,
+      repo,
+      ref,
+    });
+    
+    return result.data;
+  },
+
+  async page({ self, args }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+    const apiArgs = toGithubArgs({ ...args, owner, repo });
+    const res = await client().repos.listCommits(apiArgs);
+    return {
+      items: res.data,
+      next: getPageRefs(self.page(args), res).next,
+    };
+  },
+};
+
+export const Commit = {
+  gref({ self, obj }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    return root.users.one({ name: owner }).repos.one({ name: repo }).commits.one({ ref: obj.sha });
+  },
+  async author({ obj, info }) {
+    if (!shouldFetch(info, Object.keys(obj.author))) {
+      return obj.author;
+    }
+    const {
+      author: { login },
+    } = obj;
+    const result = await client().users.getByUsername({ username: login });
+    return result.data;
+  },
+  message({ obj }) {
+    return obj.commit?.message;
+  }
+};
+
+export const ContentCollection = {
+  async file({ self, obj, args: { path }, info }) {
+    if (!shouldFetch(info, ["path", ...Object.keys(obj)])) {
+      return { path };
+    }
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const { data } = await client().repos.getContent({ owner, repo, path });
+
+    if (!Array.isArray(data)) {
+     return data
+    }
+  },
+
+  async dir({ self, obj, args: { path } }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const { data } = await client().repos.getContent({ owner, repo, path });
+    return Array.isArray(data) ? data : [];
+  },
+};
+
+export const Content = {
+  gref: ({ self, obj }) => {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    if(obj.type === 'dir') {
+      return root.users.one({ name: owner }).repos.one({ name: repo }).content.dir({ path: obj.path });
+    }
+    return root.users.one({ name: owner }).repos.one({ name: repo }).content.file({ path: obj.path });
+  },
+  async content({ obj, self, args: { path }, info }) {
+    let encoding;
+    let content;
+    if (obj.content) {
+      content = obj.content;
+      encoding = obj.encoding;
+    } else {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+      const { data } = await client().repos.getContent({ owner, repo, path });
+      content = (data as any)?.content;
+      encoding = (data as any)?.encoding;
+    }
+    if (encoding === "base64") {
+      try {
+        content = Buffer.from(content, "base64").toString("utf8");
+        encoding = "utf8";
+      } catch {
+        throw new Error("Failed to decode, keep base64");
+      }
+    }
+    return content;
+  },
+};
+
 export const BranchCollection = {
   async one({ self, args, info }) {
     const { name: owner } = self.$argsAt(root.users.one);
@@ -489,23 +564,6 @@ export const Branch = {
   },
 };
 
-export const Commit = {
-  async author({ obj, info }) {
-    if (!shouldFetch(info, Object.keys(obj.author))) {
-      return obj.author;
-    }
-    const {
-      author: { login },
-    } = obj;
-    const result = await client().users.getByUsername({ username: login });
-    return result.data;
-  },
-
-  async message({ obj }) {
-    return obj?.commit?.message;
-  },
-};
-
 export const PullRequestCollection = {
   async one({ self, args }) {
     const { name: owner } = self.$argsAt(root.users.one);
@@ -538,6 +596,18 @@ export const PullRequest = {
       .one({ name: owner })
       .repos.one({ name: repo })
       .pull_requests.one({ number });
+  },
+  close: ({ self, obj }) => {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const { number } = self.$argsAt(root.users.one.repos.one.pull_requests.one);
+    
+    return client().pulls.update({
+      owner,
+      repo,
+      pull_number: number,
+      state: "closed",
+    });
   },
   diff({ obj }) {
     // TODO
