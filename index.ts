@@ -232,16 +232,16 @@ export const Repository = {
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     // now only supports 1 tree params
     const body = {
-      "base_tree": args.base,
-      "tree": [
+      base_tree: args.base,
+      tree: [
         {
-          "path": args.path,
-          "mode": "160000",
-          "type": "commit",
-          "sha": args.tree
-        }
-      ]
-    }
+          path: args.path,
+          mode: "160000",
+          type: "commit",
+          sha: args.tree,
+        },
+      ],
+    };
     const apiArgs = toGithubArgs({ ...body, owner, repo });
     const ref = await client().git.createTree(apiArgs);
     return ref.data.sha;
@@ -380,7 +380,7 @@ export const Issue = {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { number } = self.$argsAt(root.users.one.repos.one.issues.one);
-    
+
     return client().issues.update({
       owner,
       repo,
@@ -440,11 +440,6 @@ export const Issue = {
   // },
 };
 
-export const Reactions = {
-  plus_one: ({ obj }) => obj["+1"],
-  minus_one: ({ obj }) => obj["-1"],
-};
-
 export const CommitCollection = {
   async one({ self, args: { ref }, info }) {
     const { name: owner } = self.$argsAt(root.users.one);
@@ -454,7 +449,7 @@ export const CommitCollection = {
       repo,
       ref,
     });
-    
+
     return result.data;
   },
 
@@ -473,18 +468,27 @@ export const CommitCollection = {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-    const parents = args.parents.split(',') || [];
-    const apiArgs = toGithubArgs({ tree: args.tree, owner, repo, parents, message: args.message });
+    const parents = args.parents.split(",") || [];
+    const apiArgs = toGithubArgs({
+      tree: args.tree,
+      owner,
+      repo,
+      parents,
+      message: args.message,
+    });
     const res = await client().git.createCommit(apiArgs);
     return res.data.sha;
-  }
+  },
 };
 
 export const Commit = {
   gref({ self, obj }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-    return root.users.one({ name: owner }).repos.one({ name: repo }).commits.one({ ref: obj.sha });
+    return root.users
+      .one({ name: owner })
+      .repos.one({ name: repo })
+      .commits.one({ ref: obj.sha });
   },
   async author({ obj, info }) {
     if (!shouldFetch(info, Object.keys(obj.author))) {
@@ -498,7 +502,7 @@ export const Commit = {
   },
   message({ obj }) {
     return obj.commit?.message;
-  }
+  },
 };
 
 export const ContentCollection = {
@@ -511,7 +515,7 @@ export const ContentCollection = {
     const { data } = await client().repos.getContent({ owner, repo, path });
 
     if (!Array.isArray(data)) {
-     return data
+      return data;
     }
   },
 
@@ -527,10 +531,16 @@ export const Content = {
   gref: ({ self, obj }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-    if(obj.type === 'dir') {
-      return root.users.one({ name: owner }).repos.one({ name: repo }).content.dir({ path: obj.path });
+    if (obj.type === "dir") {
+      return root.users
+        .one({ name: owner })
+        .repos.one({ name: repo })
+        .content.dir({ path: obj.path });
     }
-    return root.users.one({ name: owner }).repos.one({ name: repo }).content.file({ path: obj.path });
+    return root.users
+      .one({ name: owner })
+      .repos.one({ name: repo })
+      .content.file({ path: obj.path });
   },
   async content({ obj, self, args: { path }, info }) {
     let encoding;
@@ -590,13 +600,13 @@ export const Branch = {
   commit({ obj }) {
     return obj.commit;
   },
-  async update({ self, args }){
+  async update({ self, args }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
     const apiArgs = toGithubArgs({ ...args, owner, repo });
     return await client().git.updateRef(apiArgs);
-  }
+  },
 };
 
 export const PullRequestCollection = {
@@ -636,7 +646,7 @@ export const PullRequest = {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { number } = self.$argsAt(root.users.one.repos.one.pull_requests.one);
-    
+
     return client().pulls.update({
       owner,
       repo,
@@ -712,170 +722,6 @@ export const ReleaseCollection = {
     };
   },
 };
-
-export const Release = {
-  self({ self, parent, obj }) {
-    return parent.parent.parent.one({ id: `${obj.id}` });
-  },
-  nodeId({ obj }) {
-    return obj.node_id;
-  },
-  tagName({ obj }) {
-    return obj.tag_name;
-  },
-  targetCommitish({ obj }) {
-    return obj.target_commitish;
-  },
-  createdAt({ obj }) {
-    return obj.created_at;
-  },
-};
-
-export const Config = {
-  self({ self, parent, obj }) {
-    return parent.parent.parent.one({ id: obj.hook_id });
-  },
-  contentType({ obj }) {
-    return obj["content_type"];
-  },
-};
-
-export const Owner = {
-  nodeId({ obj }) {
-    return obj.node_id;
-  },
-  avatarUrl({ obj }) {
-    return obj.avatar_url;
-  },
-  subscriptionsUrl({ obj }) {
-    return obj.subscriptions_url;
-  },
-  eventsUrl({ obj }) {
-    return obj.events_url;
-  },
-  receivedEventsUrl({ obj }) {
-    return obj.received_events_url;
-  },
-};
-
-export const License = {
-  htmlUrl({ obj }) {
-    return obj["html_url"];
-  },
-  gitUrl({ obj }) {
-    return obj["git_url"];
-  },
-  downloadUrl({ obj }) {
-    return obj["download_url"];
-  },
-};
-
-export const LicenseDesc = {
-  spdxId({ obj }) {
-    return obj["spdx_id"];
-  },
-};
-
-// export async function timer({ key }) {
-//   const { state } = program;
-//   const [owner, repo] = key.split('/');
-//   const { data, meta } = await client().activity.getEventsForRepo({ owner, repo });
-
-//   // Find the index of the oldest event that hasn't been processed yet
-//   const index = data.findIndex((item) => formatTime(item.created_at) <= state.repos[key].lastEventTime);
-
-//   if (index > 0) {
-//     // Process all new events in oldest-to-newest order
-//     const newEvents = data.slice(0, index).reverse();
-//     for (let item of newEvents) {
-//       const { type, payload } = item;
-//       for (let eventData of state.repos[key].events) {
-//         const [event, number] = eventData.split('/');
-//         switch (event) {
-//           case 'issueOpened': {
-//             if (type === 'IssuesEvent' && payload.action === 'opened') {
-//               const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
-//               await repoRef.issueOpened.dispatch({
-//                 issue: repoRef.issues.one({ number }),
-//               });
-//             }
-//             break;
-//           }
-//           case 'issueClosed': {
-//             if (type === 'IssuesEvent' && payload.action === 'closed') {
-//               const issueRef = root.users.one({ name: owner }).repos.one({ name: repo }).issues.one({ number });
-//               await issueRef.closed.dispatch();
-//             }
-//             break;
-//           }
-//           case 'releasePublished': {
-//             if (type === 'ReleaseEvent' && payload.action === 'published') {
-//               const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
-//               const id = `${payload.release.id}`;
-//               await repoRef.releasePublished.dispatch({
-//                 release: repoRef.releases.one({ id }),
-//               });
-//             }
-//             break;
-//           }
-//           case 'pullRequestOpened': {
-//             if (type === 'PullRequestEvent' && payload.action === 'opened') {
-//               const repoRef = root.users.one({ name: owner }).repos.one({ name: repo });
-//               await repoRef.pullRequestOpened.dispatch({
-//                 issue: repoRef.issues.one({ number }),
-//                 pullRequest: repoRef.pullRequests.one({ number }),
-//               });
-//             }
-//             break;
-//           }
-//           case 'pullRequestClosed': {
-//             if (type === 'PullRequestEvent' && payload.action === 'closed') {
-//               const pullRef = root.users.one({ name: owner }).repos.one({ name: repo }).pullRequests.one({ number });
-//               await pullRef.closed.dispatch();
-//             }
-//             break;
-//           }
-//         }
-//       }
-//     }
-
-//     // Save the time of the most recent event
-//     const lastEvent = newEvents[newEvents.length - 1];
-//     state.repos[key].lastEventTime = formatTime(lastEvent.created_at);
-//   }
-
-//   // Schedule the next check
-//   const pollInterval = Number.parseInt(meta['x-poll-interval'], 10);
-//   await program.setTimer(key, pollInterval);
-// }
-
-// async function ensureTimerIsSet(repo, event) {
-//   const { state } = program;
-//   const repository = (state.repos[repo] = state.repos[repo] || {});
-//   const events = (repository['events'] = repository['events'] || []);
-
-//   if (events.length === 0) {
-//     repository['lastEventTime'] = new Date().getTime();
-//     await timer({ key: repo });
-//   }
-
-//   if (!events.includes(event)) {
-//     events.push(event);
-//   }
-// }
-
-// async function unsetTimerRepo(repo, event) {
-//   const events = program.state.repos[repo].events;
-
-//   const index = events.indexOf(event);
-//   if (index >= 0) {
-//     events.splice(index, 1);
-//   }
-
-//   if (events.length === 0) {
-//     await program.unsetTimer(repo);
-//   }
-// }
 
 function formatTime(time) {
   return new Date(time).getTime();

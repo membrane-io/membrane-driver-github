@@ -706,37 +706,6 @@
         "events": []
       },
       {
-        "name": "CommitCollection",
-        "fields": [
-          {
-            "name": "one",
-            "type": "Commit",
-            "params": [
-              {
-                "name": "ref",
-                "type": "String"
-              }
-            ]
-          },
-          {
-            "name": "page",
-            "type": "CommitPage",
-            "params": [
-              {
-                "name": "page",
-                "type": "Int"
-              },
-              {
-                "name": "pageSize",
-                "type": "Int"
-              }
-            ]
-          }
-        ],
-        "actions": [],
-        "events": []
-      },
-      {
         "name": "CommitPage",
         "fields": [
           {
