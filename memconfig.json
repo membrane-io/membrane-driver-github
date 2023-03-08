@@ -25,7 +25,7 @@
       "description": "Pull Request",
       "type": "url",
       "searchIn": "https://github.com",
-      "regex": "https://github.com/[^/]+/[^/]+/pull/[0-9]+$"
+      "regex": "https://github.com/[^/]+/[^/]+/pull/[0-9]+($|\\?)"
     },
     "search": {
       "description": "Issue/PR Search",
@@ -518,6 +518,24 @@
               }
             ],
             "type": "Void"
+          },
+          {
+            "name": "createTree",
+            "type": "String",
+            "params": [
+              {
+                "name": "base",
+                "type": "String"
+              },
+              {
+                "name": "path",
+                "type": "String"
+              },
+              {
+                "name": "tree",
+                "type": "String"
+              }
+            ]
           }
         ],
         "events": [
@@ -600,6 +618,88 @@
           {
             "name": "protected",
             "type": "Boolean"
+          }
+        ],
+        "actions": [
+          {
+            "name": "update",
+            "type": "Void",
+            "params": [
+              {
+                "name": "sha",
+                "type": "String"
+              },
+              {
+                "name": "ref",
+                "type": "String"
+              }
+            ]
+          }
+        ],
+        "events": []
+      },
+      {
+        "name": "CommitCollection",
+        "fields": [
+          {
+            "name": "one",
+            "type": "Commit",
+            "params": [
+              {
+                "name": "ref",
+                "type": "String"
+              }
+            ]
+          },
+          {
+            "name": "page",
+            "type": "CommitPage",
+            "params": [
+              {
+                "name": "page",
+                "type": "Int"
+              },
+              {
+                "name": "pageSize",
+                "type": "Int"
+              }
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "name": "create",
+            "type": "String",
+            "params": [
+              {
+                "name": "message",
+                "type": "String"
+              },
+              {
+                "name": "tree",
+                "type": "String"
+              },
+              {
+                "name": "parents",
+                "type": "String"
+              }
+            ]
+          }
+        ],
+        "events": []
+      },
+      {
+        "name": "CommitPage",
+        "fields": [
+          {
+            "name": "items",
+            "type": "List",
+            "ofType": "Commit"
+          },
+          {
+            "name": "next",
+            "type": "Ref",
+            "ofType": "CommitPage"
           }
         ],
         "actions": [],
@@ -705,12 +805,16 @@
           {
             "name": "type",
             "type": "String",
-            "hints": { "primary": true }
+            "hints": {
+              "primary": true
+            }
           },
           {
             "name": "name",
             "type": "String",
-            "hints": { "primary": true }
+            "hints": {
+              "primary": true
+            }
           },
           {
             "name": "encoding",
@@ -1196,7 +1300,6 @@
       },
       {
         "name": "PullRequestCollection",
-
         "fields": [
           {
             "name": "one",

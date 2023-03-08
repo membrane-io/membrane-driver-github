@@ -227,6 +227,25 @@ export const Repository = {
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     await client().repos.addCollaborator({ ...args, owner, repo });
   },
+  createTree: async ({ self, args }) => {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    // now only supports 1 tree params
+    const body = {
+      "base_tree": args.base,
+      "tree": [
+        {
+          "path": args.path,
+          "mode": "160000",
+          "type": "commit",
+          "sha": args.tree
+        }
+      ]
+    }
+    const apiArgs = toGithubArgs({ ...body, owner, repo });
+    const ref = await client().git.createTree(apiArgs);
+    return ref.data.sha;
+  },
   // issueOpened: {
   //   async subscribe({ self }) {
   //     const { name: owner } = self.$argsAt(root.users.one);
@@ -450,6 +469,15 @@ export const CommitCollection = {
       next: getPageRefs(self.page(args), res).next,
     };
   },
+  async create({ self, args }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+    const parents = args.parents.split(',') || [];
+    const apiArgs = toGithubArgs({ tree: args.tree, owner, repo, parents, message: args.message });
+    const res = await client().git.createCommit(apiArgs);
+    return res.data.sha;
+  }
 };
 
 export const Commit = {
@@ -562,6 +590,13 @@ export const Branch = {
   commit({ obj }) {
     return obj.commit;
   },
+  async update({ self, args }){
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+    const apiArgs = toGithubArgs({ ...args, owner, repo });
+    return await client().git.updateRef(apiArgs);
+  }
 };
 
 export const PullRequestCollection = {

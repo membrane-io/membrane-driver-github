@@ -1,13 +1,5 @@
 {
   "types": {
-    "process": {
-      "gref_hash": "c7a6cc4739f2a6aa697342cf67d4924b8be757dbc2bd9eae395bc939f10d54ea",
-      "type": "sys-process:Root"
-    },
-    "clock": {
-      "gref_hash": "da9d1c247b69702ed49d157f0d697d132f917d00f407438e43c7e438c837c024",
-      "type": "sys-clock:Root"
-    },
     "http": {
       "gref_hash": "5cfa57fe83d1201eb831cc168a5dbe9decaa6010603df244ca6855f2fe61440c",
       "type": "http:Root"
@@ -15,125 +7,12 @@
   },
   "imports": [
     {
-      "name": "sys-process",
-      "schema": {
-        "types": [
-          {
-            "name": "Root",
-            "description": "",
-            "actions": [],
-            "fields": [
-              {
-                "name": "endpointUrl",
-                "description": "Gets the program's own endpoint URL",
-                "type": "String",
-                "params": [],
-                "hints": {}
-              }
-            ],
-            "events": []
-          }
-        ],
-        "imports": []
-      },
-      "source": {
-        "Program": "tbd"
-      }
-    },
-    {
-      "name": "sys-clock",
-      "schema": {
-        "types": [
-          {
-            "name": "Root",
-            "description": "",
-            "actions": [
-              {
-                "name": "sleep",
-                "description": "",
-                "type": "Void",
-                "params": [
-                  {
-                    "name": "key",
-                    "type": "String"
-                  },
-                  {
-                    "name": "seconds",
-                    "type": "Float"
-                  }
-                ],
-                "hints": {}
-              }
-            ],
-            "fields": [],
-            "events": [
-              {
-                "name": "timer",
-                "description": "",
-                "type": "TimerEvent",
-                "params": [
-                  {
-                    "name": "key",
-                    "type": "String"
-                  },
-                  {
-                    "name": "spec",
-                    "type": "String"
-                  },
-                  {
-                    "name": "maxCount",
-                    "type": "Int"
-                  }
-                ],
-                "hints": {}
-              },
-              {
-                "name": "timerAt",
-                "description": "",
-                "type": "TimerEvent",
-                "params": [
-                  {
-                    "name": "key",
-                    "type": "String"
-                  },
-                  {
-                    "name": "seconds",
-                    "type": "String"
-                  }
-                ],
-                "hints": {}
-              }
-            ]
-          },
-          {
-            "name": "TimerEvent",
-            "description": "",
-            "actions": [],
-            "fields": [
-              {
-                "name": "id",
-                "description": "",
-                "type": "String",
-                "params": [],
-                "hints": {}
-              }
-            ],
-            "events": []
-          }
-        ],
-        "imports": []
-      },
-      "source": {
-        "Program": "tbd"
-      }
-    },
-    {
       "name": "http",
       "schema": {
         "types": [
           {
             "name": "Root",
-            "description": "Use this program to make HTTP requests",
+            "description": "Make HTTP requests",
             "actions": [
               {
                 "name": "post",
@@ -241,6 +120,23 @@
                 "hints": {}
               },
               {
+                "name": "authenticated",
+                "description": "An HTTP client that can make authenticated requests using Membrane's Transparent Authentication. Used by drivers to use avoid requiring an API key/secret pair.",
+                "type": "Authenticated",
+                "params": [
+                  {
+                    "name": "api",
+                    "type": "String"
+                  },
+                  {
+                    "name": "authId",
+                    "type": "Ref",
+                    "ofType": "String"
+                  }
+                ],
+                "hints": {}
+              },
+              {
                 "name": "gref",
                 "description": "A reference to this node",
                 "type": "Ref",
@@ -287,122 +183,136 @@
               }
             ],
             "events": []
+          },
+          {
+            "name": "Authenticated",
+            "description": "",
+            "actions": [
+              {
+                "name": "createLink",
+                "description": "Creates a link to authenticate the user with an API and enable Membrane's Transparent Auth. Valid values for `api`: `google-docs`",
+                "type": "String",
+                "params": [],
+                "hints": {}
+              },
+              {
+                "name": "post",
+                "description": "Performs a POST request",
+                "type": "Resource",
+                "params": [
+                  {
+                    "name": "url",
+                    "type": "String"
+                  },
+                  {
+                    "name": "headers",
+                    "type": "String"
+                  },
+                  {
+                    "name": "body",
+                    "type": "String"
+                  }
+                ],
+                "hints": {}
+              },
+              {
+                "name": "put",
+                "description": "Performs a PUT request",
+                "type": "Resource",
+                "params": [
+                  {
+                    "name": "url",
+                    "type": "String"
+                  },
+                  {
+                    "name": "headers",
+                    "type": "String"
+                  },
+                  {
+                    "name": "body",
+                    "type": "String"
+                  }
+                ],
+                "hints": {}
+              },
+              {
+                "name": "patch",
+                "description": "Performs a PATCH request",
+                "type": "Resource",
+                "params": [
+                  {
+                    "name": "url",
+                    "type": "String"
+                  },
+                  {
+                    "name": "headers",
+                    "type": "String"
+                  },
+                  {
+                    "name": "body",
+                    "type": "String"
+                  }
+                ],
+                "hints": {}
+              },
+              {
+                "name": "delete",
+                "description": "Performs a DELETE request",
+                "type": "Resource",
+                "params": [
+                  {
+                    "name": "url",
+                    "type": "String"
+                  },
+                  {
+                    "name": "headers",
+                    "type": "String"
+                  },
+                  {
+                    "name": "body",
+                    "type": "String"
+                  }
+                ],
+                "hints": {}
+              }
+            ],
+            "fields": [
+              {
+                "name": "get",
+                "description": "A resource obtained via a GET request",
+                "type": "Resource",
+                "params": [
+                  {
+                    "name": "url",
+                    "type": "String"
+                  },
+                  {
+                    "name": "headers",
+                    "type": "String"
+                  }
+                ],
+                "hints": {}
+              },
+              {
+                "name": "hasAuthenticated",
+                "description": "Whether the user has authenticated with this API",
+                "type": "Boolean",
+                "params": [],
+                "hints": {}
+              },
+              {
+                "name": "gref",
+                "description": "A reference to this node",
+                "type": "Ref",
+                "ofType": "Authenticated",
+                "params": [],
+                "hints": {}
+              }
+            ],
+            "events": []
           }
         ],
         "imports": [
-          {
-            "name": "sys-process",
-            "schema": {
-              "types": [
-                {
-                  "name": "Root",
-                  "description": "",
-                  "actions": [],
-                  "fields": [
-                    {
-                      "name": "endpointUrl",
-                      "description": "Gets the program's own endpoint URL",
-                      "type": "String",
-                      "params": [],
-                      "hints": {}
-                    }
-                  ],
-                  "events": []
-                }
-              ],
-              "imports": []
-            },
-            "source": {
-              "Program": "tbd"
-            }
-          },
-          {
-            "name": "sys-clock",
-            "schema": {
-              "types": [
-                {
-                  "name": "Root",
-                  "description": "",
-                  "actions": [
-                    {
-                      "name": "sleep",
-                      "description": "",
-                      "type": "Void",
-                      "params": [
-                        {
-                          "name": "key",
-                          "type": "String"
-                        },
-                        {
-                          "name": "seconds",
-                          "type": "Float"
-                        }
-                      ],
-                      "hints": {}
-                    }
-                  ],
-                  "fields": [],
-                  "events": [
-                    {
-                      "name": "timer",
-                      "description": "",
-                      "type": "TimerEvent",
-                      "params": [
-                        {
-                          "name": "key",
-                          "type": "String"
-                        },
-                        {
-                          "name": "spec",
-                          "type": "String"
-                        },
-                        {
-                          "name": "maxCount",
-                          "type": "Int"
-                        }
-                      ],
-                      "hints": {}
-                    },
-                    {
-                      "name": "timerAt",
-                      "description": "",
-                      "type": "TimerEvent",
-                      "params": [
-                        {
-                          "name": "key",
-                          "type": "String"
-                        },
-                        {
-                          "name": "seconds",
-                          "type": "String"
-                        }
-                      ],
-                      "hints": {}
-                    }
-                  ]
-                },
-                {
-                  "name": "TimerEvent",
-                  "description": "",
-                  "actions": [],
-                  "fields": [
-                    {
-                      "name": "id",
-                      "description": "",
-                      "type": "String",
-                      "params": [],
-                      "hints": {}
-                    }
-                  ],
-                  "events": []
-                }
-              ],
-              "imports": []
-            },
-            "source": {
-              "Program": "tbd"
-            }
-          },
           {
             "name": "sys-http",
             "schema": {
@@ -508,6 +418,23 @@
                         }
                       ],
                       "hints": {}
+                    },
+                    {
+                      "name": "authenticated",
+                      "description": "An HTTP client that can make authenticated requests using Membrane's Transparent Authentication. Used by drivers to use avoid requiring an API key/secret pair.",
+                      "type": "Authenticated",
+                      "params": [
+                        {
+                          "name": "api",
+                          "type": "String"
+                        },
+                        {
+                          "name": "authId",
+                          "type": "Ref",
+                          "ofType": "String"
+                        }
+                      ],
+                      "hints": {}
                     }
                   ],
                   "events": []
@@ -540,12 +467,244 @@
                     }
                   ],
                   "events": []
+                },
+                {
+                  "name": "Authenticated",
+                  "description": "",
+                  "actions": [
+                    {
+                      "name": "createLink",
+                      "description": "Creates a link to authenticate the user with this API",
+                      "type": "String",
+                      "params": [],
+                      "hints": {}
+                    },
+                    {
+                      "name": "post",
+                      "description": "",
+                      "type": "Resource",
+                      "params": [
+                        {
+                          "name": "url",
+                          "type": "String"
+                        },
+                        {
+                          "name": "headers",
+                          "type": "String"
+                        },
+                        {
+                          "name": "body",
+                          "type": "String"
+                        }
+                      ],
+                      "hints": {}
+                    },
+                    {
+                      "name": "put",
+                      "description": "",
+                      "type": "Resource",
+                      "params": [
+                        {
+                          "name": "url",
+                          "type": "String"
+                        },
+                        {
+                          "name": "headers",
+                          "type": "String"
+                        },
+                        {
+                          "name": "body",
+                          "type": "String"
+                        }
+                      ],
+                      "hints": {}
+                    },
+                    {
+                      "name": "patch",
+                      "description": "",
+                      "type": "Resource",
+                      "params": [
+                        {
+                          "name": "url",
+                          "type": "String"
+                        },
+                        {
+                          "name": "headers",
+                          "type": "String"
+                        },
+                        {
+                          "name": "body",
+                          "type": "String"
+                        }
+                      ],
+                      "hints": {}
+                    },
+                    {
+                      "name": "delete",
+                      "description": "",
+                      "type": "Resource",
+                      "params": [
+                        {
+                          "name": "url",
+                          "type": "String"
+                        },
+                        {
+                          "name": "headers",
+                          "type": "String"
+                        },
+                        {
+                          "name": "body",
+                          "type": "String"
+                        }
+                      ],
+                      "hints": {}
+                    }
+                  ],
+                  "fields": [
+                    {
+                      "name": "get",
+                      "description": "",
+                      "type": "Resource",
+                      "params": [
+                        {
+                          "name": "url",
+                          "type": "String"
+                        },
+                        {
+                          "name": "headers",
+                          "type": "String"
+                        }
+                      ],
+                      "hints": {}
+                    },
+                    {
+                      "name": "hasAuthenticated",
+                      "description": "Whether the user has authenticated with this API",
+                      "type": "Boolean",
+                      "params": [],
+                      "hints": {}
+                    }
+                  ],
+                  "events": []
                 }
               ],
               "imports": []
             },
             "source": {
               "Program": "tbd"
+            }
+          },
+          {
+            "name": "sys-clock",
+            "schema": {
+              "types": [
+                {
+                  "name": "Root",
+                  "description": "",
+                  "actions": [
+                    {
+                      "name": "sleep",
+                      "description": "",
+                      "type": "Void",
+                      "params": [
+                        {
+                          "name": "key",
+                          "type": "String"
+                        },
+                        {
+                          "name": "seconds",
+                          "type": "Float"
+                        }
+                      ],
+                      "hints": {}
+                    }
+                  ],
+                  "fields": [],
+                  "events": [
+                    {
+                      "name": "timer",
+                      "description": "",
+                      "type": "TimerEvent",
+                      "params": [
+                        {
+                          "name": "key",
+                          "type": "String"
+                        },
+                        {
+                          "name": "spec",
+                          "type": "String"
+                        },
+                        {
+                          "name": "maxCount",
+                          "type": "Int"
+                        }
+                      ],
+                      "hints": {}
+                    },
+                    {
+                      "name": "timerAt",
+                      "description": "",
+                      "type": "TimerEvent",
+                      "params": [
+                        {
+                          "name": "key",
+                          "type": "String"
+                        },
+                        {
+                          "name": "seconds",
+                          "type": "String"
+                        }
+                      ],
+                      "hints": {}
+                    }
+                  ]
+                },
+                {
+                  "name": "TimerEvent",
+                  "description": "",
+                  "actions": [],
+                  "fields": [
+                    {
+                      "name": "id",
+                      "description": "",
+                      "type": "String",
+                      "params": [],
+                      "hints": {}
+                    }
+                  ],
+                  "events": []
+                }
+              ],
+              "imports": []
+            },
+            "source": {
+              "Program": ""
+            }
+          },
+          {
+            "name": "sys-process",
+            "schema": {
+              "types": [
+                {
+                  "name": "Root",
+                  "description": "",
+                  "actions": [],
+                  "fields": [
+                    {
+                      "name": "endpointUrl",
+                      "description": "Gets the program's own endpoint URL",
+                      "type": "String",
+                      "params": [],
+                      "hints": {}
+                    }
+                  ],
+                  "events": []
+                }
+              ],
+              "imports": []
+            },
+            "source": {
+              "Program": ""
             }
           }
         ]
