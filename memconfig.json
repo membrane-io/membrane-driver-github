@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "http": "http:"
+    "http": "http:",
+    "github": "github:",
+    "google_calendar": "google-calendar:"
   },
   "expressions": {
     "user": {

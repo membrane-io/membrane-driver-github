@@ -36,10 +36,7 @@ const shouldFetch = (info: ResolverInfo, simpleFields: string[]) =>
 
 // Generic helper to extract the "next" gref from the headers of a response
 // TODO: support `prev` and `last` links
-function getPageRefs(
-  gref: Gref<unknown>,
-  response: { headers: any }
-): { next?: any } {
+function getPageRefs(gref: any, response: { headers: any }): { next?: any } {
   const links = parseLinks(response.headers.link);
   if (!links) {
     return {};
@@ -56,8 +53,13 @@ function getPageRefs(
   } else if (links.next?.url) {
     // Extract the page number from the URL
     const url = new URL(links.next.url);
-    const page = Number.parseInt(url.searchParams.get("page") || "1", 10);
-    refs.next = gref({ ...args, page });
+    if (url.searchParams.get("page")) {
+      const page = Number.parseInt(url.searchParams.get("page")!, 10);
+      refs.next = gref({ ...args, page });
+    }
+    if (url.searchParams.get("since")) {
+      refs.next = gref({ ...args, since: url.searchParams.get("since") });
+    }
   }
   return refs;
 }
