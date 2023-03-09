@@ -706,23 +706,6 @@
         "events": []
       },
       {
-        "name": "CommitPage",
-        "fields": [
-          {
-            "name": "items",
-            "type": "List",
-            "ofType": "Commit"
-          },
-          {
-            "name": "next",
-            "type": "Ref",
-            "ofType": "CommitPage"
-          }
-        ],
-        "actions": [],
-        "events": []
-      },
-      {
         "name": "Commit",
         "fields": [
           {
