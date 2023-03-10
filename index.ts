@@ -298,8 +298,6 @@ export const Repository = {
   },
 };
 
-let x: Gref<string>;
-
 export const IssueCollection = {
   async one({ self, args, info }) {
     const { name: owner } = self.$argsAt(root.users.one);
