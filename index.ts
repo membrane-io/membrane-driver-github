@@ -599,6 +599,15 @@ export const BranchCollection = {
 };
 
 export const Branch = {
+  gref({ obj, self }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const name = obj.name;
+    return root.users
+      .one({ name: owner })
+      .repos.one({ name: repo })
+      .branches.one({ name });
+  },
   commit({ obj }) {
     return obj.commit;
   },
