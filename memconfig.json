@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "http": "http:"
+    "http": "http:",
+    "endpoint": "sys-process:endpointUrl"
   },
   "expressions": {
     "user": {
@@ -92,6 +93,10 @@
                 "type": "String"
               }
             ]
+          },
+          {
+            "name": "search",
+            "type": "GlobalSearch"
           }
         ],
         "actions": [
@@ -105,6 +110,35 @@
               }
             ],
             "type": "Void"
+          },
+          {
+            "name": "endpoint",
+            "type": "String",
+            "hints": {
+              "hidden": true
+            },
+            "params": [
+              {
+                "name": "method",
+                "type": "String"
+              },
+              {
+                "name": "body",
+                "type": "String"
+              },
+              {
+                "name": "path",
+                "type": "String"
+              },
+              {
+                "name": "query",
+                "type": "String"
+              },
+              {
+                "name": "headers",
+                "type": "String"
+              }
+            ]
           }
         ],
         "events": []
@@ -310,6 +344,11 @@
                 "type": "Int"
               }
             ]
+          },
+          {
+            "name": "queryItems",
+            "type": "List",
+            "ofType": "Repository"
           }
         ],
         "actions": [],
@@ -540,19 +579,20 @@
         ],
         "events": [
           {
+            "name": "commentEvent",
+            "type": "CommentEvent"
+          },
+          {
             "name": "issueOpened",
-            "type": "Ref",
-            "ofType": "Issue"
+            "type": "IssueEvent"
           },
           {
             "name": "pullRequestOpened",
-            "type": "Ref",
-            "ofType": "PullRequest"
+            "type": "PullRequestEvent"
           },
           {
             "name": "releasePublished",
-            "type": "Ref",
-            "ofType": "Release"
+            "type": "ReleaseEvent"
           }
         ]
       },
@@ -706,21 +746,49 @@
         "events": []
       },
       {
-        "name": "CommitCollection",
+        "name": "Commit",
+        "fields": [
+          {
+            "name": "sha",
+            "type": "String"
+          },
+          {
+            "name": "message",
+            "type": "String",
+            "hints": {
+              "primary": true
+            }
+          },
+          {
+            "name": "author",
+            "type": "User"
+          },
+          {
+            "name": "html_url",
+            "type": "String"
+          },
+          {
+            "name": "date",
+            "type": "String"
+          }
+        ]
+      },
+      {
+        "name": "CommentCollection",
         "fields": [
           {
             "name": "one",
-            "type": "Commit",
+            "type": "Comment",
             "params": [
               {
-                "name": "ref",
-                "type": "String"
+                "name": "id",
+                "type": "Int"
               }
             ]
           },
           {
             "name": "page",
-            "type": "CommitPage",
+            "type": "CommentPage",
             "params": [
               {
                 "name": "page",
@@ -737,36 +805,39 @@
         "events": []
       },
       {
-        "name": "CommitPage",
+        "name": "CommentPage",
         "fields": [
           {
             "name": "items",
             "type": "List",
-            "ofType": "Commit"
+            "ofType": "Comment"
           },
           {
             "name": "next",
             "type": "Ref",
-            "ofType": "CommitPage"
+            "ofType": "CommentPage"
           }
         ],
         "actions": [],
         "events": []
       },
       {
-        "name": "Commit",
+        "name": "Comment",
         "fields": [
           {
-            "name": "sha",
+            "name": "body",
+            "type": "String",
+            "hints": {
+              "primary": true
+            }
+          },
+          {
+            "name": "created_at",
             "type": "String"
           },
           {
-            "name": "message",
+            "name": "updated_at",
             "type": "String"
-          },
-          {
-            "name": "author",
-            "type": "User"
           }
         ]
       },
@@ -997,6 +1068,10 @@
             "name": "next",
             "type": "Ref",
             "ofType": "IssuePage"
+          },
+          {
+            "name": "field1",
+            "type": "String"
           }
         ],
         "actions": [],
@@ -1036,7 +1111,7 @@
           },
           {
             "name": "comments",
-            "type": "Int"
+            "type": "CommentCollection"
           },
           {
             "name": "created_at",
@@ -1104,14 +1179,13 @@
           {
             "name": "user",
             "type": "User"
+          },
+          {
+            "name": "html_url",
+            "type": "String"
           }
         ],
         "actions": [
-          {
-            "name": "subscribe",
-            "params": [],
-            "type": "Void"
-          },
           {
             "name": "close",
             "params": [],
@@ -1130,8 +1204,11 @@
         ],
         "events": [
           {
+            "name": "commentEvent",
+            "type": "CommentEvent"
+          },
+          {
             "name": "closed",
-            "params": [],
             "type": "Boolean"
           }
         ]
@@ -1266,14 +1343,13 @@
             "params": [],
             "type": "Ref",
             "ofType": "User"
+          },
+          {
+            "name": "comments",
+            "type": "CommentCollection"
           }
         ],
         "actions": [
-          {
-            "name": "subscribe",
-            "params": [],
-            "type": "Void"
-          },
           {
             "name": "close",
             "params": [],
@@ -1546,6 +1622,111 @@
         ],
         "actions": [],
         "events": []
+      },
+      {
+        "name": "GlobalSearch",
+        "fields": [
+          {
+            "name": "commits",
+            "type": "CommitPage",
+            "params": [
+              {
+                "name": "type",
+                "type": "String"
+              },
+              {
+                "name": "sort",
+                "type": "String"
+              },
+              {
+                "name": "direction",
+                "type": "String"
+              },
+              {
+                "name": "page",
+                "type": "Int"
+              },
+              {
+                "name": "pageSize",
+                "type": "Int"
+              },
+              {
+                "name": "q",
+                "type": "String"
+              }
+            ]
+          },
+          {
+            "name": "issues",
+            "type": "IssuePage",
+            "params": [
+              {
+                "name": "type",
+                "type": "String"
+              },
+              {
+                "name": "sort",
+                "type": "String"
+              },
+              {
+                "name": "direction",
+                "type": "String"
+              },
+              {
+                "name": "page",
+                "type": "Int"
+              },
+              {
+                "name": "pageSize",
+                "type": "Int"
+              },
+              {
+                "name": "q",
+                "type": "String"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "IssueEvent",
+        "fields": [
+          {
+            "name": "issue",
+            "type": "Ref",
+            "ofType": "Issue"
+          }
+        ]
+      },
+      {
+        "name": "PullRequestEvent",
+        "fields": [
+          {
+            "name": "pullRequest",
+            "type": "Ref",
+            "ofType": "PullRequest"
+          }
+        ]
+      },
+      {
+        "name": "ReleaseEvent",
+        "fields": [
+          {
+            "name": "release",
+            "type": "Ref",
+            "ofType": "Release"
+          }
+        ]
+      },
+      {
+        "name": "CommentEvent",
+        "fields": [
+          {
+            "name": "comment",
+            "type": "Ref",
+            "ofType": "Comment"
+          }
+        ]
       }
     ]
   }
