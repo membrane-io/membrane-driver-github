@@ -39,10 +39,7 @@ const shouldFetch = (info: ResolverInfo, simpleFields: string[]) =>
 
 // Generic helper to extract the "next" gref from the headers of a response
 // TODO: support `prev` and `last` links
-function getPageRefs(
-  gref: Gref<unknown>,
-  response: { headers: any }
-): { next?: any } {
+function getPageRefs(gref: any, response: { headers: any }): { next?: any } {
   const links = parseLinks(response.headers.link);
   if (!links) {
     return {};
@@ -59,8 +56,13 @@ function getPageRefs(
   } else if (links.next?.url) {
     // Extract the page number from the URL
     const url = new URL(links.next.url);
-    const page = Number.parseInt(url.searchParams.get("page") || "1", 10);
-    refs.next = gref({ ...args, page });
+    if (url.searchParams.get("page")) {
+      const page = Number.parseInt(url.searchParams.get("page")!, 10);
+      refs.next = gref({ ...args, page });
+    }
+    if (url.searchParams.get("since")) {
+      refs.next = gref({ ...args, since: url.searchParams.get("since") });
+    }
   }
   return refs;
 }
@@ -236,32 +238,32 @@ export const Repository = {
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     // now only supports 1 tree params
     const body = {
-      "base_tree": args.base,
-      "tree": [
+      base_tree: args.base,
+      tree: [
         {
-          "path": args.path,
-          "mode": "160000",
-          "type": "commit",
-          "sha": args.tree
-        }
-      ]
-    }
+          path: args.path,
+          mode: "160000",
+          type: "commit",
+          sha: args.tree,
+        },
+      ],
+    };
     const apiArgs = toGithubArgs({ ...body, owner, repo });
     const ref = await client().git.createTree(apiArgs);
     return ref.data.sha;
   },
-  commentEvent: {
+  commentCreated: {
     async subscribe({ self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, ["issue_comment"]);
+      await register(owner, repo, "issue_comment");
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await unregister(owner, repo, ["issue_comment"]);
+      await unregister(owner, repo, "issue_comment");
     },
   },
   issueOpened: {
@@ -269,13 +271,13 @@ export const Repository = {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
       
-      await register(owner, repo, ["issues"]);
+      await register(owner, repo, "issues");
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await unregister(owner, repo, ["issues"]);
+      await unregister(owner, repo, "issues");
     },
   },
   pullRequestOpened: {
@@ -283,13 +285,13 @@ export const Repository = {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, ["pull_request"]);
+      await register(owner, repo, "pull_request");
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await unregister(owner, repo, ["pull_request"]);
+      await unregister(owner, repo, "pull_request");
     },
   },
   releasePublished: {
@@ -297,13 +299,13 @@ export const Repository = {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, ["release"]);
+      await register(owner, repo, "release");
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
       
-      await unregister(owner, repo, ["release"]);
+      await unregister(owner, repo, "release");
     },
   },
   branches: () => ({}),
@@ -319,8 +321,6 @@ export const Repository = {
     return res.data;
   },
 };
-
-let x: Gref<string>;
 
 export const IssueCollection = {
   async one({ self, args, info }) {
@@ -430,14 +430,18 @@ export const Issue = {
       return UserCollection.one({ args: { name: obj.user.login }, info });
     }
   },
-  commentEvent: {
+  commentCreated: {
     async subscribe({ self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, ["issue_comment"]);
+      await register(owner, repo, "issue_comment");
     },
     async unsubscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+      await unregister(owner, repo, "issue_comment");
     },
   },
   closed: {
@@ -445,20 +449,15 @@ export const Issue = {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, ["issues"]);
+      await register(owner, repo, "issues");
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await unregister(owner, repo, ["issues"]);
+      await unregister(owner, repo, "issues");
     },
   },
-};
-
-export const Reactions = {
-  plus_one: ({ obj }) => obj["+1"],
-  minus_one: ({ obj }) => obj["-1"],
 };
 
 export const CommentCollection = {
@@ -517,7 +516,7 @@ export const CommitCollection = {
       repo,
       ref,
     });
-    
+
     return result.data;
   },
 
@@ -536,18 +535,27 @@ export const CommitCollection = {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-    const parents = args.parents.split(',') || [];
-    const apiArgs = toGithubArgs({ tree: args.tree, owner, repo, parents, message: args.message });
+    const parents = args.parents.split(",") || [];
+    const apiArgs = toGithubArgs({
+      tree: args.tree,
+      owner,
+      repo,
+      parents,
+      message: args.message,
+    });
     const res = await client().git.createCommit(apiArgs);
     return res.data.sha;
-  }
+  },
 };
 
 export const Commit = {
   gref({ self, obj }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-    return root.users.one({ name: owner }).repos.one({ name: repo }).commits.one({ ref: obj.sha });
+    return root.users
+      .one({ name: owner })
+      .repos.one({ name: repo })
+      .commits.one({ ref: obj.sha });
   },
   async author({ obj, info }) {
     if (!shouldFetch(info, Object.keys(obj.author))) {
@@ -559,12 +567,9 @@ export const Commit = {
     const result = await client().users.getByUsername({ username: login });
     return result.data;
   },
-  date({ obj }){
-    return obj.commit.committer.date;
-  },
   message({ obj }) {
     return obj.commit?.message;
-  }
+  },
 };
 
 export const ContentCollection = {
@@ -577,7 +582,7 @@ export const ContentCollection = {
     const { data } = await client().repos.getContent({ owner, repo, path });
 
     if (!Array.isArray(data)) {
-     return data
+      return data;
     }
   },
 
@@ -593,10 +598,16 @@ export const Content = {
   gref: ({ self, obj }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-    if(obj.type === 'dir') {
-      return root.users.one({ name: owner }).repos.one({ name: repo }).content.dir({ path: obj.path });
+    if (obj.type === "dir") {
+      return root.users
+        .one({ name: owner })
+        .repos.one({ name: repo })
+        .content.dir({ path: obj.path });
     }
-    return root.users.one({ name: owner }).repos.one({ name: repo }).content.file({ path: obj.path });
+    return root.users
+      .one({ name: owner })
+      .repos.one({ name: repo })
+      .content.file({ path: obj.path });
   },
   async content({ obj, self, args: { path }, info }) {
     let encoding;
@@ -653,16 +664,25 @@ export const BranchCollection = {
 };
 
 export const Branch = {
+  gref({ obj, self }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const name = obj.name;
+    return root.users
+      .one({ name: owner })
+      .repos.one({ name: repo })
+      .branches.one({ name });
+  },
   commit({ obj }) {
     return obj.commit;
   },
-  async update({ self, args }){
+  async update({ self, args }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
     const apiArgs = toGithubArgs({ ...args, owner, repo });
     return await client().git.updateRef(apiArgs);
-  }
+  },
 };
 
 export const PullRequestCollection = {
@@ -733,13 +753,13 @@ export const PullRequest = {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, ["pull_request"]);
+      await register(owner, repo, "pull_request");
     },
     async unsubscribe({ self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await unregister(owner, repo, ["pull_request"]);
+      await unregister(owner, repo, "pull_request");
     },
   },
 };
@@ -807,68 +827,148 @@ export const GlobalSearch = {
   },
 };
 
-export const Release = {
-  self({ self, parent, obj }) {
-    return parent.parent.parent.one({ id: `${obj.id}` });
-  },
-  nodeId({ obj }) {
-    return obj.node_id;
-  },
-  tagName({ obj }) {
-    return obj.tag_name;
-  },
-  targetCommitish({ obj }) {
-    return obj.target_commitish;
-  },
-  createdAt({ obj }) {
-    return obj.created_at;
-  },
-};
+export async function endpoint({ args: { path, query, headers, method, body } }) {
+  switch (path) {
+    case "/webhooks": {
+      const event = JSON.parse(body);
+      // Every webhook event has a repository object
+      const repo: any = root.users
+        .one({ name: event.repository.owner.login })
+        .repos.one({ name: event.repository.name });
 
-export const Config = {
-  self({ self, parent, obj }) {
-    return parent.parent.parent.one({ id: obj.hook_id });
-  },
-  contentType({ obj }) {
-    return obj["content_type"];
-  },
-};
+      if (event.action === "opened" && event.issue) {
+        const issue = repo.issues.one({ number: event.issue.number });
+        await repo.issueOpened.$emit({ issue });
+      }
 
-export const Owner = {
-  nodeId({ obj }) {
-    return obj.node_id;
-  },
-  avatarUrl({ obj }) {
-    return obj.avatar_url;
-  },
-  subscriptionsUrl({ obj }) {
-    return obj.subscriptions_url;
-  },
-  eventsUrl({ obj }) {
-    return obj.events_url;
-  },
-  receivedEventsUrl({ obj }) {
-    return obj.received_events_url;
-  },
-};
+      if (event.action === "closed" && event.issue) {
+        const issue = repo.issues.one({ number: event.issue.number });
+        await issue.closed.$emit();
+      }
 
-export const License = {
-  htmlUrl({ obj }) {
-    return obj["html_url"];
-  },
-  gitUrl({ obj }) {
-    return obj["git_url"];
-  },
-  downloadUrl({ obj }) {
-    return obj["download_url"];
-  },
-};
+      if (event.action === "created" && event.release) {
+        const release = repo.release.one({ id: event.release.id });
+        await repo.releasePublished.$emit({ release });
+      }
 
-export const LicenseDesc = {
-  spdxId({ obj }) {
-    return obj["spdx_id"];
-  },
-};
+      if (event.action === "opened" && event.pull_request) {
+        const pullRequest = repo.pull_request.one({ number: event.pull_request.number });
+        await repo.pullRequestOpened.$emit({ pullRequest });
+      }
+
+      if (event.action === "closed" && event.pull_request.closed) {
+        const pullRequest = repo.pull_request.one({ number: event.pull_request.number });
+        await pullRequest.closed.$emit();
+      }
+
+      if(event.action === "created" && event.comment){
+          const comment = repo.issues.one({ number: event.issue.number }).comments.one({ id: event.comment.id });
+          await repo.issues.one({ number: event.issue.number }).commentCreated.$emit({ comment });
+          await repo.commentCreated.$emit({ comment });
+      }
+      return JSON.stringify({ status: 200 });
+    }
+    default:
+      console.log("Unknown Endpoint:", path);
+  }
+}
+async function register(owner: string, repo: string, event: string) {
+  const webhookURL = (await nodes.endpoint.$get()) + "/webhooks";
+  try {
+    // Check if the repository already has a webhook
+    const repository = state.repos[`${owner}/${repo}`];
+    const { data: hooks } = await client().repos.listWebhooks({
+      owner,
+      repo,
+    });
+    const matchingHook = hooks.find((hook) => hook.id === repository.id);
+    // If the repository already has a webhook, update it
+    if (matchingHook) {
+      if (repository.events.includes(event)) {
+        console.log("Webhook already exists with the same event.");
+        return;
+      } else {
+        const updatedEvents = [...repository.events, event];
+        await client().repos.updateWebhook({
+          owner,
+          repo,
+          hook_id: repository.id,
+          config: {
+            content_type: "json",
+            url: webhookURL,
+          },
+          events: updatedEvents,
+        });
+        // Update the events array in the repository object
+        repository.events = updatedEvents;
+        console.log("Webhook updated with new event.");
+        return;
+      }
+    }
+    // Create a new webhook
+    const {
+      data: { id: webhookId },
+    } = await client().repos.createWebhook({
+      owner,
+      repo,
+      events: [event],
+      config: {
+        content_type: "json",
+        url: webhookURL,
+      },
+    });
+
+    // Add the repository to the state with the webhook data
+    state.repos[`${owner}/${repo}`] = {
+      id: webhookId,
+      url: webhookURL,
+      events: [event],
+    };
+
+    console.log("New webhook created.");
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+async function unregister(owner: string, repo: string, event: string) {
+  try {
+    // Check if the repository has a webhook
+    const repository = state.repos[`${owner}/${repo}`];
+    if (!repository) {
+      console.log(`Webhook does not exist for ${owner}/${repo}.`);
+      return;
+    }
+    // Update the webhook to remove the specified events
+    const updatedEvents = repository.events.filter((e: string) => e !== event);
+
+    await client().repos.updateWebhook({
+      owner,
+      repo,
+      hook_id: repository.id,
+      config: {
+        content_type: "json",
+        url: repository.url,
+      },
+      events: updatedEvents,
+    });
+    repository.events = updatedEvents;
+    console.log(`Event ${event} deleted from webhook.`);
+    // Delete the webhook if there are no more events
+    if (updatedEvents.length === 0) {
+      await client().repos.deleteWebhook({
+        owner,
+        repo,
+        hook_id: repository.id,
+      });
+      delete state.repos[`${owner}/${repo}`];
+      console.log("Webhook deleted.");
+      return;
+    }
+  } catch (e) {
+    throw new Error(`Failed to delete event ${event} from webhook for ${owner}/${repo}`);
+  }
+}
 
 function formatTime(time) {
   return new Date(time).getTime();
@@ -888,124 +988,4 @@ function toGithubArgs(args: Record<string, any>): any {
     }
   }
   return result;
-}
-
-export async function endpoint({ args: { path, query, headers, method, body } }) {
-  switch (path) {
-    case "/webhooks": {
-      const event = JSON.parse(body);
-      // Every webhook event has a repository object
-      const repo: any = root.users
-        .one({ name: event.repository.owner.login })
-        .repos.one({ name: event.repository.name });
-
-      if (event.action === "opened" && event.issue) {
-        const issue = repo.issues.one({ number: event.issue.number });
-        await repo.issueOpened.$emit({ issue });
-      }
-
-      if (event.action === "created" && event.release) {
-        const release = repo.release.one({ id: event.release.id });
-        await repo.releasePublished.$emit({ release });
-      }
-
-      if (event.action === "opened" && event.pull_request) {
-        const pullRequest = repo.pull_request.one({ number: event.pull_request.number });
-        await repo.pullRequestOpened.$emit({ pullRequest });
-      }
-      if(event.comment){
-          const comment = repo.issues.one({ number: event.issue.number }).comments.one({ id: event.comment.id });
-          await repo.issues.one({ number: event.issue.number }).issue.commentEvent.$emit({ comment });
-          await repo.commentEvent.$emit({ comment });
-      }
-      return JSON.stringify({ status: 200 });
-    }
-    default:
-      console.log("Unknown Endpoint:", path);
-  }
-}
-
-async function unregister(owner: string, repo: string, events: string[]) {
-  try {
-    // Check if the repository has a webhook
-    const repository = state.repos[`${owner}/${repo}`];
-    if (!repository) {
-      console.log(`Webhook does not exist for ${owner}/${repo}.`);
-      return;
-    }
-    // Update the webhook to remove the specified events
-    const updatedEvents = repository.events.filter((e) => !events.includes(e));
-    await client().repos.updateWebhook({
-      owner,
-      repo,
-      hook_id: repository.id,
-      config: {
-        content_type: "json",
-        url: repository.url,
-      },
-      events: updatedEvents,
-    });
-    repository.events = updatedEvents;
-    console.log(`Events ${events.join(", ")} deleted from webhook.`);
-  } catch (e) {
-    throw new Error(`Failed to delete events ${events.join(", ")} from webhook for ${owner}/${repo}`);
-  }
-}
-
-async function register(owner: string, repo: string, events: string[]) {
-  // webhook URL
-  const webhookURL = (await nodes.endpoint.$get()) + "/webhooks";
-  try {
-    // Check if the repository already has a webhook
-    const repository = state.repos[`${owner}/${repo}`];
-    const { data: hooks } = await client().repos.listWebhooks({
-      owner,
-      repo,
-    });
-    const matchingHook = hooks.find((hook) => hook.id === repository.id);
-    // If the repository already has a webhook, update it
-    if (matchingHook) {
-      const newEvents = events.filter((event) => !repository.events.includes(event));
-      if (newEvents.length > 0) {
-        const updatedEvents = [...repository.events, ...newEvents];
-        await client().repos.updateWebhook({
-          owner,
-          repo,
-          hook_id: repository.id,
-          config: {
-            content_type: "json",
-            url: webhookURL,
-          },
-          events: updatedEvents,
-        });
-        repository.events = updatedEvents;
-        console.log("Webhook updated with new events.");
-      } else {
-        console.log("Webhook already exists with the same events.");
-      }
-      return;
-    }
-
-    // Create a new webhook
-    const {
-      data: { id: webhookId },
-    } = await client().repos.createWebhook({
-      owner,
-      repo,
-      events,
-      config: {
-        content_type: "json",
-        url: webhookURL,
-      },
-    });
-    // Add the repository to the state with the webhook data
-    state.repos[`${owner}/${repo}`] = {
-      id: webhookId,
-      url: webhookURL,
-      events,
-    };
-    console.log("New webhook created.");
-  } catch (error) {
-    throw new Error(error);
-  }
 }
