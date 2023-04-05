@@ -67,6 +67,23 @@ function getPageRefs(gref: any, response: { headers: any }): { next?: any } {
   return refs;
 }
 
+function getSearchPageRefs(gref: any, response: { headers: any }): { next?: any } {
+  const links = parseLinks(response.headers.link);
+  if (!links) {
+    return {};
+  }
+  const refs: { next?: any } = {};
+  const args = gref.$args();
+  if (links) {
+    if (links.next?.url !== undefined) {
+      const qs = new URL(links.next.url).searchParams;
+      const page = qs.get("page") !== undefined ? parseInt(qs.get("page")!, 10) : undefined;
+      refs.next = gref({ ...args, q: qs.get("q"), page });
+    }
+  }
+  return refs;
+}
+
 export const Root = {
   configure: ({ args }) => {
     if (args.token !== state.token) {
@@ -345,20 +362,10 @@ export const IssueCollection = {
     const apiArgs = toGithubArgs({ ...args, q });
     const res = await client().search.issuesAndPullRequests(apiArgs);
 
-    // The search API doesn't use the same pagination scheme as other APIs so we don't use getPageRefs here
-    let next = undefined;
-    const links = res.headers.link && parseLinks(res.headers.link);
-    if (links) {
-      if (links.next?.url !== undefined) {
-        const qs = new URL(links.next.url).searchParams;
-        const page =
-          qs.get("page") !== undefined
-            ? parseInt(qs.get("page")!, 10)
-            : undefined;
-        next = self.search({ ...args, q: qs.get("q"), page });
-      }
-    }
-    return { ...res.data, next };
+    return { 
+      ...res.data, 
+      next: getSearchPageRefs(self.search(args), res).next 
+    };
   },
 
   async page({ self, args: rawArgs }) {
@@ -790,40 +797,20 @@ export const GlobalSearch = {
   async issues({ self, args }) {
     const apiArgs = toGithubArgs({ ...args });
     const res = await client().search.issuesAndPullRequests(apiArgs);
-    
-    // // The search API doesn't use the same pagination scheme as other APIs so we don't use getPageRefs here
-    let next = undefined;
-    const links = res.headers.link && parseLinks(res.headers.link);
-    if (links) {
-      if (links.next?.url !== undefined) {
-        const qs = new URL(links.next.url).searchParams;
-        const page =
-          qs.get("page") !== undefined
-            ? parseInt(qs.get("page")!, 10)
-            : undefined;
-        next = self.issues({ ...args, q: qs.get("q"), page });
-      }
-    }
-    return { items: res.data.items, next };
+
+    return { 
+      items: res.data.items, 
+      next: getSearchPageRefs(self.issues(args), res).next 
+    };
   },
   async commits({ self, args }) {
     const apiArgs = toGithubArgs({ ...args });
     const res = await client().search.commits(apiArgs);
-    
-    // // The search API doesn't use the same pagination scheme as other APIs so we don't use getPageRefs here
-    let next = undefined;
-    const links = res.headers.link && parseLinks(res.headers.link);
-    if (links) {
-      if (links.next?.url !== undefined) {
-        const qs = new URL(links.next.url).searchParams;
-        const page =
-          qs.get("page") !== undefined
-            ? parseInt(qs.get("page")!, 10)
-            : undefined;
-        next = self.commits({ ...args, q: qs.get("q"), page });
-      }
-    }
-    return { items: res.data.items, next };
+
+    return { 
+      items: res.data.items, 
+      next: getSearchPageRefs(self.commits(args), res).next 
+    };
   },
 };
 
@@ -927,7 +914,7 @@ async function register(owner: string, repo: string, event: string) {
 
     console.log("New webhook created.");
   } catch (error) {
-    throw new Error(error);
+    throw new Error(`Error registering ${event} event for ${owner}/${repo}. Details: ${error}`);
   }
 }
 
@@ -965,8 +952,8 @@ async function unregister(owner: string, repo: string, event: string) {
       console.log("Webhook deleted.");
       return;
     }
-  } catch (e) {
-    throw new Error(`Failed to delete event ${event} from webhook for ${owner}/${repo}`);
+  } catch (error) {
+    throw new Error(`Error unregistering ${event} event for ${owner}/${repo}. Details: ${error}`);
   }
 }
 

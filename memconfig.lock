@@ -11,6 +11,32 @@
   },
   "imports": [
     {
+      "name": "sys-process",
+      "schema": {
+        "types": [
+          {
+            "name": "Root",
+            "description": "",
+            "actions": [],
+            "fields": [
+              {
+                "name": "endpointUrl",
+                "description": "Gets the program's own endpoint URL",
+                "type": "String",
+                "params": [],
+                "hints": {}
+              }
+            ],
+            "events": []
+          }
+        ],
+        "imports": []
+      },
+      "source": {
+        "Program": "tbd"
+      }
+    },
+    {
       "name": "http",
       "schema": {
         "types": [
@@ -712,32 +738,6 @@
             }
           }
         ]
-      },
-      "source": {
-        "Program": "tbd"
-      }
-    },
-    {
-      "name": "sys-process",
-      "schema": {
-        "types": [
-          {
-            "name": "Root",
-            "description": "",
-            "actions": [],
-            "fields": [
-              {
-                "name": "endpointUrl",
-                "description": "Gets the program's own endpoint URL",
-                "type": "String",
-                "params": [],
-                "hints": {}
-              }
-            ],
-            "events": []
-          }
-        ],
-        "imports": []
       },
       "source": {
         "Program": "tbd"
