@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "http": "http:"
+    "http": "http:",
+    "endpoint": "sys-process:endpointUrl"
   },
   "expressions": {
     "user": {
@@ -92,6 +93,10 @@
                 "type": "String"
               }
             ]
+          },
+          {
+            "name": "search",
+            "type": "GlobalSearch"
           }
         ],
         "actions": [
@@ -105,6 +110,35 @@
               }
             ],
             "type": "Void"
+          },
+          {
+            "name": "endpoint",
+            "type": "String",
+            "hints": {
+              "hidden": true
+            },
+            "params": [
+              {
+                "name": "method",
+                "type": "String"
+              },
+              {
+                "name": "body",
+                "type": "String"
+              },
+              {
+                "name": "path",
+                "type": "String"
+              },
+              {
+                "name": "query",
+                "type": "String"
+              },
+              {
+                "name": "headers",
+                "type": "String"
+              }
+            ]
           }
         ],
         "events": []
@@ -540,19 +574,20 @@
         ],
         "events": [
           {
+            "name": "commentCreated",
+            "type": "CommentEvent"
+          },
+          {
             "name": "issueOpened",
-            "type": "Ref",
-            "ofType": "Issue"
+            "type": "IssueEvent"
           },
           {
             "name": "pullRequestOpened",
-            "type": "Ref",
-            "ofType": "PullRequest"
+            "type": "PullRequestEvent"
           },
           {
             "name": "releasePublished",
-            "type": "Ref",
-            "ofType": "Release"
+            "type": "ReleaseEvent"
           }
         ]
       },
@@ -714,11 +749,90 @@
           },
           {
             "name": "message",
-            "type": "String"
+            "type": "String",
+            "hints": {
+              "primary": true
+            }
           },
           {
             "name": "author",
             "type": "User"
+          },
+          {
+            "name": "html_url",
+            "type": "String"
+          },
+          {
+            "name": "date",
+            "type": "String"
+          }
+        ]
+      },
+      {
+        "name": "CommentCollection",
+        "fields": [
+          {
+            "name": "one",
+            "type": "Comment",
+            "params": [
+              {
+                "name": "id",
+                "type": "Int"
+              }
+            ]
+          },
+          {
+            "name": "page",
+            "type": "CommentPage",
+            "params": [
+              {
+                "name": "page",
+                "type": "Int"
+              },
+              {
+                "name": "pageSize",
+                "type": "Int"
+              }
+            ]
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "CommentPage",
+        "fields": [
+          {
+            "name": "items",
+            "type": "List",
+            "ofType": "Comment"
+          },
+          {
+            "name": "next",
+            "type": "Ref",
+            "ofType": "CommentPage"
+          }
+        ],
+        "actions": [],
+        "events": []
+      },
+      {
+        "name": "Comment",
+        "fields": [
+          {
+            "name": "body",
+            "type": "String",
+            "hints": {
+              "primary": true
+            }
+          },
+          {
+            "name": "created_at",
+            "type": "String"
+          },
+          {
+            "name": "updated_at",
+            "type": "String"
           }
         ]
       },
@@ -988,7 +1102,7 @@
           },
           {
             "name": "comments",
-            "type": "Int"
+            "type": "CommentCollection"
           },
           {
             "name": "created_at",
@@ -1056,14 +1170,13 @@
           {
             "name": "user",
             "type": "User"
+          },
+          {
+            "name": "html_url",
+            "type": "String"
           }
         ],
         "actions": [
-          {
-            "name": "subscribe",
-            "params": [],
-            "type": "Void"
-          },
           {
             "name": "close",
             "params": [],
@@ -1082,8 +1195,11 @@
         ],
         "events": [
           {
+            "name": "commentCreated",
+            "type": "CommentEvent"
+          },
+          {
             "name": "closed",
-            "params": [],
             "type": "Boolean"
           }
         ]
@@ -1218,14 +1334,13 @@
             "params": [],
             "type": "Ref",
             "ofType": "User"
+          },
+          {
+            "name": "comments",
+            "type": "CommentCollection"
           }
         ],
         "actions": [
-          {
-            "name": "subscribe",
-            "params": [],
-            "type": "Void"
-          },
           {
             "name": "close",
             "params": [],
@@ -1498,6 +1613,111 @@
         ],
         "actions": [],
         "events": []
+      },
+      {
+        "name": "GlobalSearch",
+        "fields": [
+          {
+            "name": "commits",
+            "type": "CommitPage",
+            "params": [
+              {
+                "name": "type",
+                "type": "String"
+              },
+              {
+                "name": "sort",
+                "type": "String"
+              },
+              {
+                "name": "direction",
+                "type": "String"
+              },
+              {
+                "name": "page",
+                "type": "Int"
+              },
+              {
+                "name": "pageSize",
+                "type": "Int"
+              },
+              {
+                "name": "q",
+                "type": "String"
+              }
+            ]
+          },
+          {
+            "name": "issues",
+            "type": "IssuePage",
+            "params": [
+              {
+                "name": "type",
+                "type": "String"
+              },
+              {
+                "name": "sort",
+                "type": "String"
+              },
+              {
+                "name": "direction",
+                "type": "String"
+              },
+              {
+                "name": "page",
+                "type": "Int"
+              },
+              {
+                "name": "pageSize",
+                "type": "Int"
+              },
+              {
+                "name": "q",
+                "type": "String"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "IssueEvent",
+        "fields": [
+          {
+            "name": "issue",
+            "type": "Ref",
+            "ofType": "Issue"
+          }
+        ]
+      },
+      {
+        "name": "PullRequestEvent",
+        "fields": [
+          {
+            "name": "pullRequest",
+            "type": "Ref",
+            "ofType": "PullRequest"
+          }
+        ]
+      },
+      {
+        "name": "ReleaseEvent",
+        "fields": [
+          {
+            "name": "release",
+            "type": "Ref",
+            "ofType": "Release"
+          }
+        ]
+      },
+      {
+        "name": "CommentEvent",
+        "fields": [
+          {
+            "name": "comment",
+            "type": "Ref",
+            "ofType": "Comment"
+          }
+        ]
       }
     ]
   }

@@ -1,12 +1,15 @@
-import { root, state as stateValue } from "membrane";
+import { root, nodes, state as stateValue } from "membrane";
 import { Octokit } from "@octokit/rest";
 import parseLinks from "./parse-link-header";
 
 interface State {
   token?: string;
   client?: Octokit;
+  repos?: any;
 }
 const state = stateValue as State;
+
+state.repos = state.repos ?? {};
 
 function client(): Octokit {
   if (!state.client) {
@@ -64,6 +67,23 @@ function getPageRefs(gref: any, response: { headers: any }): { next?: any } {
   return refs;
 }
 
+function getSearchPageRefs(gref: any, response: { headers: any }): { next?: any } {
+  const links = parseLinks(response.headers.link);
+  if (!links) {
+    return {};
+  }
+  const refs: { next?: any } = {};
+  const args = gref.$args();
+  if (links) {
+    if (links.next?.url !== undefined) {
+      const qs = new URL(links.next.url).searchParams;
+      const page = qs.get("page") !== undefined ? parseInt(qs.get("page")!, 10) : undefined;
+      refs.next = gref({ ...args, q: qs.get("q"), page });
+    }
+  }
+  return refs;
+}
+
 export const Root = {
   configure: ({ args }) => {
     if (args.token !== state.token) {
@@ -75,6 +95,7 @@ export const Root = {
     }
   },
   users: () => ({}),
+  search: () => ({}),
   status() {
     if (!state.token) {
       return `Not configured. [Generate API token](https://github.com/settings/tokens/new)`;
@@ -248,42 +269,62 @@ export const Repository = {
     const ref = await client().git.createTree(apiArgs);
     return ref.data.sha;
   },
-  // issueOpened: {
-  //   async subscribe({ self }) {
-  //     const { name: owner } = self.$argsAt(root.users.one);
-  //     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-  //     await ensureTimerIsSet(`${owner}/${repo}`, "issueOpened");
-  //   },
-  //   async unsubscribe({ self }) {
-  //     const { name: owner } = self.$argsAt(root.users.one);
-  //     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-  //     await unsetTimerRepo(`${owner}/${repo}`, 'issueOpened');
-  //   },
-  // },
-  // pullRequestOpened: {
-  //   async subscribe({ self }) {
-  //     const { name: owner } = self.$argsAt(root.users.one);
-  //     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-  //     await ensureTimerIsSet(`${owner}/${repo}`, "pullRequestOpened");
-  //   },
-  //   async unsubscribe({ self }) {
-  //     const { name: owner } = self.$argsAt(root.users.one);
-  //     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-  //     await unsetTimerRepo(`${owner}/${repo}`, 'pullRequestOpened');
-  //   },
-  // },
-  // releasePublished: {
-  //   async subscribe({ self }) {
-  //     const { name: owner } = self.$argsAt(root.users.one);
-  //     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-  //     await ensureTimerIsSet(`${owner}/${repo}`, 'releasePublished');
-  //   },
-  //   async unsubscribe({ self }) {
-  //     const { name: owner } = self.$argsAt(root.users.one);
-  //     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-  //     await unsetTimerRepo(`${owner}/${repo}`, 'releasePublished');
-  //   },
-  // },
+  commentCreated: {
+    async subscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+      await register(owner, repo, "issue_comment");
+    },
+    async unsubscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+      await unregister(owner, repo, "issue_comment");
+    },
+  },
+  issueOpened: {
+    async subscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+      
+      await register(owner, repo, "issues");
+    },
+    async unsubscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+      await unregister(owner, repo, "issues");
+    },
+  },
+  pullRequestOpened: {
+    async subscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+      await register(owner, repo, "pull_request");
+    },
+    async unsubscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+      await unregister(owner, repo, "pull_request");
+    },
+  },
+  releasePublished: {
+    async subscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+      await register(owner, repo, "release");
+    },
+    async unsubscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+      
+      await unregister(owner, repo, "release");
+    },
+  },
   branches: () => ({}),
   commits: () => ({}),
   issues: () => ({}),
@@ -321,20 +362,10 @@ export const IssueCollection = {
     const apiArgs = toGithubArgs({ ...args, q });
     const res = await client().search.issuesAndPullRequests(apiArgs);
 
-    // The search API doesn't use the same pagination scheme as other APIs so we don't use getPageRefs here
-    let next = undefined;
-    const links = res.headers.link && parseLinks(res.headers.link);
-    if (links) {
-      if (links.next?.url !== undefined) {
-        const qs = new URL(links.next.url).searchParams;
-        const page =
-          qs.get("page") !== undefined
-            ? parseInt(qs.get("page")!, 10)
-            : undefined;
-        next = self.search({ ...args, q: qs.get("q"), page });
-      }
-    }
-    return { ...res.data, next };
+    return { 
+      ...res.data, 
+      next: getSearchPageRefs(self.search(args), res).next 
+    };
   },
 
   async page({ self, args: rawArgs }) {
@@ -371,10 +402,7 @@ export const Issue = {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const number = obj.number;
-    return root.users
-      .one({ name: owner })
-      .repos.one({ name: repo })
-      .issues.one({ number });
+    return root.users.one({ name: owner }).repos.one({ name: repo }).issues.one({ number });
   },
   close: ({ self, obj }) => {
     const { name: owner } = self.$argsAt(root.users.one);
@@ -392,28 +420,15 @@ export const Issue = {
     // TODO: parse obj.url which looks like this URL:
     // https://api.github.com/repos/octocat/Hello-World/pulls/1347
   },
-  async subscribe({ self }) {
-    // const nodeId = await self.nodeId.$query();
-    // // NOTE: The REST endpoint doesn't seem to work (403) for subscriptions so we use GraphQL here instead.
-    // const query = `
-    //   mutation($id: ID!) {
-    //       updateSubscription(input: { subscribableId:$id, state:SUBSCRIBED }) {
-    //         subscribable { viewerSubscription }
-    //       }
-    //   }`;
-    // const variables = { id: nodeId };
-    // await graphql(query, variables);
-  },
   async createComment({ self, args }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-    const { number: issue_number } = self.$argsAt(
-      root.users.one.repos.one.issues.one
-    );
+    const { number: issue_number } = self.$argsAt(root.users.one.repos.one.issues.one);
     const { body } = args;
 
     return client().issues.createComment({ owner, repo, issue_number, body });
   },
+  comments: () => ({}),
   user({ obj, info }) {
     if (obj.user) {
       if (!shouldFetch(info, Object.keys(obj.user))) {
@@ -422,22 +437,81 @@ export const Issue = {
       return UserCollection.one({ args: { name: obj.user.login }, info });
     }
   },
-  // closed: {
-  //   async subscribe({ self }) {
-  //     const { name: owner } = self.$argsAt(root.users.one);
-  //     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-  //     const { number } = self.$argsAt(root.users.one.repos.one.issues.one);
+  commentCreated: {
+    async subscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-  //     await ensureTimerIsSet(`${owner}/${repo}`, `issueClosed/${number}`);
-  //   },
-  //   async unsubscribe({ self }) {
-  //     const { name: owner } = self.$argsAt(root.users.one);
-  //     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-  //     const { number } = self.$argsAt(root.users.one.repos.one.issues.one);
+      await register(owner, repo, "issue_comment");
+    },
+    async unsubscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-  //     await unsetTimerRepo(`${owner}/${repo}`, `issueClosed/${number}`);
-  //   },
-  // },
+      await unregister(owner, repo, "issue_comment");
+    },
+  },
+  closed: {
+    async subscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+      await register(owner, repo, "issues");
+    },
+    async unsubscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+      await unregister(owner, repo, "issues");
+    },
+  },
+};
+
+export const CommentCollection = {
+  async one({ self, args: { id }, info }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    
+    const res = await client().issues.getComment({
+      owner,
+      repo,
+      comment_id: id,
+    });
+    return res.data;
+  },
+  async page({ self, args }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    
+    const { number: issue } = self.$argsAt(root.users.one.repos.one.issues.one);
+    const { number: pull } = self.$argsAt(root.users.one.repos.one.pull_requests.one);
+
+    const issue_number = issue || pull;
+
+    const apiArgs = toGithubArgs({ ...args, owner, repo, issue_number });
+    const res = await client().rest.issues.listComments(apiArgs);
+    return {
+      items: res.data,
+      next: getPageRefs(self.page(args), res).next,
+    };
+  }
+};
+
+export const Comment = {
+  gref({ self, obj }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const { number: issue } = self.$argsAt(root.users.one.repos.one.issues.one);
+    const { number: pull } = self.$argsAt(root.users.one.repos.one.pull_requests.one);
+
+    const repository = root.users.one({ name: owner }).repos.one({ name: repo });
+
+    if (issue) {
+      return repository.issues.one({ number: issue }).comments.one({ id: obj.id });
+    } else if (pull) {
+      return repository.pull_requests.one({ number: pull }).comments.one({ id: obj.id });
+    }
+  },
 };
 
 export const CommitCollection = {
@@ -655,7 +729,7 @@ export const PullRequest = {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { number } = self.$argsAt(root.users.one.repos.one.pull_requests.one);
-
+    
     return client().pulls.update({
       owner,
       repo,
@@ -667,18 +741,7 @@ export const PullRequest = {
     // TODO
     // return getDiff(obj['diff_url']);
   },
-  // async subscribe({ self }) {
-  //   const nodeId = await self.nodeId.$query();
-  //   // NOTE: The REST endpoint doesn't seem to work (403) for subscriptions so we use GraphQL here instead.
-  //   const query = `
-  //     mutation($id: ID!) {
-  //         updateSubscription(input: { subscribableId:$id, state:SUBSCRIBED }) {
-  //           subscribable { viewerSubscription }
-  //         }
-  //     }`;
-  //   const variables = { id: nodeId };
-  //   await graphql(query, variables);
-  // },
+  comments: () => ({}),
   async createComment({ self, args }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
@@ -692,22 +755,20 @@ export const PullRequest = {
   owner({ obj }) {
     return root.users.one({ name: obj.user.login });
   },
-  // closed: {
-  //   async subscribe({ self }) {
-  //     const { name: owner } = self.$argsAt(root.users.one);
-  //     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-  //     const { number } = self.$argsAt(root.users.one.repos.one.pull_requests.one);
+  closed: {
+    async subscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-  //     await ensureTimerIsSet(`${owner}/${repo}`, `pullRequestClosed/${number}`);
-  //   },
-  //   async unsubscribe({ self }) {
-  //     const { name: owner } = self.$argsAt(root.users.one);
-  //     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-  //     const { number } = self.$argsAt(root.users.one.repos.one.pull_requests.one);
+      await register(owner, repo, "pull_request");
+    },
+    async unsubscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-  //     await unsetTimerRepo(`${owner}/${repo}`, `pullRequestClosed/${number}`);
-  //   },
-  // },
+      await unregister(owner, repo, "pull_request");
+    },
+  },
 };
 
 export const ReleaseCollection = {
@@ -732,6 +793,170 @@ export const ReleaseCollection = {
   },
 };
 
+export const GlobalSearch = {
+  async issues({ self, args }) {
+    const apiArgs = toGithubArgs({ ...args });
+    const res = await client().search.issuesAndPullRequests(apiArgs);
+
+    return { 
+      items: res.data.items, 
+      next: getSearchPageRefs(self.issues(args), res).next 
+    };
+  },
+  async commits({ self, args }) {
+    const apiArgs = toGithubArgs({ ...args });
+    const res = await client().search.commits(apiArgs);
+
+    return { 
+      items: res.data.items, 
+      next: getSearchPageRefs(self.commits(args), res).next 
+    };
+  },
+};
+
+export async function endpoint({ args: { path, query, headers, method, body } }) {
+  switch (path) {
+    case "/webhooks": {
+      const event = JSON.parse(body);
+      // Every webhook event has a repository object
+      const repo: any = root.users
+        .one({ name: event.repository.owner.login })
+        .repos.one({ name: event.repository.name });
+
+      if (event.action === "opened" && event.issue) {
+        const issue = repo.issues.one({ number: event.issue.number });
+        await repo.issueOpened.$emit({ issue });
+      }
+
+      if (event.action === "closed" && event.issue) {
+        const issue = repo.issues.one({ number: event.issue.number });
+        await issue.closed.$emit();
+      }
+
+      if (event.action === "created" && event.release) {
+        const release = repo.release.one({ id: event.release.id });
+        await repo.releasePublished.$emit({ release });
+      }
+
+      if (event.action === "opened" && event.pull_request) {
+        const pullRequest = repo.pull_request.one({ number: event.pull_request.number });
+        await repo.pullRequestOpened.$emit({ pullRequest });
+      }
+
+      if (event.action === "closed" && event.pull_request.closed) {
+        const pullRequest = repo.pull_request.one({ number: event.pull_request.number });
+        await pullRequest.closed.$emit();
+      }
+
+      if(event.action === "created" && event.comment){
+          const comment = repo.issues.one({ number: event.issue.number }).comments.one({ id: event.comment.id });
+          await repo.issues.one({ number: event.issue.number }).commentCreated.$emit({ comment });
+          await repo.commentCreated.$emit({ comment });
+      }
+      return JSON.stringify({ status: 200 });
+    }
+    default:
+      console.log("Unknown Endpoint:", path);
+  }
+}
+async function register(owner: string, repo: string, event: string) {
+  const webhookURL = (await nodes.endpoint.$get()) + "/webhooks";
+  try {
+    // Check if the repository already has a webhook
+    const repository = state.repos[`${owner}/${repo}`];
+    const { data: hooks } = await client().repos.listWebhooks({
+      owner,
+      repo,
+    });
+    const matchingHook = hooks.find((hook) => hook.id === repository.id);
+    // If the repository already has a webhook, update it
+    if (matchingHook) {
+      if (repository.events.includes(event)) {
+        console.log("Webhook already exists with the same event.");
+        return;
+      } else {
+        const updatedEvents = [...repository.events, event];
+        await client().repos.updateWebhook({
+          owner,
+          repo,
+          hook_id: repository.id,
+          config: {
+            content_type: "json",
+            url: webhookURL,
+          },
+          events: updatedEvents,
+        });
+        // Update the events array in the repository object
+        repository.events = updatedEvents;
+        console.log("Webhook updated with new event.");
+        return;
+      }
+    }
+    // Create a new webhook
+    const {
+      data: { id: webhookId },
+    } = await client().repos.createWebhook({
+      owner,
+      repo,
+      events: [event],
+      config: {
+        content_type: "json",
+        url: webhookURL,
+      },
+    });
+
+    // Add the repository to the state with the webhook data
+    state.repos[`${owner}/${repo}`] = {
+      id: webhookId,
+      url: webhookURL,
+      events: [event],
+    };
+
+    console.log("New webhook created.");
+  } catch (error) {
+    throw new Error(`Error registering ${event} event for ${owner}/${repo}. Details: ${error}`);
+  }
+}
+
+async function unregister(owner: string, repo: string, event: string) {
+  try {
+    // Check if the repository has a webhook
+    const repository = state.repos[`${owner}/${repo}`];
+    if (!repository) {
+      console.log(`Webhook does not exist for ${owner}/${repo}.`);
+      return;
+    }
+    // Update the webhook to remove the specified events
+    const updatedEvents = repository.events.filter((e: string) => e !== event);
+
+    await client().repos.updateWebhook({
+      owner,
+      repo,
+      hook_id: repository.id,
+      config: {
+        content_type: "json",
+        url: repository.url,
+      },
+      events: updatedEvents,
+    });
+    repository.events = updatedEvents;
+    console.log(`Event ${event} deleted from webhook.`);
+    // Delete the webhook if there are no more events
+    if (updatedEvents.length === 0) {
+      await client().repos.deleteWebhook({
+        owner,
+        repo,
+        hook_id: repository.id,
+      });
+      delete state.repos[`${owner}/${repo}`];
+      console.log("Webhook deleted.");
+      return;
+    }
+  } catch (error) {
+    throw new Error(`Error unregistering ${event} event for ${owner}/${repo}. Details: ${error}`);
+  }
+}
+
 function formatTime(time) {
   return new Date(time).getTime();
 }
@@ -751,42 +976,3 @@ function toGithubArgs(args: Record<string, any>): any {
   }
   return result;
 }
-
-// TODO
-// export async function parse({ name, value }) {
-//   switch (name) {
-//     case "url": {
-//       const { pathname: path } = parseUrl(value, true);
-//       const parts = path.split("/");
-//       // TODO: users
-//       if (parts.length < 3) {
-//         return root;
-//       }
-//       const repo = root.users.one({ name: parts[1] }).repos().one({ name: parts[2] });
-//       if (parts.length >= 4 && parts[3] === 'issues') {
-//         if (parts.length >= 5) {
-//           const number = Number.parseInt(parts[4], 10);
-//           if (!Number.isNaN(number)) {
-//             return repo.issues.one({ number });
-//           }
-//           return repo.issues;
-//         }
-//         return repo.issues;
-//       } else if (parts.length >= 4 && /^pulls?$/.test(parts[3])) {
-//         if (parts.length >= 5) {
-//           const number = Number.parseInt(parts[4], 10);
-//           if (!Number.isNaN(number)) {
-//             return repo.pullRequests.one({ number });
-//           }
-//           return repo.pullRequests;
-//         }
-//         return repo.pullRequests;
-//       }
-//       return repo;
-//     }
-//     case 'repo': {
-//       const parts = path.split('/');
-//       return root.users.one({ name: parts[0] }).repos().one({ name: parts[1] });
-//     }
-//   }
-// }
