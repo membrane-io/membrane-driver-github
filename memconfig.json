@@ -124,7 +124,8 @@
               },
               {
                 "name": "body",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "path",
@@ -132,7 +133,8 @@
               },
               {
                 "name": "query",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "headers",
@@ -162,12 +164,12 @@
             "params": [
               {
                 "name": "since",
-                "type": "String"
+                "type": "String",
+                "optional": true
               }
             ]
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -184,7 +186,6 @@
             "ofType": "UserPage"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -277,7 +278,6 @@
             "type": "String"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -325,28 +325,32 @@
             "params": [
               {
                 "name": "q",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "sort",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "order",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "page",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "pageSize",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               }
             ]
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -363,7 +367,6 @@
             "ofType": "RepositoryPage"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -610,16 +613,17 @@
             "params": [
               {
                 "name": "page",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "pageSize",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               }
             ]
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -636,7 +640,6 @@
             "ofType": "BranchPage"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -692,11 +695,13 @@
             "params": [
               {
                 "name": "page",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "pageSize",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               }
             ]
           }
@@ -737,7 +742,6 @@
             "ofType": "CommitPage"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -787,16 +791,17 @@
             "params": [
               {
                 "name": "page",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "pageSize",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               }
             ]
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -813,7 +818,6 @@
             "ofType": "CommentPage"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -845,7 +849,8 @@
             "params": [
               {
                 "name": "path",
-                "type": "String"
+                "type": "String",
+                "optional": true
               }
             ]
           },
@@ -856,12 +861,12 @@
             "params": [
               {
                 "name": "path",
-                "type": "String"
+                "type": "String",
+                "optional": true
               }
             ]
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -964,66 +969,77 @@
             "params": [
               {
                 "name": "page",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "pageSize",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "kind",
                 "type": "String",
-                "description": "Github API returns pull requests in the issues endpoint. Use this to include/exclude them. Can be either issue or pr"
+                "description": "Github API returns pull requests in the issues endpoint. Use this to include/exclude them. Can be either issue or pr",
+                "optional": true
               },
               {
                 "name": "milestone",
                 "type": "String",
-                "description": "If an integer is passed, it should refer to a milestone by its number field. If the string * is passed, issues with any milestone are accepted. If the string none is passed, issues without milestones are returned."
+                "description": "If an integer is passed, it should refer to a milestone by its number field. If the string * is passed, issues with any milestone are accepted. If the string none is passed, issues without milestones are returned.",
+                "optional": true
               },
               {
                 "name": "state",
                 "type": "String",
-                "description": "Indicates the state of the issues to return. Can be open, closed, or all."
+                "description": "Indicates the state of the issues to return. Can be open, closed, or all.",
+                "optional": true
               },
               {
                 "name": "assignee",
                 "type": "String",
-                "description": "Can be the name of a user. Pass in none for issues with no assigned user, and * for issues assigned to any user."
+                "description": "Can be the name of a user. Pass in none for issues with no assigned user, and * for issues assigned to any user.",
+                "optional": true
               },
               {
                 "name": "creator",
                 "type": "String",
-                "description": "The user that created the issue."
+                "description": "The user that created the issue.",
+                "optional": true
               },
               {
                 "name": "mentioned",
                 "type": "String",
-                "description": "A user that's mentioned in the issue."
+                "description": "A user that's mentioned in the issue.",
+                "optional": true
               },
               {
                 "name": "labels",
                 "type": "String",
-                "description": "A list of comma separated label names. Example: bug,ui,@high"
+                "description": "A list of comma separated label names. Example: bug,ui,@high",
+                "optional": true
               },
               {
                 "name": "sort",
                 "type": "String",
-                "description": "What to sort results by. Can be created, updated, comments."
+                "description": "What to sort results by. Can be created, updated, comments.",
+                "optional": true
               },
               {
                 "name": "direction",
                 "type": "String",
-                "description": "One of asc (ascending) or desc (descending)."
+                "description": "One of asc (ascending) or desc (descending).",
+                "optional": true
               },
               {
                 "name": "since",
                 "type": "String",
-                "description": "Only show notifications updated after the given time. This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ"
+                "description": "Only show notifications updated after the given time. This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ",
+                "optional": true
               }
             ]
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -1048,7 +1064,6 @@
             "ofType": "Issue"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -1065,7 +1080,6 @@
             "ofType": "IssuePage"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -1383,37 +1397,43 @@
             "params": [
               {
                 "name": "state",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "head",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "base",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "sort",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "direction",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "page",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "pageSize",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               }
             ],
             "type": "PullRequestPage"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -1430,7 +1450,6 @@
             "ofType": "PullRequestPage"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -1451,17 +1470,18 @@
             "params": [
               {
                 "name": "pageSize",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "page",
-                "type": "String"
+                "type": "String",
+                "optional": true
               }
             ],
             "type": "ReleasePage"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -1478,7 +1498,6 @@
             "ofType": "ReleasePage"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -1529,7 +1548,6 @@
             "type": "String"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -1587,7 +1605,6 @@
             "type": "String"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -1611,7 +1628,6 @@
             "type": "String"
           }
         ],
-        "actions": [],
         "events": []
       },
       {
@@ -1623,27 +1639,33 @@
             "params": [
               {
                 "name": "type",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "sort",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "direction",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "page",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "pageSize",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "q",
-                "type": "String"
+                "type": "String",
+                "optional": true
               }
             ]
           },
@@ -1653,27 +1675,33 @@
             "params": [
               {
                 "name": "type",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "sort",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "direction",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "page",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "pageSize",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "q",
-                "type": "String"
+                "type": "String",
+                "optional": true
               }
             ]
           }
