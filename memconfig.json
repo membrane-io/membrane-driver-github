@@ -97,6 +97,10 @@
           {
             "name": "search",
             "type": "GlobalSearch"
+          },
+          {
+            "name": "tests",
+            "type": "Tests"
           }
         ],
         "actions": [
@@ -1744,6 +1748,39 @@
             "name": "comment",
             "type": "Ref",
             "ofType": "Comment"
+          }
+        ]
+      },
+      {
+        "name": "Tests",
+        "actions": [
+          {
+            "name": "testUser",
+            "type": "Boolean"
+          },
+          {
+            "name": "testRepo",
+            "type": "Boolean"
+          },
+          {
+            "name": "testIssue",
+            "type": "Boolean"
+          },
+          {
+            "name": "testCommit",
+            "type": "Boolean"
+          },
+          {
+            "name": "testIssueComment",
+            "type": "Boolean"
+          },
+          {
+            "name": "testPullRequest",
+            "type": "Boolean"
+          },
+          {
+            "name": "testSearch",
+            "type": "Boolean"
           }
         ]
       }

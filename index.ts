@@ -96,6 +96,7 @@ export const Root = {
   },
   users: () => ({}),
   search: () => ({}),
+  tests: () => ({}),
   status() {
     if (!state.token) {
       return `Not configured. [Generate API token](https://github.com/settings/tokens/new)`;
@@ -168,6 +169,37 @@ export const Root = {
     return [];
   },
 };
+
+export const Tests = {
+  testUser: async () => {
+    const email = await root.users.one({ name: 'octocat' }).email.$get();
+    return email === 'octocat@github.com';
+  },
+  testRepo: async () => {
+    const description = await root.users.one({ name: 'octocat' }).repos.one({ name: 'Hello-World' }).description.$get();
+    return description === 'My first repository on GitHub!';
+  },
+  testIssue: async () => {
+    const title = await root.users.one({ name: 'octocat' }).repos.one({ name: 'Hello-World' }).issues.one({ number: 12 }).title.$get();
+    return title === 'Test';
+  },
+  testPullRequest: async () => {
+    const title = await root.users.one({ name: 'octocat' }).repos.one({ name: 'Hello-World' }).pull_requests.one({ number: 1 }).title.$get();
+    return title === 'Edited README via GitHub';
+  },
+  testCommit: async () => {
+    const message = await root.users.one({ name: 'octocat' }).repos.one({ name: 'Hello-World' }).commits.one({ ref: '553c2077f0edc3d5dc5d17262f6aa498e69d6f8e' }).message.$get();
+    return message === 'first commit';
+  },
+  testIssueComment: async () => {
+    const body = await root.users.one({ name: 'octocat' }).repos.one({ name: 'Hello-World' }).issues.one({ number: 12 }).comments.one({ id: 846411215 }).body.$get();
+    return body === 'aaefe feif e';
+  },
+  testSearch: async () => {
+    const items = await root.search.issues({ q: 'repo:octocat/Hello-World is:issue is:open' }).items.$query(`{ title }`);
+    return Array.isArray(items) && (items.length === 0 || items.length > 0);
+  }
+}
 
 export const UserCollection = {
   async one({ args, info }) {
