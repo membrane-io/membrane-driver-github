@@ -577,6 +577,24 @@
                 "type": "String"
               }
             ]
+          },
+          {
+            "name": "createFileTree",
+            "type": "String",
+            "params": [
+              {
+                "name": "base",
+                "type": "String"
+              },
+              {
+                "name": "path",
+                "type": "String"
+              },
+              {
+                "name": "content",
+                "type": "String"
+              }
+            ]
           }
         ],
         "events": [
@@ -595,6 +613,10 @@
           {
             "name": "releasePublished",
             "type": "ReleaseEvent"
+          },
+          {
+            "name": "pushes",
+            "type": "PushEvent"
           }
         ]
       },
@@ -1738,6 +1760,16 @@
             "name": "release",
             "type": "Ref",
             "ofType": "Release"
+          }
+        ]
+      },
+      {
+        "name": "PushEvent",
+        "fields": [
+          {
+            "name": "commit",
+            "type": "Ref",
+            "ofType": "Commit"
           }
         ]
       },

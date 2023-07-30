@@ -282,6 +282,24 @@ export const Repository = {
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     await client().repos.addCollaborator({ ...args, owner, repo });
   },
+  createFileTree: async ({ self, args }) => {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const body = {
+      base_tree: args.base,
+      tree: [
+        {
+          path: args.path,
+          mode: "100644",
+          type: "blob",
+          content: args.content,
+        },
+      ],
+    };
+    const apiArgs = toGithubArgs({ ...body, owner, repo });
+    const ref = await client().git.createTree(apiArgs);
+    return ref.data.sha;
+  },
   createTree: async ({ self, args }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
@@ -355,6 +373,20 @@ export const Repository = {
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
       
       await unregister(owner, repo, "release");
+    },
+  },
+  pushes: {
+    async subscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+      await register(owner, repo, "push");
+    },
+    async unsubscribe({ self }) {
+      const { name: owner } = self.$argsAt(root.users.one);
+      const { name: repo } = self.$argsAt(root.users.one.repos.one);
+
+      await unregister(owner, repo, "push");
     },
   },
   branches: () => ({}),
@@ -858,6 +890,13 @@ export async function endpoint({ args: { path, query, headers, method, body } })
       if (event.action === "opened" && event.issue) {
         const issue = repo.issues.one({ number: event.issue.number });
         await repo.issueOpened.$emit({ issue });
+      }
+
+      if (event.pusher.name && event.commits.length > 0) {
+        event.commits.forEach(async (item) => {
+          const commit = repo.commits.one({ ref: item.id });
+          await repo.pushes.$emit({ commit });
+        });
       }
 
       if (event.action === "closed" && event.issue) {
