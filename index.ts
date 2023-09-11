@@ -67,7 +67,10 @@ function getPageRefs(gref: any, response: { headers: any }): { next?: any } {
   return refs;
 }
 
-function getSearchPageRefs(gref: any, response: { headers: any }): { next?: any } {
+function getSearchPageRefs(
+  gref: any,
+  response: { headers: any }
+): { next?: any } {
   const links = parseLinks(response.headers.link);
   if (!links) {
     return {};
@@ -77,7 +80,10 @@ function getSearchPageRefs(gref: any, response: { headers: any }): { next?: any 
   if (links) {
     if (links.next?.url !== undefined) {
       const qs = new URL(links.next.url).searchParams;
-      const page = qs.get("page") !== undefined ? parseInt(qs.get("page")!, 10) : undefined;
+      const page =
+        qs.get("page") !== undefined
+          ? parseInt(qs.get("page")!, 10)
+          : undefined;
       refs.next = gref({ ...args, q: qs.get("q"), page });
     }
   }
@@ -85,7 +91,7 @@ function getSearchPageRefs(gref: any, response: { headers: any }): { next?: any 
 }
 
 export const Root = {
-  configure: ({ args }) => {
+  configure: (args) => {
     if (args.token !== state.token) {
       console.log("Generating new client");
       state.token = args.token;
@@ -103,7 +109,7 @@ export const Root = {
     }
     return "Ready";
   },
-  parse: async ({ args: { name, value } }) => {
+  parse: async ({ name, value }) => {
     // TODO: add more stuff like /tree, /commits, /blob, etc...
     switch (name) {
       case "user": {
@@ -172,44 +178,66 @@ export const Root = {
 
 export const Tests = {
   testUser: async () => {
-    const email = await root.users.one({ name: 'octocat' }).email.$get();
-    return email === 'octocat@github.com';
+    const email = await root.users.one({ name: "octocat" }).email.$get();
+    return email === "octocat@github.com";
   },
   testRepo: async () => {
-    const description = await root.users.one({ name: 'octocat' }).repos.one({ name: 'Hello-World' }).description.$get();
-    return description === 'My first repository on GitHub!';
+    const description = await root.users
+      .one({ name: "octocat" })
+      .repos.one({ name: "Hello-World" })
+      .description.$get();
+    return description === "My first repository on GitHub!";
   },
   testIssue: async () => {
-    const title = await root.users.one({ name: 'octocat' }).repos.one({ name: 'Hello-World' }).issues.one({ number: 12 }).title.$get();
-    return title === 'Test';
+    const title = await root.users
+      .one({ name: "octocat" })
+      .repos.one({ name: "Hello-World" })
+      .issues.one({ number: 12 })
+      .title.$get();
+    return title === "Test";
   },
   testPullRequest: async () => {
-    const title = await root.users.one({ name: 'octocat' }).repos.one({ name: 'Hello-World' }).pull_requests.one({ number: 1 }).title.$get();
-    return title === 'Edited README via GitHub';
+    const title = await root.users
+      .one({ name: "octocat" })
+      .repos.one({ name: "Hello-World" })
+      .pull_requests.one({ number: 1 })
+      .title.$get();
+    return title === "Edited README via GitHub";
   },
   testCommit: async () => {
-    const message = await root.users.one({ name: 'octocat' }).repos.one({ name: 'Hello-World' }).commits.one({ ref: '553c2077f0edc3d5dc5d17262f6aa498e69d6f8e' }).message.$get();
-    return message === 'first commit';
+    const message = await root.users
+      .one({ name: "octocat" })
+      .repos.one({ name: "Hello-World" })
+      .commits.one({ ref: "553c2077f0edc3d5dc5d17262f6aa498e69d6f8e" })
+      .message.$get();
+    return message === "first commit";
   },
   testIssueComment: async () => {
-    const body = await root.users.one({ name: 'octocat' }).repos.one({ name: 'Hello-World' }).issues.one({ number: 12 }).comments.one({ id: 846411215 }).body.$get();
-    return body === 'aaefe feif e';
+    const body = await root.users
+      .one({ name: "octocat" })
+      .repos.one({ name: "Hello-World" })
+      .issues.one({ number: 12 })
+      .comments.one({ id: 846411215 })
+      .body.$get();
+    return body === "aaefe feif e";
   },
   testSearch: async () => {
-    const items = await root.search.issues({ q: 'repo:octocat/Hello-World is:issue is:open' }).items.$query(`{ title }`);
+    const items = await root.search
+      .issues({ q: "repo:octocat/Hello-World is:issue is:open" })
+      .items.$query(`{ title }`);
     return Array.isArray(items) && (items.length === 0 || items.length > 0);
-  }
-}
+  },
+};
 
 export const UserCollection = {
-  async one({ args, info }) {
+  async one(args, { info }) {
     if (!shouldFetch(info, ["login", "repos"])) {
       return { login: args.name };
     }
     const result = await client().users.getByUsername({ username: args.name });
     return result.data;
   },
-  async page({ self, args }) {
+  async page(args, { self }) {
     const apiArgs = toGithubArgs(args);
     const res = await client().users.list(apiArgs);
 
@@ -221,12 +249,12 @@ export const UserCollection = {
 };
 
 export const User = {
-  gref: ({ obj }) => root.users.one({ name: obj.login }),
+  gref: (_, { obj }) => root.users.one({ name: obj.login }),
   repos: () => ({}),
 };
 
 export const RepositoryCollection = {
-  async one({ self, args, info }) {
+  async one(args, { self, info }) {
     const { name: repo } = args;
     const { name: owner } = self.$argsAt(root.users.one());
     if (
@@ -243,7 +271,7 @@ export const RepositoryCollection = {
     const result = await client().repos.get({ owner, repo });
     return result.data;
   },
-  async page({ self, args }) {
+  async page(args, { self }) {
     const { name: username } = self.$argsAt(root.users.one());
 
     const apiArgs = toGithubArgs({ ...args, username });
@@ -254,7 +282,7 @@ export const RepositoryCollection = {
       next: getPageRefs(self.page(args), res).next,
     };
   },
-  async search({ self, args }) {
+  async search(args, { self }) {
     const { name: username } = self.$argsAt(root.users.one());
     const q = (args.q ?? "") + ` user:${username}`;
 
@@ -269,20 +297,20 @@ export const RepositoryCollection = {
 };
 
 export const Repository = {
-  gref: ({ self, obj }) => {
+  gref: (_, { self, obj }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     return root.users.one({ name: owner }).repos.one({ name: obj.name });
   },
-  transfer: async ({ self, args }) => {
+  transfer: async (args, { self }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     await client().repos.transfer({ ...args, owner });
   },
-  addCollaborator: async ({ self, args }) => {
+  addCollaborator: async (args, { self }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     await client().repos.addCollaborator({ ...args, owner, repo });
   },
-  createFileTree: async ({ self, args }) => {
+  createFileTree: async (args, { self }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const body = {
@@ -300,7 +328,7 @@ export const Repository = {
     const ref = await client().git.createTree(apiArgs);
     return ref.data.sha;
   },
-  createTree: async ({ self, args }) => {
+  createTree: async (args, { self }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     // now only supports 1 tree params
@@ -320,13 +348,13 @@ export const Repository = {
     return ref.data.sha;
   },
   commentCreated: {
-    async subscribe({ self }) {
+    async subscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
       await register(owner, repo, "issue_comment");
     },
-    async unsubscribe({ self }) {
+    async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
@@ -334,13 +362,13 @@ export const Repository = {
     },
   },
   issueOpened: {
-    async subscribe({ self }) {
+    async subscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
-      
+
       await register(owner, repo, "issues");
     },
-    async unsubscribe({ self }) {
+    async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
@@ -348,13 +376,13 @@ export const Repository = {
     },
   },
   pullRequestOpened: {
-    async subscribe({ self }) {
+    async subscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
       await register(owner, repo, "pull_request");
     },
-    async unsubscribe({ self }) {
+    async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
@@ -362,27 +390,27 @@ export const Repository = {
     },
   },
   releasePublished: {
-    async subscribe({ self }) {
+    async subscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
       await register(owner, repo, "release");
     },
-    async unsubscribe({ self }) {
+    async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
-      
+
       await unregister(owner, repo, "release");
     },
   },
   pushes: {
-    async subscribe({ self }) {
+    async subscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
       await register(owner, repo, "push");
     },
-    async unsubscribe({ self }) {
+    async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
@@ -395,7 +423,7 @@ export const Repository = {
   pull_requests: () => ({}),
   releases: () => ({}),
   content: () => ({}),
-  async license({ self }) {
+  async license(_, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const res = await client().licenses.getForRepo({ owner, repo });
@@ -404,7 +432,7 @@ export const Repository = {
 };
 
 export const IssueCollection = {
-  async one({ self, args, info }) {
+  async one(args, { self, info }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { number: issue_number } = args;
@@ -417,27 +445,27 @@ export const IssueCollection = {
     return result.data;
   },
 
-  async search({ self, args: allArgs }) {
+  async search(args, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-    let { q, ...args } = allArgs;
+    let { q, ...rest } = args;
     q = `${q ?? ""} repo:${owner}/${repo}`;
 
-    const apiArgs = toGithubArgs({ ...args, q });
+    const apiArgs = toGithubArgs({ ...rest, q });
     const res = await client().search.issuesAndPullRequests(apiArgs);
 
-    return { 
-      ...res.data, 
-      next: getSearchPageRefs(self.search(args), res).next 
+    return {
+      ...res.data,
+      next: getSearchPageRefs(self.search(rest), res).next,
     };
   },
 
-  async page({ self, args: rawArgs }) {
+  async page(args, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-    const { kind, ...args } = rawArgs;
+    const { kind, ...rest } = args;
 
-    const apiArgs = toGithubArgs({ ...args, owner, repo });
+    const apiArgs = toGithubArgs({ ...rest, owner, repo });
     const res = await client().issues.listForRepo(apiArgs);
 
     // TODO: this can be problematic because we're ignoring on the client side (GH's API doesn't have a way to filter by
@@ -456,19 +484,22 @@ export const IssueCollection = {
 
     return {
       items: res.data,
-      next: getPageRefs(self.page(args), res).next,
+      next: getPageRefs(self.page(rest), res).next,
     };
   },
 };
 
 export const Issue = {
-  gref: ({ self, obj }) => {
+  gref: (_, { self, obj }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const number = obj.number;
-    return root.users.one({ name: owner }).repos.one({ name: repo }).issues.one({ number });
+    return root.users
+      .one({ name: owner })
+      .repos.one({ name: repo })
+      .issues.one({ number });
   },
-  close: ({ self, obj }) => {
+  close: (_, { self, obj }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { number } = self.$argsAt(root.users.one.repos.one.issues.one);
@@ -484,31 +515,33 @@ export const Issue = {
     // TODO: parse obj.url which looks like this URL:
     // https://api.github.com/repos/octocat/Hello-World/pulls/1347
   },
-  async createComment({ self, args }) {
+  async createComment(args, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-    const { number: issue_number } = self.$argsAt(root.users.one.repos.one.issues.one);
+    const { number: issue_number } = self.$argsAt(
+      root.users.one.repos.one.issues.one
+    );
     const { body } = args;
 
     return client().issues.createComment({ owner, repo, issue_number, body });
   },
   comments: () => ({}),
-  user({ obj, info }) {
+  user(_, { obj, info }) {
     if (obj.user) {
       if (!shouldFetch(info, Object.keys(obj.user))) {
         return obj.user;
       }
-      return UserCollection.one({ args: { name: obj.user.login }, info });
+      return UserCollection.one({ name: obj.user.login }, { info });
     }
   },
   commentCreated: {
-    async subscribe({ self }) {
+    async subscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
       await register(owner, repo, "issue_comment");
     },
-    async unsubscribe({ self }) {
+    async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
@@ -516,13 +549,13 @@ export const Issue = {
     },
   },
   closed: {
-    async subscribe({ self }) {
+    async subscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
       await register(owner, repo, "issues");
     },
-    async unsubscribe({ self }) {
+    async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
@@ -532,10 +565,10 @@ export const Issue = {
 };
 
 export const CommentCollection = {
-  async one({ self, args: { id }, info }) {
+  async one({ id }, { self, info }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-    
+
     const res = await client().issues.getComment({
       owner,
       repo,
@@ -543,12 +576,14 @@ export const CommentCollection = {
     });
     return res.data;
   },
-  async page({ self, args }) {
+  async page(args, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
-    
+
     const { number: issue } = self.$argsAt(root.users.one.repos.one.issues.one);
-    const { number: pull } = self.$argsAt(root.users.one.repos.one.pull_requests.one);
+    const { number: pull } = self.$argsAt(
+      root.users.one.repos.one.pull_requests.one
+    );
 
     const issue_number = issue || pull;
 
@@ -558,28 +593,36 @@ export const CommentCollection = {
       items: res.data,
       next: getPageRefs(self.page(args), res).next,
     };
-  }
+  },
 };
 
 export const Comment = {
-  gref({ self, obj }) {
+  gref(_, { self, obj }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { number: issue } = self.$argsAt(root.users.one.repos.one.issues.one);
-    const { number: pull } = self.$argsAt(root.users.one.repos.one.pull_requests.one);
+    const { number: pull } = self.$argsAt(
+      root.users.one.repos.one.pull_requests.one
+    );
 
-    const repository = root.users.one({ name: owner }).repos.one({ name: repo });
+    const repository = root.users
+      .one({ name: owner })
+      .repos.one({ name: repo });
 
     if (issue) {
-      return repository.issues.one({ number: issue }).comments.one({ id: obj.id });
+      return repository.issues
+        .one({ number: issue })
+        .comments.one({ id: obj.id });
     } else if (pull) {
-      return repository.pull_requests.one({ number: pull }).comments.one({ id: obj.id });
+      return repository.pull_requests
+        .one({ number: pull })
+        .comments.one({ id: obj.id });
     }
   },
 };
 
 export const CommitCollection = {
-  async one({ self, args: { ref }, info }) {
+  async one({ ref }, { self, info }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const result = await client().repos.getCommit({
@@ -591,7 +634,7 @@ export const CommitCollection = {
     return result.data;
   },
 
-  async page({ self, args }) {
+  async page(args, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
@@ -602,7 +645,7 @@ export const CommitCollection = {
       next: getPageRefs(self.page(args), res).next,
     };
   },
-  async create({ self, args }) {
+  async create(args, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
@@ -620,7 +663,7 @@ export const CommitCollection = {
 };
 
 export const Commit = {
-  gref({ self, obj }) {
+  gref(_, { self, obj }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     return root.users
@@ -628,7 +671,7 @@ export const Commit = {
       .repos.one({ name: repo })
       .commits.one({ ref: obj.sha });
   },
-  async author({ obj, info }) {
+  async author(_, { obj, info }) {
     if (!shouldFetch(info, Object.keys(obj.author))) {
       return obj.author;
     }
@@ -638,13 +681,13 @@ export const Commit = {
     const result = await client().users.getByUsername({ username: login });
     return result.data;
   },
-  message({ obj }) {
+  message(_, { obj }) {
     return obj.commit?.message;
   },
 };
 
 export const ContentCollection = {
-  async file({ self, obj, args: { path }, info }) {
+  async file({ path }, { self, obj, info }) {
     if (!shouldFetch(info, ["path", ...Object.keys(obj)])) {
       return { path };
     }
@@ -657,7 +700,7 @@ export const ContentCollection = {
     }
   },
 
-  async dir({ self, obj, args: { path } }) {
+  async dir({ path }, { self, obj }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { data } = await client().repos.getContent({ owner, repo, path });
@@ -666,7 +709,7 @@ export const ContentCollection = {
 };
 
 export const Content = {
-  gref: ({ self, obj }) => {
+  gref: (_, { self, obj }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     if (obj.type === "dir") {
@@ -680,7 +723,7 @@ export const Content = {
       .repos.one({ name: repo })
       .content.file({ path: obj.path });
   },
-  async content({ obj, self, args: { path }, info }) {
+  async content({ path }, { obj, self, info }) {
     let encoding;
     let content;
     if (obj.content) {
@@ -706,7 +749,7 @@ export const Content = {
 };
 
 export const BranchCollection = {
-  async one({ self, args, info }) {
+  async one(args, { self, info }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { name: branch } = args;
@@ -721,7 +764,7 @@ export const BranchCollection = {
     return result.data;
   },
 
-  async page({ self, args }) {
+  async page(args, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
@@ -735,7 +778,7 @@ export const BranchCollection = {
 };
 
 export const Branch = {
-  gref({ obj, self }) {
+  gref(_, { obj, self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const name = obj.name;
@@ -744,10 +787,10 @@ export const Branch = {
       .repos.one({ name: repo })
       .branches.one({ name });
   },
-  commit({ obj }) {
+  commit(_, { obj }) {
     return obj.commit;
   },
-  async update({ self, args }) {
+  async update(args, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
@@ -757,7 +800,7 @@ export const Branch = {
 };
 
 export const PullRequestCollection = {
-  async one({ self, args }) {
+  async one(args, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
@@ -766,7 +809,7 @@ export const PullRequestCollection = {
     return result.data;
   },
 
-  async page({ self, args }) {
+  async page(args, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
@@ -780,7 +823,7 @@ export const PullRequestCollection = {
 };
 
 export const PullRequest = {
-  gref: ({ self, obj }) => {
+  gref: (_, { self, obj }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const number = obj.number;
@@ -789,11 +832,11 @@ export const PullRequest = {
       .repos.one({ name: repo })
       .pull_requests.one({ number });
   },
-  close: ({ self, obj }) => {
+  close: (_, { self, obj }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { number } = self.$argsAt(root.users.one.repos.one.pull_requests.one);
-    
+
     return client().pulls.update({
       owner,
       repo,
@@ -801,12 +844,12 @@ export const PullRequest = {
       state: "closed",
     });
   },
-  diff({ obj }) {
+  diff(_, { obj }) {
     // TODO
     // return getDiff(obj['diff_url']);
   },
   comments: () => ({}),
-  async createComment({ self, args }) {
+  async createComment(args, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { number: issue_number } = self.$argsAt(
@@ -816,17 +859,17 @@ export const PullRequest = {
 
     return client().issues.createComment({ owner, repo, issue_number, body });
   },
-  owner({ obj }) {
+  owner(_, { obj }) {
     return root.users.one({ name: obj.user.login });
   },
   closed: {
-    async subscribe({ self }) {
+    async subscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
       await register(owner, repo, "pull_request");
     },
-    async unsubscribe({ self }) {
+    async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
@@ -836,7 +879,7 @@ export const PullRequest = {
 };
 
 export const ReleaseCollection = {
-  async one({ self, obj, args }) {
+  async one(args, { self, obj }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { id: release_id } = args;
@@ -845,7 +888,7 @@ export const ReleaseCollection = {
     return result.data;
   },
 
-  async page({ self, obj, args }) {
+  async page(args, { self, obj }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const apiArgs = toGithubArgs({ ...args, owner, repo });
@@ -858,27 +901,27 @@ export const ReleaseCollection = {
 };
 
 export const GlobalSearch = {
-  async issues({ self, args }) {
+  async issues(args, { self }) {
     const apiArgs = toGithubArgs({ ...args });
     const res = await client().search.issuesAndPullRequests(apiArgs);
 
-    return { 
-      items: res.data.items, 
-      next: getSearchPageRefs(self.issues(args), res).next 
+    return {
+      items: res.data.items,
+      next: getSearchPageRefs(self.issues(args), res).next,
     };
   },
-  async commits({ self, args }) {
+  async commits(args, { self }) {
     const apiArgs = toGithubArgs({ ...args });
     const res = await client().search.commits(apiArgs);
 
-    return { 
-      items: res.data.items, 
-      next: getSearchPageRefs(self.commits(args), res).next 
+    return {
+      items: res.data.items,
+      next: getSearchPageRefs(self.commits(args), res).next,
     };
   },
 };
 
-export async function endpoint({ args: { path, query, headers, method, body } }) {
+export async function endpoint({ path, query, headers, method, body }) {
   switch (path) {
     case "/webhooks": {
       const event = JSON.parse(body);
@@ -910,19 +953,27 @@ export async function endpoint({ args: { path, query, headers, method, body } })
       }
 
       if (event.action === "opened" && event.pull_request) {
-        const pullRequest = repo.pull_request.one({ number: event.pull_request.number });
+        const pullRequest = repo.pull_request.one({
+          number: event.pull_request.number,
+        });
         await repo.pullRequestOpened.$emit({ pullRequest });
       }
 
       if (event.action === "closed" && event.pull_request.closed) {
-        const pullRequest = repo.pull_request.one({ number: event.pull_request.number });
+        const pullRequest = repo.pull_request.one({
+          number: event.pull_request.number,
+        });
         await pullRequest.closed.$emit();
       }
 
-      if(event.action === "created" && event.comment){
-          const comment = repo.issues.one({ number: event.issue.number }).comments.one({ id: event.comment.id });
-          await repo.issues.one({ number: event.issue.number }).commentCreated.$emit({ comment });
-          await repo.commentCreated.$emit({ comment });
+      if (event.action === "created" && event.comment) {
+        const comment = repo.issues
+          .one({ number: event.issue.number })
+          .comments.one({ id: event.comment.id });
+        await repo.issues
+          .one({ number: event.issue.number })
+          .commentCreated.$emit({ comment });
+        await repo.commentCreated.$emit({ comment });
       }
       return JSON.stringify({ status: 200 });
     }
@@ -985,7 +1036,9 @@ async function register(owner: string, repo: string, event: string) {
 
     console.log("New webhook created.");
   } catch (error) {
-    throw new Error(`Error registering ${event} event for ${owner}/${repo}. Details: ${error}`);
+    throw new Error(
+      `Error registering ${event} event for ${owner}/${repo}. Details: ${error}`
+    );
   }
 }
 
@@ -1024,7 +1077,9 @@ async function unregister(owner: string, repo: string, event: string) {
       return;
     }
   } catch (error) {
-    throw new Error(`Error unregistering ${event} event for ${owner}/${repo}. Details: ${error}`);
+    throw new Error(
+      `Error unregistering ${event} event for ${owner}/${repo}. Details: ${error}`
+    );
   }
 }
 
