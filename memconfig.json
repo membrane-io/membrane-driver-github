@@ -147,7 +147,12 @@
             ]
           }
         ],
-        "events": []
+        "events": [
+          {
+            "name": "statusChanged",
+            "type": "Void"
+          }
+        ]
       },
       {
         "name": "UserCollection",

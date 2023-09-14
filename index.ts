@@ -93,11 +93,12 @@ function getSearchPageRefs(
 export const Root = {
   configure: (args) => {
     if (args.token !== state.token) {
-      console.log("Generating new client");
+      console.log("Creating new Octokit client");
       state.token = args.token;
       state.client = new Octokit({
         auth: state.token,
       });
+      root.statusChanged.$emit();
     }
   },
   users: () => ({}),
@@ -105,7 +106,7 @@ export const Root = {
   tests: () => ({}),
   status() {
     if (!state.token) {
-      return `Not configured. [Generate API token](https://github.com/settings/tokens/new)`;
+      return `Please [Generate API token](https://github.com/settings/tokens/new) and [configure](:configure) it`;
     }
     return "Ready";
   },
@@ -935,7 +936,7 @@ export async function endpoint({ path, query, headers, method, body }) {
         await repo.issueOpened.$emit({ issue });
       }
 
-      if (event.pusher.name && event.commits.length > 0) {
+      if (event.pusher?.name && event.commits?.length > 0) {
         event.commits.forEach(async (item) => {
           const commit = repo.commits.one({ ref: item.id });
           await repo.pushes.$emit({ commit });
@@ -959,7 +960,7 @@ export async function endpoint({ path, query, headers, method, body }) {
         await repo.pullRequestOpened.$emit({ pullRequest });
       }
 
-      if (event.action === "closed" && event.pull_request.closed) {
+      if (event.action === "closed" && event.pull_request?.closed) {
         const pullRequest = repo.pull_request.one({
           number: event.pull_request.number,
         });
@@ -990,12 +991,12 @@ async function register(owner: string, repo: string, event: string) {
       owner,
       repo,
     });
-    const matchingHook = hooks.find((hook) => hook.id === repository.id);
+    const matchingHook =
+      repository && hooks.find((hook) => hook.id === repository.id);
     // If the repository already has a webhook, update it
     if (matchingHook) {
       if (repository.events.includes(event)) {
         console.log("Webhook already exists with the same event.");
-        return;
       } else {
         const updatedEvents = [...repository.events, event];
         await client().repos.updateWebhook({
@@ -1011,30 +1012,29 @@ async function register(owner: string, repo: string, event: string) {
         // Update the events array in the repository object
         repository.events = updatedEvents;
         console.log("Webhook updated with new event.");
-        return;
       }
-    }
-    // Create a new webhook
-    const {
-      data: { id: webhookId },
-    } = await client().repos.createWebhook({
-      owner,
-      repo,
-      events: [event],
-      config: {
-        content_type: "json",
+    } else {
+      // Create a new webhook
+      const {
+        data: { id: webhookId },
+      } = await client().repos.createWebhook({
+        owner,
+        repo,
+        events: [event],
+        config: {
+          content_type: "json",
+          url: webhookURL,
+        },
+      });
+
+      // Add the repository to the state with the webhook data
+      state.repos[`${owner}/${repo}`] = {
+        id: webhookId,
         url: webhookURL,
-      },
-    });
-
-    // Add the repository to the state with the webhook data
-    state.repos[`${owner}/${repo}`] = {
-      id: webhookId,
-      url: webhookURL,
-      events: [event],
-    };
-
-    console.log("New webhook created.");
+        events: [event],
+      };
+      console.log("New webhook created.");
+    }
   } catch (error) {
     throw new Error(
       `Error registering ${event} event for ${owner}/${repo}. Details: ${error}`
