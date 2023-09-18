@@ -927,6 +927,10 @@
             "type": "String"
           },
           {
+            "name": "contentText",
+            "type": "String"
+          },
+          {
             "name": "path",
             "type": "String"
           },

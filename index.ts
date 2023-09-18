@@ -4,12 +4,10 @@ import parseLinks from "./parse-link-header";
 
 interface State {
   token?: string;
+  endpointUrl?: string;
   client?: Octokit;
-  repos?: any;
 }
 const state = stateValue as State;
-
-state.repos = state.repos ?? {};
 
 function client(): Octokit {
   if (!state.client) {
@@ -91,7 +89,7 @@ function getSearchPageRefs(
 }
 
 export const Root = {
-  configure: (args) => {
+  configure: async (args) => {
     if (args.token !== state.token) {
       console.log("Creating new Octokit client");
       state.token = args.token;
@@ -99,6 +97,9 @@ export const Root = {
         auth: state.token,
       });
       root.statusChanged.$emit();
+    }
+    if (!state.endpointUrl) {
+      state.endpointUrl = await nodes.process.endpointUrl;
     }
   },
   users: () => ({}),
@@ -257,7 +258,7 @@ export const User = {
 export const RepositoryCollection = {
   async one(args, { self, info }) {
     const { name: repo } = args;
-    const { name: owner } = self.$argsAt(root.users.one());
+    const { name: owner } = self.$argsAt(root.users.one);
     if (
       !shouldFetch(info, [
         "name",
@@ -273,7 +274,7 @@ export const RepositoryCollection = {
     return result.data;
   },
   async page(args, { self }) {
-    const { name: username } = self.$argsAt(root.users.one());
+    const { name: username } = self.$argsAt(root.users.one);
 
     const apiArgs = toGithubArgs({ ...args, username });
     const res = await client().repos.listForUser(apiArgs);
@@ -284,7 +285,7 @@ export const RepositoryCollection = {
     };
   },
   async search(args, { self }) {
-    const { name: username } = self.$argsAt(root.users.one());
+    const { name: username } = self.$argsAt(root.users.one);
     const q = (args.q ?? "") + ` user:${username}`;
 
     const apiArgs = toGithubArgs({ ...args, q, username });
@@ -353,13 +354,13 @@ export const Repository = {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, "issue_comment");
+      await ensureWebhook(owner, repo, "issue_comment");
     },
     async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await unregister(owner, repo, "issue_comment");
+      await removeWebhook(owner, repo, "issue_comment");
     },
   },
   issueOpened: {
@@ -367,13 +368,13 @@ export const Repository = {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, "issues");
+      await ensureWebhook(owner, repo, "issues");
     },
     async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await unregister(owner, repo, "issues");
+      await removeWebhook(owner, repo, "issues");
     },
   },
   pullRequestOpened: {
@@ -381,13 +382,13 @@ export const Repository = {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, "pull_request");
+      await ensureWebhook(owner, repo, "pull_request");
     },
     async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await unregister(owner, repo, "pull_request");
+      await removeWebhook(owner, repo, "pull_request");
     },
   },
   releasePublished: {
@@ -395,13 +396,13 @@ export const Repository = {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, "release");
+      await ensureWebhook(owner, repo, "release");
     },
     async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await unregister(owner, repo, "release");
+      await removeWebhook(owner, repo, "release");
     },
   },
   pushes: {
@@ -409,13 +410,13 @@ export const Repository = {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, "push");
+      await ensureWebhook(owner, repo, "push");
     },
     async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await unregister(owner, repo, "push");
+      await removeWebhook(owner, repo, "push");
     },
   },
   branches: () => ({}),
@@ -540,13 +541,13 @@ export const Issue = {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, "issue_comment");
+      await ensureWebhook(owner, repo, "issue_comment");
     },
     async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await unregister(owner, repo, "issue_comment");
+      await removeWebhook(owner, repo, "issue_comment");
     },
   },
   closed: {
@@ -554,13 +555,13 @@ export const Issue = {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, "issues");
+      await ensureWebhook(owner, repo, "issues");
     },
     async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await unregister(owner, repo, "issues");
+      await removeWebhook(owner, repo, "issues");
     },
   },
 };
@@ -724,28 +725,18 @@ export const Content = {
       .repos.one({ name: repo })
       .content.file({ path: obj.path });
   },
-  async content({ path }, { obj, self, info }) {
-    let encoding;
-    let content;
-    if (obj.content) {
-      content = obj.content;
-      encoding = obj.encoding;
-    } else {
-      const { name: owner } = self.$argsAt(root.users.one);
-      const { name: repo } = self.$argsAt(root.users.one.repos.one);
-      const { data } = await client().repos.getContent({ owner, repo, path });
-      content = (data as any)?.content;
-      encoding = (data as any)?.encoding;
-    }
-    if (encoding === "base64") {
+  async contentText(_, { obj }) {
+    if (obj.content === "") {
+      return "";
+    } else if (obj.encoding === "base64") {
       try {
-        content = Buffer.from(content, "base64").toString("utf8");
-        encoding = "utf8";
+        const content = Buffer.from(obj.content, "base64").toString("utf8");
+        return content;
       } catch {
-        throw new Error("Failed to decode, keep base64");
+        console.log("Failed to decode base64 content for", obj.path);
       }
     }
-    return content;
+    return null;
   },
 };
 
@@ -868,13 +859,13 @@ export const PullRequest = {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await register(owner, repo, "pull_request");
+      await ensureWebhook(owner, repo, "pull_request");
     },
     async unsubscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
 
-      await unregister(owner, repo, "pull_request");
+      await removeWebhook(owner, repo, "pull_request");
     },
   },
 };
@@ -982,35 +973,29 @@ export async function endpoint({ path, query, headers, method, body }) {
       console.log("Unknown Endpoint:", path);
   }
 }
-async function register(owner: string, repo: string, event: string) {
-  const webhookURL = (await nodes.endpoint.$get()) + "/webhooks";
+async function ensureWebhook(owner: string, repo: string, event: string) {
+  const webhookUrl = state.endpointUrl! + "/webhooks";
   try {
     // Check if the repository already has a webhook
-    const repository = state.repos[`${owner}/${repo}`];
-    const { data: hooks } = await client().repos.listWebhooks({
-      owner,
-      repo,
-    });
-    const matchingHook =
-      repository && hooks.find((hook) => hook.id === repository.id);
+    const { data: hooks } = await client().repos.listWebhooks({ owner, repo });
+    const webhook = hooks.find((hook) => hook.config.url === webhookUrl);
     // If the repository already has a webhook, update it
-    if (matchingHook) {
-      if (repository.events.includes(event)) {
-        console.log("Webhook already exists with the same event.");
+    if (webhook) {
+      if (webhook.events.includes(event)) {
+        console.log("Webhook already exists event", event);
       } else {
-        const updatedEvents = [...repository.events, event];
+        const updatedEvents = [...webhook.events, event];
         await client().repos.updateWebhook({
           owner,
           repo,
-          hook_id: repository.id,
+          hook_id: webhook.id,
           config: {
             content_type: "json",
-            url: webhookURL,
+            url: webhookUrl,
           },
           events: updatedEvents,
         });
         // Update the events array in the repository object
-        repository.events = updatedEvents;
         console.log("Webhook updated with new event.");
       }
     } else {
@@ -1023,16 +1008,9 @@ async function register(owner: string, repo: string, event: string) {
         events: [event],
         config: {
           content_type: "json",
-          url: webhookURL,
+          url: webhookUrl,
         },
       });
-
-      // Add the repository to the state with the webhook data
-      state.repos[`${owner}/${repo}`] = {
-        id: webhookId,
-        url: webhookURL,
-        events: [event],
-      };
       console.log("New webhook created.");
     }
   } catch (error) {
@@ -1042,49 +1020,46 @@ async function register(owner: string, repo: string, event: string) {
   }
 }
 
-async function unregister(owner: string, repo: string, event: string) {
+async function removeWebhook(owner: string, repo: string, event: string) {
+  const webhookUrl = state.endpointUrl! + "/webhooks";
   try {
     // Check if the repository has a webhook
-    const repository = state.repos[`${owner}/${repo}`];
-    if (!repository) {
+    const { data: hooks } = await client().repos.listWebhooks({ owner, repo });
+    const webhook = hooks.find((hook) => hook.config.url === webhookUrl);
+    // Update the webhook to remove the specified events
+    if (!webhook) {
       console.log(`Webhook does not exist for ${owner}/${repo}.`);
       return;
     }
-    // Update the webhook to remove the specified events
-    const updatedEvents = repository.events.filter((e: string) => e !== event);
+    const updatedEvents = webhook.events.filter((e: string) => e !== event);
 
-    await client().repos.updateWebhook({
-      owner,
-      repo,
-      hook_id: repository.id,
-      config: {
-        content_type: "json",
-        url: repository.url,
-      },
-      events: updatedEvents,
-    });
-    repository.events = updatedEvents;
-    console.log(`Event ${event} deleted from webhook.`);
     // Delete the webhook if there are no more events
     if (updatedEvents.length === 0) {
       await client().repos.deleteWebhook({
         owner,
         repo,
-        hook_id: repository.id,
+        hook_id: webhook.id,
       });
-      delete state.repos[`${owner}/${repo}`];
       console.log("Webhook deleted.");
       return;
+    } else {
+      await client().repos.updateWebhook({
+        owner,
+        repo,
+        hook_id: webhook.id,
+        config: {
+          content_type: "json",
+          url: state.endpointUrl + "/webhooks",
+        },
+        events: updatedEvents,
+      });
+      console.log(`Event '${event}' removed from webhook.`);
     }
   } catch (error) {
     throw new Error(
-      `Error unregistering ${event} event for ${owner}/${repo}. Details: ${error}`
+      `Error unregistering ${event} event for ${owner}/${repo}: ${error}`
     );
   }
-}
-
-function formatTime(time) {
-  return new Date(time).getTime();
 }
 
 // Helper function to convert Membrane collection pattern naming to Github
