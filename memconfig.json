@@ -898,7 +898,8 @@
             ]
           }
         ],
-        "events": []
+        "events": [],
+        "actions": []
       },
       {
         "name": "Content",
@@ -953,6 +954,18 @@
           {
             "name": "download_url",
             "type": "String"
+          }
+        ],
+        "actions": [
+          {
+            "name": "setContent",
+            "type": "Void",
+            "params": [
+              {
+                "name": "text",
+                "type": "String"
+              }
+            ]
           }
         ]
       },
