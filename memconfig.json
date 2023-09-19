@@ -964,6 +964,11 @@
               {
                 "name": "content",
                 "type": "String"
+              },
+              {
+                "name": "message",
+                "type": "String",
+                "optional": true
               }
             ]
           },
@@ -974,6 +979,11 @@
               {
                 "name": "text",
                 "type": "String"
+              },
+              {
+                "name": "message",
+                "type": "String",
+                "optional": true
               }
             ]
           }

@@ -1,41 +1,15 @@
 {
   "types": {
-    "http": {
-      "gref_hash": "5cfa57fe83d1201eb831cc168a5dbe9decaa6010603df244ca6855f2fe61440c",
-      "type": "http:Root"
-    },
     "endpoint": {
       "gref_hash": "5038be7c7c7596daa9fe5c59a99aae5efa19b17e377d8e6f4b2e35fd9a8faf77",
       "type": "String"
+    },
+    "http": {
+      "gref_hash": "5cfa57fe83d1201eb831cc168a5dbe9decaa6010603df244ca6855f2fe61440c",
+      "type": "http:Root"
     }
   },
   "imports": [
-    {
-      "name": "sys-process",
-      "schema": {
-        "types": [
-          {
-            "name": "Root",
-            "description": "",
-            "actions": [],
-            "fields": [
-              {
-                "name": "endpointUrl",
-                "description": "Gets the program's own endpoint URL",
-                "type": "String",
-                "params": [],
-                "hints": {}
-              }
-            ],
-            "events": []
-          }
-        ],
-        "imports": []
-      },
-      "source": {
-        "Program": "tbd"
-      }
-    },
     {
       "name": "http",
       "schema": {
@@ -912,6 +886,32 @@
             }
           }
         ]
+      },
+      "source": {
+        "Program": "tbd"
+      }
+    },
+    {
+      "name": "sys-process",
+      "schema": {
+        "types": [
+          {
+            "name": "Root",
+            "description": "",
+            "actions": [],
+            "fields": [
+              {
+                "name": "endpointUrl",
+                "description": "Gets the program's own endpoint URL",
+                "type": "String",
+                "params": [],
+                "hints": {}
+              }
+            ],
+            "events": []
+          }
+        ],
+        "imports": []
       },
       "source": {
         "Program": "tbd"

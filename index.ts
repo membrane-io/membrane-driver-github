@@ -738,7 +738,7 @@ export const Content = {
     }
     return null;
   },
-  async setContent({ content }, { self }) {
+  async setContent({ content, message }, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { path } = self.$argsAt(root.users.one.repos.one.content.file);
@@ -748,17 +748,16 @@ export const Content = {
       .repos.one({ name: repo })
       .content.file({ path }).sha;
 
-    const message = `Update ${path}`;
     await client().repos.createOrUpdateFileContents({
       owner,
       repo,
       path,
-      message,
+      message: message || `Update ${path}`,
       content,
       sha,
     });
   },
-  async setText({ text }, { self }) {
+  async setText({ text, message }, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { path } = self.$argsAt(root.users.one.repos.one.content.file);
@@ -769,13 +768,11 @@ export const Content = {
       .content.file({ path }).sha;
 
     const content = Buffer.from(text, "utf8").toString("base64");
-    const message = `Update ${path}`;
-    
     await client().repos.createOrUpdateFileContents({
       owner,
       repo,
       path,
-      message,
+      message: message || `Update ${path}`,
       content,
       sha,
     });
