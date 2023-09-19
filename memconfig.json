@@ -962,6 +962,16 @@
             "type": "Void",
             "params": [
               {
+                "name": "content",
+                "type": "String"
+              }
+            ]
+          },
+          {
+            "name": "setText",
+            "type": "Void",
+            "params": [
+              {
                 "name": "text",
                 "type": "String"
               }

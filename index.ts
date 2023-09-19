@@ -738,20 +738,39 @@ export const Content = {
     }
     return null;
   },
-  async setContent({ text }, { self }) {
+  async setContent({ content }, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
     const { path } = self.$argsAt(root.users.one.repos.one.content.file);
-    // Get the sha of the file
+
     const sha = await root.users
       .one({ name: owner })
       .repos.one({ name: repo })
       .content.file({ path }).sha;
 
-    // Content must be base64 encoded
-    const content = Buffer.from(text, "utf8").toString("base64");
-    // Commit message
     const message = `Update ${path}`;
+    await client().repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      path,
+      message,
+      content,
+      sha,
+    });
+  },
+  async setText({ text }, { self }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const { path } = self.$argsAt(root.users.one.repos.one.content.file);
+
+    const sha = await root.users
+      .one({ name: owner })
+      .repos.one({ name: repo })
+      .content.file({ path }).sha;
+
+    const content = Buffer.from(text, "utf8").toString("base64");
+    const message = `Update ${path}`;
+    
     await client().repos.createOrUpdateFileContents({
       owner,
       repo,
