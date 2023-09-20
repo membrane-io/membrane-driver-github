@@ -738,6 +738,45 @@ export const Content = {
     }
     return null;
   },
+  async setContent({ content, message }, { self }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const { path } = self.$argsAt(root.users.one.repos.one.content.file);
+
+    const sha = await root.users
+      .one({ name: owner })
+      .repos.one({ name: repo })
+      .content.file({ path }).sha;
+
+    await client().repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      path,
+      message: message || `Update ${path}`,
+      content,
+      sha,
+    });
+  },
+  async setText({ text, message }, { self }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const { path } = self.$argsAt(root.users.one.repos.one.content.file);
+
+    const sha = await root.users
+      .one({ name: owner })
+      .repos.one({ name: repo })
+      .content.file({ path }).sha;
+
+    const content = Buffer.from(text, "utf8").toString("base64");
+    await client().repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      path,
+      message: message || `Update ${path}`,
+      content,
+      sha,
+    });
+  },
 };
 
 export const BranchCollection = {

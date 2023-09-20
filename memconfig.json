@@ -898,7 +898,8 @@
             ]
           }
         ],
-        "events": []
+        "events": [],
+        "actions": []
       },
       {
         "name": "Content",
@@ -953,6 +954,38 @@
           {
             "name": "download_url",
             "type": "String"
+          }
+        ],
+        "actions": [
+          {
+            "name": "setContent",
+            "type": "Void",
+            "params": [
+              {
+                "name": "content",
+                "type": "String"
+              },
+              {
+                "name": "message",
+                "type": "String",
+                "optional": true
+              }
+            ]
+          },
+          {
+            "name": "setText",
+            "type": "Void",
+            "params": [
+              {
+                "name": "text",
+                "type": "String"
+              },
+              {
+                "name": "message",
+                "type": "String",
+                "optional": true
+              }
+            ]
           }
         ]
       },
