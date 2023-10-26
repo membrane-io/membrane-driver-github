@@ -308,23 +308,28 @@
             "params": [
               {
                 "name": "type",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "sort",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "direction",
-                "type": "String"
+                "type": "String",
+                "optional": true
               },
               {
                 "name": "page",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "pageSize",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               }
             ]
           },
@@ -1008,26 +1013,31 @@
             "params": [
               {
                 "name": "page",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "pageSize",
-                "type": "Int"
+                "type": "Int",
+                "optional": true
               },
               {
                 "name": "q",
                 "type": "String",
-                "description": "Github API returns pull requests in the issues endpoint. Use this to include/exclude them. Can be either issue or pr"
+                "description": "Github API returns pull requests in the issues endpoint. Use this to include/exclude them. Can be either issue or pr",
+                "optional": true
               },
               {
                 "name": "sort",
                 "type": "String",
-                "description": "What to sort results by. Can be created, updated, comments."
+                "description": "What to sort results by. Can be created, updated, comments.",
+                "optional": true
               },
               {
                 "name": "order",
                 "type": "String",
-                "description": "One of asc (ascending) or desc (descending)."
+                "description": "One of asc (ascending) or desc (descending).",
+                "optional": true
               }
             ]
           },
