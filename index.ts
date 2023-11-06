@@ -405,7 +405,7 @@ export const Repository = {
       await removeWebhook(owner, repo, "release");
     },
   },
-  pushes: {
+  pushed: {
     async subscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);
       const { name: repo } = self.$argsAt(root.users.one.repos.one);
@@ -969,7 +969,7 @@ export async function endpoint({ path, query, headers, method, body }) {
       if (event.pusher?.name && event.commits?.length > 0) {
         event.commits.forEach(async (item) => {
           const commit = repo.commits.one({ ref: item.id });
-          await repo.pushes.$emit({ commit });
+          await repo.pushed.$emit({ commit });
         });
       }
 

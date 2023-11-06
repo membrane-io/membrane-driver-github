@@ -625,7 +625,7 @@
             "type": "ReleaseEvent"
           },
           {
-            "name": "pushes",
+            "name": "pushed",
             "type": "PushEvent"
           }
         ]
