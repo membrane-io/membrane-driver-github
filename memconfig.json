@@ -67,11 +67,13 @@
         "fields": [
           {
             "name": "users",
-            "type": "UserCollection"
+            "type": "UserCollection",
+            "description": "Collection of Github users"
           },
           {
             "name": "status",
-            "type": "String"
+            "type": "String",
+            "description": "String"
           },
           {
             "name": "parse",
@@ -92,15 +94,18 @@
                 "name": "value",
                 "type": "String"
               }
-            ]
+            ],
+            "description": "List of repositories with name and value filters"
           },
           {
             "name": "search",
-            "type": "GlobalSearch"
+            "type": "GlobalSearch",
+            "description": "Global search functionality"
           },
           {
             "name": "tests",
-            "type": "Tests"
+            "type": "Tests",
+            "description": "Tests"
           }
         ],
         "actions": [
@@ -144,13 +149,15 @@
                 "name": "headers",
                 "type": "String"
               }
-            ]
+            ],
+            "description": "Invoke an HTTP endpoint with the specified method, body, path, query, and headers"
           }
         ],
         "events": [
           {
             "name": "statusChanged",
-            "type": "Void"
+            "type": "Void",
+            "description": "Triggered when the status of the Github API driver changes"
           }
         ]
       },
