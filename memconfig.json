@@ -432,153 +432,189 @@
             "type": "String",
             "hints": {
               "primary": true
-            }
+            },
+            "description": "The name of the repository"
           },
           {
             "name": "description",
             "type": "String",
             "hints": {
               "secondary": true
-            }
+            },
+            "description": "The description of the repository"
           },
           {
             "name": "content",
-            "type": "ContentCollection"
+            "type": "ContentCollection",
+            "description": "Collection of content within the repository"
           },
           {
             "name": "archived",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the repository is archived"
           },
           {
             "name": "branches",
-            "type": "BranchCollection"
+            "type": "BranchCollection",
+            "description": "Collection of branches in the repository"
           },
           {
             "name": "fork",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the repository is a fork"
           },
           {
             "name": "homepage",
-            "type": "String"
+            "type": "String",
+            "description": "The URL of the repository's homepage"
           },
           {
             "name": "id",
-            "type": "Int"
+            "type": "Int",
+            "description": "The unique identifier of the repository"
           },
           {
             "name": "language",
-            "type": "String"
+            "type": "String",
+            "description": "The primary programming language of the repository"
           },
           {
             "name": "private",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the repository is private"
           },
           {
             "name": "size",
-            "type": "Int"
+            "type": "Int",
+            "description": "The size of the repository in kilobytes"
           },
           {
             "name": "url",
-            "type": "String"
+            "type": "String",
+            "description": "The URL of the repository"
           },
           {
             "name": "allow_merge_commit",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if merge commit is allowed"
           },
           {
             "name": "allow_rebase_merge",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if rebase merge is allowed"
           },
           {
             "name": "allow_squash_merge",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if squash merge is allowed"
           },
           {
             "name": "created_at",
-            "type": "String"
+            "type": "String",
+            "description": "The creation date of the repository"
           },
           {
             "name": "default_branch",
-            "type": "String"
+            "type": "String",
+            "description": "The default branch of the repository"
           },
           {
             "name": "forks_count",
-            "type": "Int"
+            "type": "Int",
+            "description": "The number of forks of the repository"
           },
           {
             "name": "full_name",
-            "type": "String"
+            "type": "String",
+            "description": "The full name of the repository"
           },
           {
             "name": "has_downloads",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the repository has downloads"
           },
           {
             "name": "has_issues",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the repository has issues"
           },
           {
             "name": "has_pages",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the repository has pages"
           },
           {
             "name": "has_wiki",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the repository has a wiki"
           },
           {
             "name": "html_url",
-            "type": "String"
+            "type": "String",
+            "description": "The HTML URL of the repository"
           },
           {
             "name": "issues",
-            "type": "IssueCollection"
+            "type": "IssueCollection",
+            "description": "Collection of issues in the repository"
           },
           {
             "name": "network_count",
-            "type": "Int"
+            "type": "Int",
+            "description": "The count of collaborators on the repository"
           },
           {
             "name": "open_issues_count",
-            "type": "Int"
+            "type": "Int",
+            "description": "The count of open issues in the repository"
           },
           {
             "name": "pushed_at",
-            "type": "String"
+            "type": "String",
+            "description": "The date of the latest push to the repository"
           },
           {
             "name": "stargazers_count",
-            "type": "Int"
+            "type": "Int",
+            "description": "The count of stargazers on the repository"
           },
           {
             "name": "subscribers_count",
-            "type": "Int"
+            "type": "Int",
+            "description": "The count of subscribers to the repository"
           },
           {
             "name": "updated_at",
-            "type": "String"
+            "type": "String",
+            "description": "The date of the latest update to the repository"
           },
           {
             "name": "watchers_count",
-            "type": "Int"
+            "type": "Int",
+            "description": "The count of watchers on the repository"
           },
           {
             "name": "pull_requests",
             "params": [],
-            "type": "PullRequestCollection"
+            "type": "PullRequestCollection",
+            "description": "Collection of pull requests in the repository"
           },
           {
             "name": "releases",
             "params": [],
-            "type": "ReleaseCollection"
+            "type": "ReleaseCollection",
+            "description": "Collection of releases in the repository"
           },
           {
             "name": "license",
             "params": [],
-            "type": "License"
+            "type": "License",
+            "description": "The license of the repository"
           },
           {
             "name": "commits",
-            "type": "CommitCollection"
+            "type": "CommitCollection",
+            "description": "Collection of commits in the repository"
           }
         ],
         "actions": [
@@ -594,7 +630,8 @@
                 "type": "String"
               }
             ],
-            "type": "Void"
+            "type": "Void",
+            "description": "Transfers the ownership of the repository to a new owner with a new name"
           },
           {
             "name": "addCollaborator",
@@ -606,10 +643,11 @@
               {
                 "name": "permission",
                 "type": "String",
-                "description": "The permission to grant the collaborator. One of: pull, triage, push, maintain, admin. Default: push"
+                "description": "The permission level to grant the collaborator. One of: pull, triage, push, maintain, admin. Default: push"
               }
             ],
-            "type": "Void"
+            "type": "Void",
+            "description": "Adds a collaborator to the repository with the specified permission level"
           },
           {
             "name": "createTree",
@@ -617,17 +655,21 @@
             "params": [
               {
                 "name": "base",
-                "type": "String"
+                "type": "String",
+                "description": "The base tree SHA"
               },
               {
                 "name": "path",
-                "type": "String"
+                "type": "String",
+                "description": "The file path of the new tree object"
               },
               {
                 "name": "tree",
-                "type": "String"
+                "type": "String",
+                "description": "The SHA of the tree to modify"
               }
-            ]
+            ],
+            "description": "Creates a new tree within the repository based on the provided parameters"
           },
           {
             "name": "createFileTree",
@@ -645,29 +687,35 @@
                 "name": "content",
                 "type": "String"
               }
-            ]
+            ],
+            "description": "Creates a new file tree within the repository based on the provided parameters"
           }
         ],
         "events": [
           {
             "name": "commentCreated",
-            "type": "CommentEvent"
+            "type": "CommentEvent",
+            "description": "Event indicating creation of a comment within the repository"
           },
           {
             "name": "issueOpened",
-            "type": "IssueEvent"
+            "type": "IssueEvent",
+            "description": "Event indicating the opening of an issue within the repository"
           },
           {
             "name": "pullRequestOpened",
-            "type": "PullRequestEvent"
+            "type": "PullRequestEvent",
+            "description": "Event indicating the opening of a pull request within the repository"
           },
           {
             "name": "releasePublished",
-            "type": "ReleaseEvent"
+            "type": "ReleaseEvent",
+            "description": "Event indicating the publication of a release within the repository"
           },
           {
             "name": "pushed",
-            "type": "PushEvent"
+            "type": "PushEvent",
+            "description": "Event indicating a push to the repository"
           }
         ],
         "description": "Collection of Github repositories"
