@@ -768,7 +768,7 @@
           }
         ],
         "events": [],
-        "description": "Type representing a branch in a GitHub repository"
+        "description": "Type representing a branch"
       },
       {
         "name": "CommitCollection",
@@ -781,7 +781,8 @@
                 "name": "ref",
                 "type": "String"
               }
-            ]
+            ],
+            "description": "Represents a single commit with the specified reference"
           },
           {
             "name": "page",
@@ -797,7 +798,8 @@
                 "type": "Int",
                 "optional": true
               }
-            ]
+            ],
+            "description": "Represents a page of commits with optional page number and page size"
           }
         ],
         "actions": [
@@ -1272,114 +1274,139 @@
         "fields": [
           {
             "name": "active_lock_reason",
-            "type": "String"
+            "type": "String",
+            "description": "The reason for the active lock on the issue"
           },
           {
             "name": "assignee",
-            "type": "User"
+            "type": "User",
+            "description": "The user assigned to the issue"
           },
           {
             "name": "assignees",
             "type": "List",
-            "ofType": "User"
+            "ofType": "User",
+            "description": "The list of users assigned to the issue"
           },
           {
             "name": "author_association",
-            "type": "String"
+            "type": "String",
+            "description": "The association of the author with the issue"
           },
           {
             "name": "body",
-            "type": "String"
+            "type": "String",
+            "description": "The body of the issue"
           },
           {
             "name": "closed_at",
-            "type": "String"
+            "type": "String",
+            "description": "The date and time when the issue was closed"
           },
           {
             "name": "closed_by",
-            "type": "User"
+            "type": "User",
+            "description": "The user who closed the issue"
           },
           {
             "name": "comments",
-            "type": "CommentCollection"
+            "type": "CommentCollection",
+            "description": "Collection of comments on the issue"
           },
           {
             "name": "created_at",
-            "type": "String"
+            "type": "String",
+            "description": "The date and time when the issue was created"
           },
           {
             "name": "draft",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the issue is a draft"
           },
           {
             "name": "id",
-            "type": "Int"
+            "type": "Int",
+            "description": "The unique identifier of the issue"
           },
           {
             "name": "labels",
             "type": "List",
-            "ofType": "Label"
+            "ofType": "Label",
+            "description": "The list of labels associated with the issue"
           },
           {
             "name": "locked",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the issue is locked"
           },
           {
             "name": "milestone",
-            "type": "String"
+            "type": "String",
+            "description": "The milestone associated with the issue"
           },
           {
             "name": "node_id",
-            "type": "String"
+            "type": "String",
+            "description": "The node ID of the issue"
           },
           {
             "name": "number",
             "type": "Int",
             "hints": {
               "primary": true
-            }
+            },
+            "description": "The issue number"
           },
           {
             "name": "pull_request",
-            "type": "PullRequest"
+            "type": "PullRequest",
+            "description": "The pull request associated with the issue"
           },
           {
             "name": "reactions",
-            "type": "Reactions"
+            "type": "Reactions",
+            "description": "Reactions associated with the issue"
           },
           {
             "name": "state",
-            "type": "String"
+            "type": "String",
+            "description": "The state of the issue"
           },
           {
             "name": "title",
             "type": "String",
             "hints": {
               "secondary": true
-            }
+            },
+            "description": "The title of the issue"
           },
           {
             "name": "updated_at",
-            "type": "String"
+            "type": "String",
+            "description": "The date and time when the issue was last updated"
           },
           {
             "name": "url",
-            "type": "String"
+            "type": "String",
+            "description": "The URL of the issue"
           },
           {
             "name": "user",
-            "type": "User"
+            "type": "User",
+            "description": "The user who created the issue"
           },
           {
             "name": "html_url",
-            "type": "String"
+            "type": "String",
+            "description": "The HTML URL of the issue"
           }
         ],
         "actions": [
           {
             "name": "close",
             "params": [],
-            "type": "Void"
+            "type": "Void",
+            "description": "Close the issue"
           },
           {
             "name": "createComment",
@@ -1389,17 +1416,20 @@
                 "type": "String"
               }
             ],
-            "type": "Void"
+            "type": "Void",
+            "description": "Create a new comment on the issue"
           }
         ],
         "events": [
           {
             "name": "commentCreated",
-            "type": "CommentEvent"
+            "type": "CommentEvent",
+            "description": "Triggered when a new comment is created on the issue"
           },
           {
             "name": "closed",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Triggered when the issue is closed"
           }
         ],
         "description": "Collection of Github issues"
@@ -1412,27 +1442,33 @@
             "type": "String",
             "hints": {
               "primary": true
-            }
+            },
+            "description": "Field representing the name of the label"
           },
           {
             "name": "node_id",
-            "type": "String"
+            "type": "String",
+            "description": "Field representing the node ID of the label"
           },
           {
             "name": "id",
-            "type": "Int"
+            "type": "Int",
+            "description": "Field representing the ID of the label"
           },
           {
             "name": "color",
-            "type": "String"
+            "type": "String",
+            "description": "Field representing the color of the label"
           },
           {
             "name": "description",
-            "type": "String"
+            "type": "String",
+            "description": "Field representing the description of the label"
           },
           {
             "name": "default",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Field representing the default status of the label"
           }
         ],
         "description": "Type Schema for a label in the Github repository"
@@ -1720,47 +1756,57 @@
         "fields": [
           {
             "name": "id",
-            "type": "String"
+            "type": "String",
+            "description": "Unique identifier of the release"
           },
           {
             "name": "name",
-            "type": "String"
+            "type": "String",
+            "description": "Name of the release"
           },
           {
             "name": "body",
-            "type": "String"
+            "type": "String",
+            "description": "Description of the release"
           },
           {
             "name": "draft",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the release is a draft"
           },
           {
             "name": "prerelease",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the release is a pre-release"
           },
           {
             "name": "url",
-            "type": "String"
+            "type": "String",
+            "description": "URL of the release"
           },
           {
             "name": "node_id",
             "params": [],
-            "type": "String"
+            "type": "String",
+            "description": "Node ID of the release"
           },
           {
             "name": "tag_name",
             "params": [],
-            "type": "String"
+            "type": "String",
+            "description": "Tag name of the release"
           },
           {
             "name": "target_commitish",
             "params": [],
-            "type": "String"
+            "type": "String",
+            "description": "Target commitish of the release"
           },
           {
             "name": "created_at",
             "params": [],
-            "type": "String"
+            "type": "String",
+            "description": "Creation date of the release"
           }
         ],
         "events": [],
@@ -1771,54 +1817,66 @@
         "fields": [
           {
             "name": "name",
-            "type": "String"
+            "type": "String",
+            "description": "The name of the license"
           },
           {
             "name": "path",
-            "type": "String"
+            "type": "String",
+            "description": "The path of the license"
           },
           {
             "name": "sha",
-            "type": "String"
+            "type": "String",
+            "description": "The SHA of the license"
           },
           {
             "name": "size",
-            "type": "Int"
+            "type": "Int",
+            "description": "The size of the license"
           },
           {
             "name": "url",
-            "type": "String"
+            "type": "String",
+            "description": "The URL of the license"
           },
           {
             "name": "type",
-            "type": "String"
+            "type": "String",
+            "description": "The type of the license"
           },
           {
             "name": "content",
-            "type": "String"
+            "type": "String",
+            "description": "The content of the license"
           },
           {
             "name": "encoding",
-            "type": "String"
+            "type": "String",
+            "description": "The encoding of the license"
           },
           {
             "name": "license",
-            "type": "LicenseDesc"
+            "type": "LicenseDesc",
+            "description": "The description of the license"
           },
           {
             "name": "html_url",
             "params": [],
-            "type": "String"
+            "type": "String",
+            "description": "The HTML URL of the license"
           },
           {
             "name": "git_url",
             "params": [],
-            "type": "String"
+            "type": "String",
+            "description": "The Git URL of the license"
           },
           {
             "name": "download_url",
             "params": [],
-            "type": "String"
+            "type": "String",
+            "description": "The download URL of the license"
           }
         ],
         "events": [],
@@ -1862,34 +1920,41 @@
               {
                 "name": "type",
                 "type": "String",
-                "optional": true
+                "optional": true,
+                "description": "Optional parameter for specifying the type of commits to retrieve."
               },
               {
                 "name": "sort",
                 "type": "String",
-                "optional": true
+                "optional": true,
+                "description": "Optional parameter for specifying the sorting order of commits."
               },
               {
                 "name": "direction",
                 "type": "String",
-                "optional": true
+                "optional": true,
+                "description": "Optional parameter for specifying the direction of commits."
               },
               {
                 "name": "page",
                 "type": "Int",
-                "optional": true
+                "optional": true,
+                "description": "Optional parameter for specifying the page number of commits to retrieve."
               },
               {
                 "name": "pageSize",
                 "type": "Int",
-                "optional": true
+                "optional": true,
+                "description": "Optional parameter for specifying the page size of commits to retrieve."
               },
               {
                 "name": "q",
                 "type": "String",
-                "optional": true
+                "optional": true,
+                "description": "Optional parameter for specifying the search query for commits."
               }
-            ]
+            ],
+            "description": "Field for retrieving commit pages from the Github repository."
           },
           {
             "name": "issues",
@@ -1898,34 +1963,41 @@
               {
                 "name": "type",
                 "type": "String",
-                "optional": true
+                "optional": true,
+                "description": "Optional parameter for specifying the type of issues to retrieve."
               },
               {
                 "name": "sort",
                 "type": "String",
-                "optional": true
+                "optional": true,
+                "description": "Optional parameter for specifying the sorting order of issues."
               },
               {
                 "name": "direction",
                 "type": "String",
-                "optional": true
+                "optional": true,
+                "description": "Optional parameter for specifying the direction of issues."
               },
               {
                 "name": "page",
                 "type": "Int",
-                "optional": true
+                "optional": true,
+                "description": "Optional parameter for specifying the page number of issues to retrieve."
               },
               {
                 "name": "pageSize",
                 "type": "Int",
-                "optional": true
+                "optional": true,
+                "description": "Optional parameter for specifying the page size of issues to retrieve."
               },
               {
                 "name": "q",
                 "type": "String",
-                "optional": true
+                "optional": true,
+                "description": "Optional parameter for specifying the search query for issues."
               }
-            ]
+            ],
+            "description": "Field for retrieving issue pages from the Github repository."
           }
         ],
         "description": "Type for performing global search on the Github repository."
@@ -1936,7 +2008,8 @@
           {
             "name": "issue",
             "type": "Ref",
-            "ofType": "Issue"
+            "ofType": "Issue",
+            "description": "Reference to the issue related to the event."
           }
         ],
         "description": "Type representing an event related to an issue in the Github repository."
@@ -1980,7 +2053,8 @@
           {
             "name": "comment",
             "type": "Ref",
-            "ofType": "Comment"
+            "ofType": "Comment",
+            "description": "Reference to the comment associated with the event"
           }
         ],
         "description": "Collection of comment events"
