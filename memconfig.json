@@ -2112,31 +2112,38 @@
         "actions": [
           {
             "name": "testUser",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Test the functionality for the user action"
           },
           {
             "name": "testRepo",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Test the functionality for the repo action"
           },
           {
             "name": "testIssue",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Test the functionality for the issue action"
           },
           {
             "name": "testCommit",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Test the functionality for the commit action"
           },
           {
             "name": "testIssueComment",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Test the functionality for the issue comment action"
           },
           {
             "name": "testPullRequest",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Test the functionality for the pull request action"
           },
           {
             "name": "testSearch",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Test the functionality for the search action"
           }
         ],
         "description": "Collection of tests for the Github driver"
