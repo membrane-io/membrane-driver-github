@@ -172,7 +172,8 @@
                 "name": "name",
                 "type": "String"
               }
-            ]
+            ],
+            "description": "Field representing a single Github user"
           },
           {
             "name": "page",
@@ -183,10 +184,12 @@
                 "type": "String",
                 "optional": true
               }
-            ]
+            ],
+            "description": "Field representing a page of Github users"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of Github users"
       },
       {
         "name": "UserPage",
@@ -194,15 +197,18 @@
           {
             "name": "items",
             "type": "List",
-            "ofType": "User"
+            "ofType": "User",
+            "description": "List of Github user items"
           },
           {
             "name": "next",
             "type": "Ref",
-            "ofType": "UserPage"
+            "ofType": "UserPage",
+            "description": "Reference to the next page of Github user items"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of Github user items with pagination support"
       },
       {
         "name": "User",
@@ -212,89 +218,110 @@
             "type": "String",
             "hints": {
               "primary": true
-            }
+            },
+            "description": "The user's login name"
           },
           {
             "name": "name",
             "type": "String",
             "hints": {
               "secondary": true
-            }
+            },
+            "description": "The user's name"
           },
           {
             "name": "bio",
-            "type": "String"
+            "type": "String",
+            "description": "The user's bio"
           },
           {
             "name": "blog",
-            "type": "String"
+            "type": "String",
+            "description": "The user's blog"
           },
           {
             "name": "company",
-            "type": "String"
+            "type": "String",
+            "description": "The user's company"
           },
           {
             "name": "repos",
-            "type": "RepositoryCollection"
+            "type": "RepositoryCollection",
+            "description": "Collection of Github repositories owned by the user"
           },
           {
             "name": "email",
-            "type": "String"
+            "type": "String",
+            "description": "The user's email address"
           },
           {
             "name": "id",
-            "type": "Int"
+            "type": "Int",
+            "description": "The user's ID"
           },
           {
             "name": "followers",
-            "type": "Int"
+            "type": "Int",
+            "description": "The number of followers the user has"
           },
           {
             "name": "following",
-            "type": "Int"
+            "type": "Int",
+            "description": "The number of users the user is following"
           },
           {
             "name": "location",
-            "type": "String"
+            "type": "String",
+            "description": "The user's location"
           },
           {
             "name": "type",
-            "type": "String"
+            "type": "String",
+            "description": "The type of user"
           },
           {
             "name": "avatar_url",
-            "type": "String"
+            "type": "String",
+            "description": "The URL of the user's avatar"
           },
           {
             "name": "created_at",
-            "type": "String"
+            "type": "String",
+            "description": "The date the user account was created"
           },
           {
             "name": "gravatar_id",
-            "type": "String"
+            "type": "String",
+            "description": "The user's gravatar ID"
           },
           {
             "name": "public_gists",
-            "type": "Int"
+            "type": "Int",
+            "description": "The number of public gists the user has"
           },
           {
             "name": "public_repos",
-            "type": "Int"
+            "type": "Int",
+            "description": "The number of public repositories the user has"
           },
           {
             "name": "site_admin",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the user is a site admin"
           },
           {
             "name": "hireable",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the user is available for hire"
           },
           {
             "name": "updated_at",
-            "type": "String"
+            "type": "String",
+            "description": "The date the user account was last updated"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of Github users"
       },
       {
         "name": "RepositoryCollection",
@@ -307,7 +334,8 @@
                 "name": "name",
                 "type": "String"
               }
-            ]
+            ],
+            "description": "Retrieve a single repository by name"
           },
           {
             "name": "page",
@@ -338,7 +366,8 @@
                 "type": "Int",
                 "optional": true
               }
-            ]
+            ],
+            "description": "Retrieve a page of repositories with optional filtering and pagination"
           },
           {
             "name": "search",
@@ -369,10 +398,12 @@
                 "type": "Int",
                 "optional": true
               }
-            ]
+            ],
+            "description": "Search for repositories with optional filtering and pagination"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of Github repositories"
       },
       {
         "name": "RepositoryPage",
@@ -380,15 +411,18 @@
           {
             "name": "items",
             "type": "List",
-            "ofType": "Repository"
+            "ofType": "Repository",
+            "description": "List of repositories in the page"
           },
           {
             "name": "next",
             "type": "Ref",
-            "ofType": "RepositoryPage"
+            "ofType": "RepositoryPage",
+            "description": "Reference to the next page of repositories"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Type representing a page of repositories"
       },
       {
         "name": "Repository",
@@ -635,7 +669,8 @@
             "name": "pushed",
             "type": "PushEvent"
           }
-        ]
+        ],
+        "description": "Collection of Github repositories"
       },
       {
         "name": "BranchCollection",
@@ -646,9 +681,11 @@
             "params": [
               {
                 "name": "name",
-                "type": "String"
+                "type": "String",
+                "description": "The name of the branch to retrieve"
               }
-            ]
+            ],
+            "description": "Retrieve a single branch from the collection"
           },
           {
             "name": "page",
@@ -657,17 +694,21 @@
               {
                 "name": "page",
                 "type": "Int",
-                "optional": true
+                "optional": true,
+                "description": "The page number of branches to retrieve"
               },
               {
                 "name": "pageSize",
                 "type": "Int",
-                "optional": true
+                "optional": true,
+                "description": "The number of branches per page to retrieve"
               }
-            ]
+            ],
+            "description": "Retrieve a page of branches from the collection"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of branches in a GitHub repository"
       },
       {
         "name": "BranchPage",
@@ -675,30 +716,36 @@
           {
             "name": "items",
             "type": "List",
-            "ofType": "Branch"
+            "ofType": "Branch",
+            "description": "List of branches"
           },
           {
             "name": "next",
             "type": "Ref",
-            "ofType": "BranchPage"
+            "ofType": "BranchPage",
+            "description": "Reference to the next page of branches"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of branches with pagination support"
       },
       {
         "name": "Branch",
         "fields": [
           {
             "name": "name",
-            "type": "String"
+            "type": "String",
+            "description": "The name of the branch"
           },
           {
             "name": "commit",
-            "type": "Commit"
+            "type": "Commit",
+            "description": "The commit associated with the branch"
           },
           {
             "name": "protected",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates whether the branch is protected"
           }
         ],
         "actions": [
@@ -708,16 +755,20 @@
             "params": [
               {
                 "name": "sha",
-                "type": "String"
+                "type": "String",
+                "description": "The SHA of the commit to update the branch with"
               },
               {
                 "name": "ref",
-                "type": "String"
+                "type": "String",
+                "description": "The reference for the branch update"
               }
-            ]
+            ],
+            "description": "Updates the branch with the specified SHA and reference"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Type representing a branch in a GitHub repository"
       },
       {
         "name": "CommitCollection",
@@ -766,10 +817,12 @@
                 "name": "parents",
                 "type": "String"
               }
-            ]
+            ],
+            "description": "Creates a new commit with the specified message, tree, and parents"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of Github commits"
       },
       {
         "name": "CommitPage",
@@ -777,43 +830,52 @@
           {
             "name": "items",
             "type": "List",
-            "ofType": "Commit"
+            "ofType": "Commit",
+            "description": "List of commit items."
           },
           {
             "name": "next",
             "type": "Ref",
-            "ofType": "CommitPage"
+            "ofType": "CommitPage",
+            "description": "Reference to the next commit page."
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Type representing a page of commit items."
       },
       {
         "name": "Commit",
         "fields": [
           {
             "name": "sha",
-            "type": "String"
+            "type": "String",
+            "description": "The SHA of the commit"
           },
           {
             "name": "message",
             "type": "String",
             "hints": {
               "primary": true
-            }
+            },
+            "description": "The commit message"
           },
           {
             "name": "author",
-            "type": "User"
+            "type": "User",
+            "description": "The author of the commit"
           },
           {
             "name": "html_url",
-            "type": "String"
+            "type": "String",
+            "description": "The HTML URL of the commit"
           },
           {
             "name": "date",
-            "type": "String"
+            "type": "String",
+            "description": "The date of the commit"
           }
-        ]
+        ],
+        "description": "Type representing a commit in a GitHub repository"
       },
       {
         "name": "CommentCollection",
@@ -826,7 +888,8 @@
                 "name": "id",
                 "type": "Int"
               }
-            ]
+            ],
+            "description": "Retrieve a single comment from the Github repository"
           },
           {
             "name": "page",
@@ -842,10 +905,12 @@
                 "type": "Int",
                 "optional": true
               }
-            ]
+            ],
+            "description": "Retrieve a page of comments from the Github repository"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of comments from the Github repository"
       },
       {
         "name": "CommentPage",
@@ -853,15 +918,18 @@
           {
             "name": "items",
             "type": "List",
-            "ofType": "Comment"
+            "ofType": "Comment",
+            "description": "List of Comment items."
           },
           {
             "name": "next",
             "type": "Ref",
-            "ofType": "CommentPage"
+            "ofType": "CommentPage",
+            "description": "Reference to the next CommentPage."
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Type schema for CommentPage, containing fields and references to other CommentPages."
       },
       {
         "name": "Comment",
@@ -871,17 +939,21 @@
             "type": "String",
             "hints": {
               "primary": true
-            }
+            },
+            "description": "The content of the comment"
           },
           {
             "name": "created_at",
-            "type": "String"
+            "type": "String",
+            "description": "The creation date of the comment"
           },
           {
             "name": "updated_at",
-            "type": "String"
+            "type": "String",
+            "description": "The date when the comment was last updated"
           }
-        ]
+        ],
+        "description": "Collection of comments on Github"
       },
       {
         "name": "ContentCollection",
@@ -895,7 +967,8 @@
                 "type": "String",
                 "optional": true
               }
-            ]
+            ],
+            "description": "Field representing a single file from Github"
           },
           {
             "name": "dir",
@@ -907,11 +980,13 @@
                 "type": "String",
                 "optional": true
               }
-            ]
+            ],
+            "description": "Field representing a directory of files from Github"
           }
         ],
         "events": [],
-        "actions": []
+        "actions": [],
+        "description": "Collection of content items from Github"
       },
       {
         "name": "Content",
@@ -922,50 +997,61 @@
             "type": "String",
             "hints": {
               "primary": true
-            }
+            },
+            "description": "The type of the file, directory, symlink, or submodule"
           },
           {
             "name": "name",
             "type": "String",
             "hints": {
               "primary": true
-            }
+            },
+            "description": "The name of the file, directory, symlink, or submodule"
           },
           {
             "name": "encoding",
-            "type": "String"
+            "type": "String",
+            "description": "The encoding type of the file content"
           },
           {
             "name": "content",
-            "type": "String"
+            "type": "String",
+            "description": "The content of the file"
           },
           {
             "name": "contentText",
-            "type": "String"
+            "type": "String",
+            "description": "The text content of the file"
           },
           {
             "name": "path",
-            "type": "String"
+            "type": "String",
+            "description": "The path of the file, directory, symlink, or submodule"
           },
           {
             "name": "sha",
-            "type": "String"
+            "type": "String",
+            "description": "The SHA hash of the file"
           },
           {
             "name": "size",
-            "type": "Int"
+            "type": "Int",
+            "description": "The size of the file in bytes"
           },
           {
             "name": "submodule_git_url",
-            "type": "String"
+            "type": "String",
+            "description": "The git URL of the submodule"
           },
           {
             "name": "html_url",
-            "type": "String"
+            "type": "String",
+            "description": "The HTML URL of the file"
           },
           {
             "name": "download_url",
-            "type": "String"
+            "type": "String",
+            "description": "The download URL of the file"
           }
         ],
         "actions": [
@@ -975,14 +1061,17 @@
             "params": [
               {
                 "name": "content",
-                "type": "String"
+                "type": "String",
+                "description": "The content to be set for the file"
               },
               {
                 "name": "message",
                 "type": "String",
-                "optional": true
+                "optional": true,
+                "description": "An optional message to accompany the content setting"
               }
-            ]
+            ],
+            "description": "Set the content of the file with an optional message"
           },
           {
             "name": "setText",
@@ -990,14 +1079,17 @@
             "params": [
               {
                 "name": "text",
-                "type": "String"
+                "type": "String",
+                "description": "The text content to be set for the file"
               },
               {
                 "name": "message",
                 "type": "String",
-                "optional": true
+                "optional": true,
+                "description": "An optional message to accompany the text setting"
               }
-            ]
+            ],
+            "description": "Set the text content of the file with an optional message"
           }
         ]
       },
@@ -1012,7 +1104,8 @@
                 "name": "number",
                 "type": "Int"
               }
-            ]
+            ],
+            "description": "Get a single issue by its number"
           },
           {
             "name": "search",
@@ -1046,7 +1139,8 @@
                 "description": "One of asc (ascending) or desc (descending).",
                 "optional": true
               }
-            ]
+            ],
+            "description": "Search for issues based on specified criteria"
           },
           {
             "name": "page",
@@ -1122,10 +1216,12 @@
                 "description": "Only show notifications updated after the given time. This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ",
                 "optional": true
               }
-            ]
+            ],
+            "description": "Retrieve a page of issues based on specified criteria"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of Github issues"
       },
       {
         "name": "IssueSearchPage",
@@ -1149,7 +1245,8 @@
             "ofType": "Issue"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Type representing the search results page for GitHub issues."
       },
       {
         "name": "IssuePage",
@@ -1157,15 +1254,18 @@
           {
             "name": "items",
             "type": "List",
-            "ofType": "Issue"
+            "ofType": "Issue",
+            "description": "List of issues in the current page."
           },
           {
             "name": "next",
             "type": "Ref",
-            "ofType": "IssuePage"
+            "ofType": "IssuePage",
+            "description": "Reference to the next page of issues."
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of issues and a reference to the next page of issues."
       },
       {
         "name": "Issue",
@@ -1301,7 +1401,8 @@
             "name": "closed",
             "type": "Boolean"
           }
-        ]
+        ],
+        "description": "Collection of Github issues"
       },
       {
         "name": "Label",
@@ -1333,7 +1434,8 @@
             "name": "default",
             "type": "Boolean"
           }
-        ]
+        ],
+        "description": "Type Schema for a label in the Github repository"
       },
       {
         "name": "Reactions",
@@ -1374,7 +1476,8 @@
             "name": "eyes",
             "type": "Int"
           }
-        ]
+        ],
+        "description": "Type representing the reactions to a GitHub item."
       },
       {
         "name": "PullRequest",
@@ -1384,66 +1487,79 @@
             "type": "Int",
             "hints": {
               "primary": true
-            }
+            },
+            "description": "The unique identifier of the pull request"
           },
           {
             "name": "title",
             "type": "String",
             "hints": {
               "primary": true
-            }
+            },
+            "description": "The title of the pull request"
           },
           {
             "name": "id",
-            "type": "Int"
+            "type": "Int",
+            "description": "The identifier of the pull request"
           },
           {
             "name": "state",
-            "type": "String"
+            "type": "String",
+            "description": "The state of the pull request"
           },
           {
             "name": "body",
-            "type": "String"
+            "type": "String",
+            "description": "The body content of the pull request"
           },
           {
             "name": "locked",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the pull request is locked"
           },
           {
             "name": "merged",
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Indicates if the pull request is merged"
           },
           {
             "name": "active_lock_reason",
             "params": [],
-            "type": "String"
+            "type": "String",
+            "description": "The reason for the active lock on the pull request"
           },
           {
             "name": "diff",
             "params": [],
-            "type": "String"
+            "type": "String",
+            "description": "The diff content of the pull request"
           },
           {
             "name": "node_id",
             "params": [],
-            "type": "String"
+            "type": "String",
+            "description": "The node ID of the pull request"
           },
           {
             "name": "owner",
             "params": [],
             "type": "Ref",
-            "ofType": "User"
+            "ofType": "User",
+            "description": "The owner of the pull request"
           },
           {
             "name": "comments",
-            "type": "CommentCollection"
+            "type": "CommentCollection",
+            "description": "Collection of comments associated with the pull request"
           }
         ],
         "actions": [
           {
             "name": "close",
             "params": [],
-            "type": "Void"
+            "type": "Void",
+            "description": "Close the pull request"
           },
           {
             "name": "createComment",
@@ -1453,16 +1569,19 @@
                 "type": "String"
               }
             ],
-            "type": "Void"
+            "type": "Void",
+            "description": "Create a new comment for the pull request"
           }
         ],
         "events": [
           {
             "name": "closed",
             "params": [],
-            "type": "Boolean"
+            "type": "Boolean",
+            "description": "Triggered when the pull request is closed"
           }
-        ]
+        ],
+        "description": "Type representing a GitHub pull request"
       },
       {
         "name": "PullRequestCollection",
@@ -1475,7 +1594,8 @@
                 "type": "Int"
               }
             ],
-            "type": "PullRequest"
+            "type": "PullRequest",
+            "description": "Retrieve a single pull request"
           },
           {
             "name": "page",
@@ -1516,10 +1636,12 @@
                 "optional": true
               }
             ],
-            "type": "PullRequestPage"
+            "type": "PullRequestPage",
+            "description": "Retrieve a page of pull requests"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of Github pull requests"
       },
       {
         "name": "PullRequestPage",
@@ -1535,7 +1657,8 @@
             "ofType": "PullRequestPage"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Type representing a page of pull requests."
       },
       {
         "name": "ReleaseCollection",
@@ -1545,10 +1668,12 @@
             "params": [
               {
                 "name": "id",
-                "type": "String"
+                "type": "String",
+                "description": "The ID of the release to retrieve"
               }
             ],
-            "type": "Release"
+            "type": "Release",
+            "description": "Retrieves a single release by ID"
           },
           {
             "name": "page",
@@ -1556,18 +1681,22 @@
               {
                 "name": "pageSize",
                 "type": "String",
-                "optional": true
+                "optional": true,
+                "description": "The number of releases per page"
               },
               {
                 "name": "page",
                 "type": "String",
-                "optional": true
+                "optional": true,
+                "description": "The page number to retrieve"
               }
             ],
-            "type": "ReleasePage"
+            "type": "ReleasePage",
+            "description": "Retrieves a page of releases"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of Github releases"
       },
       {
         "name": "ReleasePage",
@@ -1583,7 +1712,8 @@
             "ofType": "ReleasePage"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of Release items with pagination support"
       },
       {
         "name": "Release",
@@ -1633,7 +1763,8 @@
             "type": "String"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of release information from Github"
       },
       {
         "name": "License",
@@ -1690,30 +1821,36 @@
             "type": "String"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of License items"
       },
       {
         "name": "LicenseDesc",
         "fields": [
           {
             "name": "key",
-            "type": "String"
+            "type": "String",
+            "description": "The key of the license description"
           },
           {
             "name": "name",
-            "type": "String"
+            "type": "String",
+            "description": "The name of the license description"
           },
           {
             "name": "url",
-            "type": "String"
+            "type": "String",
+            "description": "The URL of the license description"
           },
           {
             "name": "spdx_id",
             "params": [],
-            "type": "String"
+            "type": "String",
+            "description": "The SPDX ID of the license description"
           }
         ],
-        "events": []
+        "events": [],
+        "description": "Collection of License Description items"
       },
       {
         "name": "GlobalSearch",
@@ -1790,7 +1927,8 @@
               }
             ]
           }
-        ]
+        ],
+        "description": "Type for performing global search on the Github repository."
       },
       {
         "name": "IssueEvent",
@@ -1800,7 +1938,8 @@
             "type": "Ref",
             "ofType": "Issue"
           }
-        ]
+        ],
+        "description": "Type representing an event related to an issue in the Github repository."
       },
       {
         "name": "PullRequestEvent",
@@ -1810,7 +1949,8 @@
             "type": "Ref",
             "ofType": "PullRequest"
           }
-        ]
+        ],
+        "description": "Type representing a pull request event."
       },
       {
         "name": "ReleaseEvent",
@@ -1820,7 +1960,8 @@
             "type": "Ref",
             "ofType": "Release"
           }
-        ]
+        ],
+        "description": "Type representing a release event in the Github membrane driver."
       },
       {
         "name": "PushEvent",
@@ -1830,7 +1971,8 @@
             "type": "Ref",
             "ofType": "Commit"
           }
-        ]
+        ],
+        "description": "Type representing a push event in the Github repository."
       },
       {
         "name": "CommentEvent",
@@ -1840,7 +1982,8 @@
             "type": "Ref",
             "ofType": "Comment"
           }
-        ]
+        ],
+        "description": "Collection of comment events"
       },
       {
         "name": "Tests",
@@ -1873,7 +2016,8 @@
             "name": "testSearch",
             "type": "Boolean"
           }
-        ]
+        ],
+        "description": "Collection of tests for the Github driver"
       }
     ]
   }
