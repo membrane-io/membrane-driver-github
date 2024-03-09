@@ -689,6 +689,25 @@
               }
             ],
             "description": "Creates a new file tree within the repository based on the provided parameters"
+          },
+          {
+            "name": "createAutolink",
+            "type": "Void",
+            "params": [
+              {
+                "name": "keyPrefix",
+                "type": "String"
+              },
+              {
+                "name": "urlTemplate",
+                "type": "String"
+              },
+              {
+                "name": "alphanumeric",
+                "type": "Boolean",
+                "optional": true
+              }
+            ]
           }
         ],
         "events": [
