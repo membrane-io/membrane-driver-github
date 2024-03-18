@@ -696,16 +696,19 @@
             "params": [
               {
                 "name": "keyPrefix",
-                "type": "String"
+                "type": "String",
+                "description": "The prefix to match issue text against like `T-`"
               },
               {
                 "name": "urlTemplate",
-                "type": "String"
+                "type": "String",
+                "description": "The URL template to use for autolinking issues. Should include `<num>`"
               },
               {
                 "name": "alphanumeric",
                 "type": "Boolean",
-                "optional": true
+                "optional": true,
+                "description": "`true` if link can contain letters, `false` if numbers only"
               }
             ]
           }
