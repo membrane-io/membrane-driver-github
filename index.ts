@@ -349,6 +349,16 @@ export const Repository = {
     const ref = await client().git.createTree(apiArgs);
     return ref.data.sha;
   },
+  createAutolink({ keyPrefix, urlTemplate, alphanumeric }, { self }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    return client().repos.createAutolink({
+      owner,
+      repo,
+      key_prefix: keyPrefix,
+      url_template: urlTemplate,
+    });
+  },
   commentCreated: {
     async subscribe(_, { self }) {
       const { name: owner } = self.$argsAt(root.users.one);

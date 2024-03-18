@@ -689,6 +689,28 @@
               }
             ],
             "description": "Creates a new file tree within the repository based on the provided parameters"
+          },
+          {
+            "name": "createAutolink",
+            "type": "Void",
+            "params": [
+              {
+                "name": "keyPrefix",
+                "type": "String",
+                "description": "The prefix to match issue text against like `T-`"
+              },
+              {
+                "name": "urlTemplate",
+                "type": "String",
+                "description": "The URL template to use for autolinking issues. Should include `<num>`"
+              },
+              {
+                "name": "alphanumeric",
+                "type": "Boolean",
+                "optional": true,
+                "description": "`true` if link can contain letters, `false` if numbers only"
+              }
+            ]
           }
         ],
         "events": [
