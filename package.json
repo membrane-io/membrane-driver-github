@@ -3,12 +3,12 @@
   "version": "0.0.267",
   "description": "Membrane driver for GitHub",
   "main": "index.js",
-  "repository": "https://github.com/juancampa/membrane-driver-github",
+  "repository": "https://github.com/membrane-io/membrane-driver-github",
   "author": "Juan Campa <juancampa@gmail.com>",
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@octokit/rest": "^18.12.0",
+    "@octokit/rest": "^20.0.2",
     "parse-link-header": "^2.0.0",
     "querystring": "^0.2.1",
     "url": "^0.11.0"
