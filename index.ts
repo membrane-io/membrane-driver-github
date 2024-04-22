@@ -1,7 +1,6 @@
 import { root, nodes, state as stateValue } from "membrane";
 import { Octokit } from "@octokit/rest";
 import parseLinks from "./parse-link-header";
-import { IssueView } from "./view";
 
 interface State {
   token?: string;
@@ -568,9 +567,6 @@ export const Issue = {
       .one({ name: owner })
       .repos.one({ name: repo })
       .issues.one({ number });
-  },
-  view: (_, { self, obj }) => {
-    return IssueView({ self, obj });
   },
   close: (_, { self, obj }) => {
     const { name: owner } = self.$argsAt(root.users.one);
