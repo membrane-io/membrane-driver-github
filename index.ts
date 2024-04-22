@@ -1,6 +1,7 @@
 import { root, nodes, state as stateValue } from "membrane";
 import { Octokit } from "@octokit/rest";
 import parseLinks from "./parse-link-header";
+import { IssueView } from "./view";
 
 interface State {
   token?: string;
@@ -34,6 +35,24 @@ const shouldFetch = (info: ResolverInfo, simpleFields: string[]) =>
       return selections;
     })
     .some(({ name: { value } }) => !simpleFields.includes(value));
+
+const shouldFetchItems = (
+  info: ResolverInfo,
+  simpleFields: string[]
+): boolean => {
+  const selection = info.fieldNodes
+    .flatMap(({ selectionSet: { selections } }) => {
+      return selections;
+    })
+    .find(({ name: { value } }) => value === "items");
+  if (selection) {
+    return selection.selectionSet.selections.some(
+      ({ name: { value } }) => !simpleFields.includes(value)
+    );
+  } else {
+    return false;
+  }
+};
 
 // Generic helper to extract the "next" gref from the headers of a response
 // TODO: support `prev` and `last` links
@@ -239,9 +258,41 @@ export const UserCollection = {
     const result = await client().users.getByUsername({ username: args.name });
     return result.data;
   },
-  async page(args, { self }) {
+  async page(args, { self, info }) {
     const apiArgs = toGithubArgs(args);
     const res = await client().users.list(apiArgs);
+
+    // TODO: Use the GraphQL API to avoid N+1 fetching
+    const includedKeys = [
+      "gref",
+      "login",
+      "id",
+      "node_id",
+      "avatar_url",
+      "gravatar_id",
+      "url",
+      "html_url",
+      "followers_url",
+      "following_url",
+      "gists_url",
+      "starred_url",
+      "subscriptions_url",
+      "organizations_url",
+      "repos_url",
+      "events_url",
+      "received_events_url",
+      "type",
+      "site_admin",
+    ];
+    if (shouldFetchItems(info, includedKeys)) {
+      const promises = res.data.map(async (user) => {
+        const res = await client().users.getByUsername({
+          username: user.login,
+        });
+        return res.data;
+      });
+      res.data = (await Promise.all(promises)) as any;
+    }
 
     return {
       items: res.data,
@@ -253,6 +304,12 @@ export const UserCollection = {
 export const User = {
   gref: (_, { obj }) => root.users.one({ name: obj.login }),
   repos: () => ({}),
+  avatar_url({ size }, { obj }) {
+    if (obj?.avatar_url && typeof size === "number") {
+      return `${obj.avatar_url}&s=${size}`;
+    }
+    return obj.avatar_url;
+  },
 };
 
 export const RepositoryCollection = {
@@ -300,7 +357,8 @@ export const RepositoryCollection = {
 
 export const Repository = {
   gref: (_, { self, obj }) => {
-    const { name: owner } = self.$argsAt(root.users.one);
+    let { name: owner } = self.$argsAt(root.users.one);
+    owner = owner ?? obj.owner.login;
     return root.users.one({ name: owner }).repos.one({ name: obj.name });
   },
   transfer: async (args, { self }) => {
@@ -511,6 +569,9 @@ export const Issue = {
       .repos.one({ name: repo })
       .issues.one({ number });
   },
+  view: (_, { self, obj }) => {
+    return IssueView({ self, obj });
+  },
   close: (_, { self, obj }) => {
     const { name: owner } = self.$argsAt(root.users.one);
     const { name: repo } = self.$argsAt(root.users.one.repos.one);
@@ -526,6 +587,15 @@ export const Issue = {
   pull_request: () => {
     // TODO: parse obj.url which looks like this URL:
     // https://api.github.com/repos/octocat/Hello-World/pulls/1347
+  },
+  async patch(args, { self }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const { number: issue_number } = self.$argsAt(
+      root.users.one.repos.one.issues.one
+    );
+
+    return client().issues.update({ owner, repo, issue_number, ...args });
   },
   async createComment(args, { self }) {
     const { name: owner } = self.$argsAt(root.users.one);
@@ -900,6 +970,15 @@ export const PullRequest = {
 
     return client().issues.createComment({ owner, repo, issue_number, body });
   },
+  async merge(args, { self }) {
+    const { name: owner } = self.$argsAt(root.users.one);
+    const { name: repo } = self.$argsAt(root.users.one.repos.one);
+    const { number: pull_number } = self.$argsAt(
+      root.users.one.repos.one.pull_requests.one
+    );
+
+    return client().pulls.merge({ owner, repo, pull_number, ...args });
+  },
   owner(_, { obj }) {
     return root.users.one({ name: obj.user.login });
   },
@@ -954,6 +1033,15 @@ export const GlobalSearch = {
   async commits(args, { self }) {
     const apiArgs = toGithubArgs({ ...args });
     const res = await client().search.commits(apiArgs);
+
+    return {
+      items: res.data.items,
+      next: getSearchPageRefs(self.commits(args), res).next,
+    };
+  },
+  async repos(args, { self }) {
+    const apiArgs = toGithubArgs({ ...args });
+    const res = await client().search.repos(apiArgs);
 
     return {
       items: res.data.items,

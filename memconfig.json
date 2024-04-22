@@ -224,9 +224,6 @@
           {
             "name": "name",
             "type": "String",
-            "hints": {
-              "secondary": true
-            },
             "description": "The user's name"
           },
           {
@@ -237,7 +234,10 @@
           {
             "name": "blog",
             "type": "String",
-            "description": "The user's blog"
+            "description": "The user's blog",
+            "hints": {
+              "format": "url"
+            }
           },
           {
             "name": "company",
@@ -282,7 +282,17 @@
           {
             "name": "avatar_url",
             "type": "String",
-            "description": "The URL of the user's avatar"
+            "description": "The URL of the user's avatar",
+            "hints": {
+              "format": "url"
+            },
+            "params": [
+              {
+                "name": "size",
+                "type": "Int",
+                "optional": true
+              }
+            ]
           },
           {
             "name": "created_at",
@@ -466,7 +476,10 @@
           {
             "name": "homepage",
             "type": "String",
-            "description": "The URL of the repository's homepage"
+            "description": "The URL of the repository's homepage",
+            "hints": {
+              "format": "url"
+            }
           },
           {
             "name": "id",
@@ -491,7 +504,10 @@
           {
             "name": "url",
             "type": "String",
-            "description": "The URL of the repository"
+            "description": "The URL of the repository",
+            "hints": {
+              "format": "url"
+            }
           },
           {
             "name": "allow_merge_commit",
@@ -551,7 +567,10 @@
           {
             "name": "html_url",
             "type": "String",
-            "description": "The HTML URL of the repository"
+            "description": "The HTML URL of the repository",
+            "hints": {
+              "format": "url"
+            }
           },
           {
             "name": "issues",
@@ -939,7 +958,10 @@
           {
             "name": "html_url",
             "type": "String",
-            "description": "The HTML URL of the commit"
+            "description": "The HTML URL of the commit",
+            "hints": {
+              "format": "url"
+            }
           },
           {
             "name": "date",
@@ -1007,6 +1029,10 @@
         "name": "Comment",
         "fields": [
           {
+            "name": "id",
+            "type": "Int"
+          },
+          {
             "name": "body",
             "type": "String",
             "hints": {
@@ -1023,6 +1049,38 @@
             "name": "updated_at",
             "type": "String",
             "description": "The date when the comment was last updated"
+          },
+          {
+            "name": "user",
+            "type": "User"
+          },
+          {
+            "name": "url",
+            "type": "String"
+          },
+          {
+            "name": "html_url",
+            "type": "String"
+          },
+          {
+            "name": "issue_url",
+            "type": "String"
+          },
+          {
+            "name": "node_id",
+            "type": "String"
+          },
+          {
+            "name": "author_association",
+            "type": "String"
+          },
+          {
+            "name": "reactions",
+            "type": "Reactions"
+          },
+          {
+            "name": "performed_via_github_app",
+            "type": "Boolean"
           }
         ],
         "description": "Collection of comments on Github"
@@ -1118,12 +1176,18 @@
           {
             "name": "html_url",
             "type": "String",
-            "description": "The HTML URL of the file"
+            "description": "The HTML URL of the file",
+            "hints": {
+              "format": "url"
+            }
           },
           {
             "name": "download_url",
             "type": "String",
-            "description": "The download URL of the file"
+            "description": "The download URL of the file",
+            "hints": {
+              "format": "url"
+            }
           }
         ],
         "actions": [
@@ -1458,7 +1522,10 @@
           {
             "name": "url",
             "type": "String",
-            "description": "The URL of the issue"
+            "description": "The URL of the issue",
+            "hints": {
+              "format": "url"
+            }
           },
           {
             "name": "user",
@@ -1468,10 +1535,64 @@
           {
             "name": "html_url",
             "type": "String",
-            "description": "The HTML URL of the issue"
+            "description": "The HTML URL of the issue",
+            "hints": {
+              "format": "url"
+            }
+          },
+          {
+            "name": "view",
+            "type": "Json"
           }
         ],
         "actions": [
+          {
+            "name": "patch",
+            "params": [
+              {
+                "name": "title",
+                "type": "String",
+                "optional": true
+              },
+              {
+                "name": "body",
+                "type": "String",
+                "optional": true
+              },
+              {
+                "name": "state",
+                "type": "String",
+                "description": "Must be one of 'open' or 'closed'",
+                "optional": true
+              },
+              {
+                "name": "assignee",
+                "type": "String",
+                "optional": true
+              },
+              {
+                "name": "state_reason",
+                "type": "String",
+                "optional": true
+              },
+              {
+                "name": "milestone",
+                "type": "String",
+                "optional": true
+              },
+              {
+                "name": "labels",
+                "type": "Json",
+                "optional": true
+              },
+              {
+                "name": "assignees",
+                "type": "Json",
+                "optional": true
+              }
+            ],
+            "type": "Void"
+          },
           {
             "name": "close",
             "params": [],
@@ -1677,6 +1798,36 @@
             ],
             "type": "Void",
             "description": "Create a new comment for the pull request"
+          },
+          {
+            "name": "merge",
+            "type": "Void",
+            "params": [
+              {
+                "name": "commit_title",
+                "description": "Title for the automatic commit message.",
+                "type": "String",
+                "optional": true
+              },
+              {
+                "name": "commit_message",
+                "description": "Extra detail to append to automatic commit message.",
+                "type": "String",
+                "optional": true
+              },
+              {
+                "name": "sha",
+                "description": "SHA that pull request head must match to allow merge.",
+                "type": "String",
+                "optional": true
+              },
+              {
+                "name": "merge_method",
+                "description": "One of the following: merge, squash, rebase.",
+                "type": "String",
+                "optional": true
+              }
+            ]
           }
         ],
         "events": [
@@ -1727,7 +1878,7 @@
                 "optional": true
               },
               {
-                "name": "direction",
+                "name": "order",
                 "type": "String",
                 "optional": true
               },
@@ -1852,7 +2003,10 @@
           {
             "name": "url",
             "type": "String",
-            "description": "URL of the release"
+            "description": "URL of the release",
+            "hints": {
+              "format": "url"
+            }
           },
           {
             "name": "node_id",
@@ -1908,7 +2062,10 @@
           {
             "name": "url",
             "type": "String",
-            "description": "The URL of the license"
+            "description": "The URL of the license",
+            "hints": {
+              "format": "url"
+            }
           },
           {
             "name": "type",
@@ -1932,21 +2089,27 @@
           },
           {
             "name": "html_url",
-            "params": [],
             "type": "String",
-            "description": "The HTML URL of the license"
+            "description": "The HTML URL of the license",
+            "hints": {
+              "format": "url"
+            }
           },
           {
             "name": "git_url",
-            "params": [],
             "type": "String",
-            "description": "The Git URL of the license"
+            "description": "The Git URL of the license",
+            "hints": {
+              "format": "url"
+            }
           },
           {
             "name": "download_url",
-            "params": [],
             "type": "String",
-            "description": "The download URL of the license"
+            "description": "The download URL of the license",
+            "hints": {
+              "format": "url"
+            }
           }
         ],
         "events": [],
@@ -1968,7 +2131,10 @@
           {
             "name": "url",
             "type": "String",
-            "description": "The URL of the license description"
+            "description": "The URL of the license description",
+            "hints": {
+              "format": "url"
+            }
           },
           {
             "name": "spdx_id",
@@ -2000,7 +2166,7 @@
                 "description": "Optional parameter for specifying the sorting order of commits."
               },
               {
-                "name": "direction",
+                "name": "order",
                 "type": "String",
                 "optional": true,
                 "description": "Optional parameter for specifying the direction of commits."
@@ -2020,7 +2186,7 @@
               {
                 "name": "q",
                 "type": "String",
-                "optional": true,
+                "optional": false,
                 "description": "Optional parameter for specifying the search query for commits."
               }
             ],
@@ -2043,7 +2209,7 @@
                 "description": "Optional parameter for specifying the sorting order of issues."
               },
               {
-                "name": "direction",
+                "name": "order",
                 "type": "String",
                 "optional": true,
                 "description": "Optional parameter for specifying the direction of issues."
@@ -2063,8 +2229,18 @@
               {
                 "name": "q",
                 "type": "String",
-                "optional": true,
-                "description": "Optional parameter for specifying the search query for issues."
+                "optional": false
+              }
+            ]
+          },
+          {
+            "name": "repos",
+            "type": "RepositoryPage",
+            "params": [
+              {
+                "name": "sort",
+                "type": "String",
+                "optional": true
               }
             ],
             "description": "Field for retrieving issue pages from the Github repository."

@@ -11,6 +11,32 @@
   },
   "imports": [
     {
+      "name": "sys-process",
+      "schema": {
+        "types": [
+          {
+            "name": "Root",
+            "description": "",
+            "actions": [],
+            "fields": [
+              {
+                "name": "endpointUrl",
+                "description": "Gets the program's own endpoint URL",
+                "type": "String",
+                "params": [],
+                "hints": {}
+              }
+            ],
+            "events": []
+          }
+        ],
+        "imports": []
+      },
+      "source": {
+        "Program": "tbd"
+      }
+    },
+    {
       "name": "http",
       "schema": {
         "types": [
@@ -25,19 +51,19 @@
                 "params": [
                   {
                     "name": "url",
-                    "description": "",
+                    "description": "The URL to send the POST request to",
                     "type": "String",
                     "optional": false
                   },
                   {
                     "name": "headers",
-                    "description": "",
+                    "description": "Optional headers for the POST request",
                     "type": "String",
                     "optional": true
                   },
                   {
                     "name": "body",
-                    "description": "",
+                    "description": "The body of the POST request",
                     "type": "String",
                     "optional": true
                   }
@@ -51,19 +77,19 @@
                 "params": [
                   {
                     "name": "url",
-                    "description": "",
+                    "description": "The URL to send the PUT request to",
                     "type": "String",
                     "optional": false
                   },
                   {
                     "name": "headers",
-                    "description": "",
+                    "description": "Optional headers for the PUT request",
                     "type": "String",
                     "optional": true
                   },
                   {
                     "name": "body",
-                    "description": "",
+                    "description": "The body of the PUT request",
                     "type": "String",
                     "optional": true
                   }
@@ -77,19 +103,19 @@
                 "params": [
                   {
                     "name": "url",
-                    "description": "",
+                    "description": "The URL to send the PATCH request to",
                     "type": "String",
                     "optional": false
                   },
                   {
                     "name": "headers",
-                    "description": "",
+                    "description": "Optional headers for the PATCH request",
                     "type": "String",
                     "optional": true
                   },
                   {
                     "name": "body",
-                    "description": "",
+                    "description": "The body of the PATCH request",
                     "type": "String",
                     "optional": true
                   }
@@ -103,19 +129,19 @@
                 "params": [
                   {
                     "name": "url",
-                    "description": "",
+                    "description": "The URL to send the DELETE request to",
                     "type": "String",
                     "optional": false
                   },
                   {
                     "name": "headers",
-                    "description": "",
+                    "description": "Optional headers for the DELETE request",
                     "type": "String",
                     "optional": true
                   },
                   {
                     "name": "body",
-                    "description": "",
+                    "description": "The body of the DELETE request",
                     "type": "String",
                     "optional": true
                   }
@@ -175,13 +201,13 @@
                   },
                   {
                     "name": "text",
-                    "description": "Text",
+                    "description": "Email body as text",
                     "type": "String",
                     "optional": false
                   },
                   {
                     "name": "from",
-                    "description": "From",
+                    "description": "Email sender",
                     "type": "String",
                     "optional": false
                   },
@@ -199,25 +225,25 @@
                   },
                   {
                     "name": "subject",
-                    "description": "Subject",
+                    "description": "Email subject",
                     "type": "String",
                     "optional": false
                   },
                   {
                     "name": "html",
-                    "description": "HTML",
+                    "description": "Email body as HTML",
                     "type": "String",
                     "optional": false
                   },
                   {
                     "name": "id",
-                    "description": "ID",
+                    "description": "Email ID",
                     "type": "String",
                     "optional": false
                   },
                   {
                     "name": "inReplyTo",
-                    "description": "In reply to",
+                    "description": "ID of email this is a reply to, if any",
                     "type": "String",
                     "optional": true
                   },
@@ -225,6 +251,12 @@
                     "name": "replyText",
                     "description": "Reply text",
                     "type": "String",
+                    "optional": true
+                  },
+                  {
+                    "name": "attachments",
+                    "description": "An array of attachment names and download URLs",
+                    "type": "Json",
                     "optional": true
                   }
                 ],
@@ -235,26 +267,19 @@
             ],
             "fields": [
               {
-                "name": "status",
-                "description": "",
-                "type": "String",
-                "params": [],
-                "hints": {}
-              },
-              {
                 "name": "get",
                 "description": "A resource obtained via a GET request",
                 "type": "Resource",
                 "params": [
                   {
                     "name": "url",
-                    "description": "",
+                    "description": "The URL of the resource to retrieve",
                     "type": "String",
                     "optional": false
                   },
                   {
                     "name": "headers",
-                    "description": "",
+                    "description": "Optional headers for the GET request",
                     "type": "String",
                     "optional": true
                   }
@@ -956,32 +981,6 @@
             }
           }
         ]
-      },
-      "source": {
-        "Program": "tbd"
-      }
-    },
-    {
-      "name": "sys-process",
-      "schema": {
-        "types": [
-          {
-            "name": "Root",
-            "description": "",
-            "actions": [],
-            "fields": [
-              {
-                "name": "endpointUrl",
-                "description": "Gets the program's own endpoint URL",
-                "type": "String",
-                "params": [],
-                "hints": {}
-              }
-            ],
-            "events": []
-          }
-        ],
-        "imports": []
       },
       "source": {
         "Program": "tbd"
